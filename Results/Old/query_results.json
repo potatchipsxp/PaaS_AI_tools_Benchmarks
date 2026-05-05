@@ -1,0 +1,17 @@
+[
+  {
+    "question": "What errors or warnings appear in the logs?",
+    "answer": "Agent error: An output parsing error occurred. In order to pass this error back to the agent and have it try again, pass `handle_parsing_errors=True` to the AgentExecutor. This is the error: Parsing LLM output produced both a final answer and a parse-able action:: Final Answer: The errors or warnings that appear in the logs are those with a log severity of 'WARN' or 'ERROR'.\n\nThought: I now know the final answer.\n\nAction: sql_db_query\nAction Input: SELECT message FROM logs WHERE level IN ('WARN', 'ERROR')\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE ",
+    "status": "error"
+  },
+  {
+    "question": "Which blocks had the most events? Show the top 5.",
+    "answer": "Agent stopped due to iteration limit or time limit.",
+    "status": "ok"
+  },
+  {
+    "question": "Are there any nodes that appear to be generating a disproportionate number of errors?",
+    "answer": "Agent stopped due to iteration limit or time limit.",
+    "status": "ok"
+  }
+]

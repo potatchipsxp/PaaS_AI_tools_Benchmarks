@@ -1,0 +1,20 @@
+[
+  {
+    "question": "What errors or warnings appear in the logs?",
+    "answer": "{\"name\": \"sql_db_query\", \"arguments\": {\"query\": \"SELECT DISTINCT message AS error_or_warning FROM logs WHERE level IN ('ERROR', 'WARN') LIMIT 20\"}}",
+    "status": "ok",
+    "consecutive_errors": 0
+  },
+  {
+    "question": "Which blocks had the most events? Show the top 5.",
+    "answer": "{\n    \"name\": \"sql_db_query\",\n    \"arguments\": {\n        \"query\": \"SELECT block_id, COUNT(*) AS event_count FROM logs WHERE block_id IS NOT NULL GROUP BY block_id ORDER BY event_count DESC LIMIT 5\"\n    }\n}",
+    "status": "ok",
+    "consecutive_errors": 0
+  },
+  {
+    "question": "Are there any nodes generating a disproportionate number of errors?",
+    "answer": "{\n    \"name\": \"sql_db_query\",\n    \"arguments\": {\n        \"query\": \"SELECT node_id, COUNT(*) AS error_count FROM logs WHERE level = 'ERROR' GROUP BY node_id ORDER BY error_count DESC LIMIT 10\"\n    }\n}",
+    "status": "ok",
+    "consecutive_errors": 0
+  }
+]

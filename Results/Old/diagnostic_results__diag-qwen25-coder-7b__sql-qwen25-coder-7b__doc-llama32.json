@@ -1,0 +1,352 @@
+[
+  {
+    "incident_id": "INC-001",
+    "question": "payments-api (app-q0k5oz) in org-payments is crash-looping: the platform health check reports 'connection refused' on port 8080 but the container starts successfully. What is the root cause?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the APP component for app-q0k5oz?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-002",
+    "question": "app-ocmoe0 in org-analytics was killed by the platform with 'disk_quota_exceeded'. The app was running fine for hours before this. What is consuming the disk and what should be changed to prevent recurrence?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What files or directories are taking up space on the filesystem of app-ocmoe0 in org-analytics?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-003",
+    "question": "app-ia54l8 in org-devops crashes immediately on startup with exit_status=1. The stderr shows a network error when trying to connect to its bound PostgreSQL service. What is causing the failure?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the APP component for app-ia54l8?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-004",
+    "question": "app-z5lhyd in org-payments keeps crashing with 'memory_limit_exceeded'. Metrics show memory climbing steadily before each crash. What JVM error is causing the container to be killed?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the APP component for app-z5lhyd?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-005",
+    "question": "app-p8hcke in org-platform suddenly started returning 503s at midnight. The app's background queue processor logs show 'CERTIFICATE_VERIFY_FAILED' when connecting to its RabbitMQ binding. What happened and how should it be fixed?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the APP component for app-p8hcke at midnight?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-006",
+    "question": "app-7zwece in org-devops is failing to stage. The build log shows 'EINTEGRITY: sha512 integrity check failed for express@4.18.2'. The same app deployed successfully last week. What is the root cause?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the BUILDPACK component related to the sha512 integrity check failed for express@4.18.2?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-007",
+    "question": "app-bcwwwh in org-analytics deployed successfully \u2014 Diego shows 2/2 instances running \u2014 but every request to api.example.com returns 502. The router logs 'No route registered'. What was missed during deployment?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the ROUTER component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-008",
+    "question": "app-sxbvtt (payments-api) in org-payments is returning sustained 503s. Scaling out to more instances did not help. The metrics show db_pool_active_connections=20/20. What is the actual bottleneck and why did adding instances not resolve it?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the DATABASE component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-009",
+    "question": "All 8 instances of app-nwgzbp in org-payments crashed simultaneously. Diego rescheduled them but they are failing health checks again. The cell metrics show cell-009 memory_available=0MB. What happened and why are the rescheduled instances also unhealthy?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the Diego component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-010",
+    "question": "order-service (app-17shto) in org-payments was redeployed to v2.4.1 and is now logging 'ECONNREFUSED' for every call to inventory-svc. Both apps are running. The network logs show 'Outbound policy DENY'. What is the root cause and how is it fixed?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the order-service component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-011",
+    "question": "app-8ygxbn (Python) in org-analytics builds without error but crashes on startup with 'ImportError: cannot import name typing_extensions from numpy'. requirements.txt pins numpy==1.24. What is wrong?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the APP-8YGXBN component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-012",
+    "question": "Multiple deployments for app-s0886r and other apps in org-devops are failing during staging with '429 toomanyrequests' from registry-1.docker.io. Deployments were fine this morning. What is happening and what is the fix?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the REGISTRY component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-013",
+    "question": "Deploying app-dj02vx in org-platform is stuck: cf bind-service for redis-cache has been running for over 30 seconds and the deployment pipeline is blocked. The broker logs show Redis master unreachable. What is causing the bind to time out?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the BROKER component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-014",
+    "question": "app-eeyjwy in org-payments shows a spike of 422/500 errors during a rolling deploy from v1 to v2. No instances are crashing. The logs show 'missing field idempotency_key' and the autoscaler fired during the deploy window. What is the root cause?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the APP component for app-eeyjwy during the rolling deploy from v1 to v2?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-015",
+    "question": "Logs and metrics for app-7c09jg and several other apps in org-platform appear to be missing or delayed. The doppler metrics show buffer fill rates near 98%. What platform component is failing and what is the impact?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the ROUTER component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-016",
+    "question": "Diego has stopped receiving cell heartbeats and the routing table has gone stale, causing cell evacuations. The NATS metrics show message rate=48000/s against a normal of 2000/s. What is the root cause of the message bus saturation?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What are the error messages and sequence of events in the MESSAGE_BUS component around the time of the NATS metrics spike?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-017",
+    "question": "app-q16e4q and several co-located apps on cell-012 in org-analytics are failing health checks even though they are running. The cell CPU metric shows 94% sustained usage. What is causing the health check timeouts?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the ROUTER component for app-q16e4q and co-located apps on cell-012 in org-analytics?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-018",
+    "question": "After a blue-green swap for app-7o9r07 in org-payments, users saw 502 errors for about 45 seconds then traffic recovered on its own. The router logs show requests hitting a 'deregistered blue instance'. What caused the transient 502s and why did they self-resolve?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the ROUTER component during the time of the incident?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-019",
+    "question": "auth-service (app-sudja3) and gateway-service (app-stq12y) in org-platform were deployed together. Both crashed after exactly 90 seconds with health_check_timeout. The logs show each service polling the other's /health endpoint indefinitely. What architectural pattern caused this deadlock?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What is the sequence of events for the auth-service and gateway-service components?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-020",
+    "question": "The autoscaler for app-ec0i16 in org-payments is oscillating: it scales up every ~30 seconds then scales back down before the new instances are healthy. CPU rebounds to >65% in each cycle. What configuration mismatch is causing autoscaler thrashing?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the AUTOSCALER component for app-ec0i16 in org-payments?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-021",
+    "question": "cf push for app-fexcru and all other apps in org-platform is being rejected with 'scheduler unavailable'. Running apps are unaffected. The BBS logs show 'BBS is not the active master'. What distributed system failure is blocking new deployments?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the BBS component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-022",
+    "question": "app-0nl9y6 (payments-api) in org-payments became completely unresponsive with no code changes. Logs show OAuth validate latency climbed from 80ms to 3800ms, then 'RejectedExecutionException: no threads available'. What external dependency caused the full outage?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the ROUTER component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-023",
+    "question": "app-8fxpjz in org-devops built successfully but every deploy attempt fails with 'Checksum mismatch: expected sha256=a1b2c3 got d4e5f6'. The blob store logs show 'Blob key conflict: partial blob exists'. Previous deploys worked. What is wrong?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the BLOBSTORE component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-024",
+    "question": "A rolling deploy for app-oghb8v v3.1 in org-payments has been paused for 5 minutes. The canary instance passes its liveness check (HTTP 200) but the readiness endpoint at /readiness returns 503 with 'cache not warmed'. Why is the deploy blocked and what is the fix?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What ERROR-level events appear in the ROUTER component for app-oghb8v v3.1 in org-payments?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  },
+  {
+    "incident_id": "INC-025",
+    "question": "All inter-service communication in org-platform failed simultaneously with 'TLS handshake error: certificate has expired'. The logs show a CERT WARNING was emitted 6 hours earlier. Why was the outage not prevented and how should this be detected automatically in future?",
+    "diagnosis": "{\"name\": \"query_logs\", \"arguments\": {\"question\": \"What WARN-level events appear in the ROUTER component?\"}}",
+    "status": "ok",
+    "tool_call_trace": [],
+    "model_config": {
+      "diagnostic_model": "qwen2.5-coder:7b",
+      "diagnostic_backend": "qwen",
+      "sql_model": "qwen2.5-coder:7b",
+      "sql_backend": "qwen",
+      "doc_model": "llama3.2"
+    }
+  }
+]

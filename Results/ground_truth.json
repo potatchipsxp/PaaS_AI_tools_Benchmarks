@@ -1,0 +1,127 @@
+[
+  {
+    "incident_id": "INC-001",
+    "root_cause": "App process listening on port 3000 instead of $PORT (8080)",
+    "n_labeled_logs": 18
+  },
+  {
+    "incident_id": "INC-002",
+    "root_cause": "App logging to ephemeral disk exhausted container 2GB quota",
+    "n_labeled_logs": 11
+  },
+  {
+    "incident_id": "INC-003",
+    "root_cause": "Internal DNS misconfiguration: bound PostgreSQL service hostname not resolvable from app container",
+    "n_labeled_logs": 13
+  },
+  {
+    "incident_id": "INC-004",
+    "root_cause": "App memory usage exceeded 512MB quota; OOM killed by container runtime",
+    "n_labeled_logs": 10
+  },
+  {
+    "incident_id": "INC-005",
+    "root_cause": "TLS certificate for internal RabbitMQ service binding expired at midnight",
+    "n_labeled_logs": 9
+  },
+  {
+    "incident_id": "INC-006",
+    "root_cause": "Corrupted buildpack cache entry caused npm install to use broken cached node_modules",
+    "n_labeled_logs": 10
+  },
+  {
+    "incident_id": "INC-007",
+    "root_cause": "App deployed without 'cf map-route': ROUTER has no backend, returns 502",
+    "n_labeled_logs": 14
+  },
+  {
+    "incident_id": "INC-008",
+    "root_cause": "PostgreSQL connection pool (max 20) exhausted due to slow queries holding connections; cascading 503s",
+    "n_labeled_logs": 26
+  },
+  {
+    "incident_id": "INC-009",
+    "root_cause": "Cell cell-009 ran out of memory; Diego rescheduled all 8 instances simultaneously, overwhelming remaining cells",
+    "n_labeled_logs": 27
+  },
+  {
+    "incident_id": "INC-010",
+    "root_cause": "Missing network policy between order-service and inventory-service after namespace migration",
+    "n_labeled_logs": 12
+  },
+  {
+    "incident_id": "INC-011",
+    "root_cause": "Python app requires numpy==1.24 but buildpack only ships 1.21; runtime ImportError",
+    "n_labeled_logs": 9
+  },
+  {
+    "incident_id": "INC-012",
+    "root_cause": "Docker Hub anonymous pull rate limit hit during peak deploy window; 60+ pulls in 6hrs from shared egress IP",
+    "n_labeled_logs": 11
+  },
+  {
+    "incident_id": "INC-013",
+    "root_cause": "Redis service broker overloaded; bind requests timing out after 30s, blocking app deployment pipeline",
+    "n_labeled_logs": 12
+  },
+  {
+    "incident_id": "INC-014",
+    "root_cause": "Autoscaler fired scale-up during rolling deploy; mixed v1/v2 instances caused 50% request failures",
+    "n_labeled_logs": 13
+  },
+  {
+    "incident_id": "INC-015",
+    "root_cause": "Loggregator traffic controller overwhelmed; doppler buffer full; log/metric drops affecting observability",
+    "n_labeled_logs": 10
+  },
+  {
+    "incident_id": "INC-016",
+    "root_cause": "NATS message bus saturated by runaway component publishing 50k msg/s; Diego/gorouter lost health updates",
+    "n_labeled_logs": 14
+  },
+  {
+    "incident_id": "INC-017",
+    "root_cause": "Noisy neighbor on cell-012 consuming 95% CPU; co-located apps throttled; health checks timing out",
+    "n_labeled_logs": 10
+  },
+  {
+    "incident_id": "INC-018",
+    "root_cause": "Gorouter route cache TTL (30s) not expired after blue-green swap; 30% of requests hitting deregistered blue instances for 45s",
+    "n_labeled_logs": 20
+  },
+  {
+    "incident_id": "INC-019",
+    "root_cause": "Service A waits for Service B to be healthy before starting; Service B waits for Service A \u2014 circular startup dependency deadlock",
+    "n_labeled_logs": 22
+  },
+  {
+    "incident_id": "INC-020",
+    "root_cause": "Autoscaler cooldown (30s) too short vs response time to spin new instances (60s); continuous oscillation",
+    "n_labeled_logs": 48
+  },
+  {
+    "incident_id": "INC-021",
+    "root_cause": "Network partition isolated 1 of 3 BBS Locket nodes; lost quorum for 4 minutes; Diego could not schedule new instances",
+    "n_labeled_logs": 12
+  },
+  {
+    "incident_id": "INC-022",
+    "root_cause": "External OAuth provider latency spike (8s) caused auth middleware thread pool exhaustion; cascaded to full app unresponsiveness",
+    "n_labeled_logs": 17
+  },
+  {
+    "incident_id": "INC-023",
+    "root_cause": "Network interruption during droplet upload left partial blob in store; subsequent deploys fail with checksum mismatch",
+    "n_labeled_logs": 12
+  },
+  {
+    "incident_id": "INC-024",
+    "root_cause": "Rolling deploy stalled: canary instance health check returns 200 but /readiness returns 503 (dependency not ready); deploy blocked indefinitely",
+    "n_labeled_logs": 19
+  },
+  {
+    "incident_id": "INC-025",
+    "root_cause": "Internal mTLS certificate nearing expiry; warning logged 6hrs before; monitoring did not alert; cert expired causing complete inter-service auth failure",
+    "n_labeled_logs": 14
+  }
+]

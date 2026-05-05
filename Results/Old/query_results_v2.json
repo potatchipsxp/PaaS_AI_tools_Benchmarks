@@ -1,0 +1,20 @@
+[
+  {
+    "question": "What errors or warnings appear in the logs?",
+    "answer": "| level    |\n|----------|\n| ERROR    | 103\n| WARN     | 42 \n| INFO     | 9581 |",
+    "status": "ok",
+    "consecutive_errors": 0
+  },
+  {
+    "question": "Which blocks had the most events? Show the top 5.",
+    "answer": "The top 5 blocks with the most events are:\n\n1. 'blk_-1603999984793267154' - 29 events\n2. 'blk_-1371959856668324524' - 24 events\n3. 'blk_-1657707374606377869' - 22 events\n4. 'blk_-1647721615234310523' - 14 events\n5. 'blk_-1560340681731120833' - 13 events",
+    "status": "ok",
+    "consecutive_errors": 0
+  },
+  {
+    "question": "Are there any nodes generating a disproportionate number of errors?",
+    "answer": "| component    | error_count |\n|:-------------|------------:|\n| STORAGE_NODE |           42|\n| NAME_NODE    |            7|",
+    "status": "ok",
+    "consecutive_errors": 1
+  }
+]

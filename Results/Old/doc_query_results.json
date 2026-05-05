@@ -1,0 +1,330 @@
+[
+  {
+    "question": "What does POOL EXHAUSTED mean and what should I do when I see it?",
+    "answer": "POOL EXHAUSTED is a condition where the database connection pool reaches its maximum capacity, and all available connections are being held by slow queries or other external factors. This means that the app cannot acquire new connections from the pool, leading to a timeout error.\n\nWhen you see POOL EXHAUSTED, it indicates that the database connection pool has reached 100% utilization, which can cause the app to return 503 errors (Service Unavailable). In this state, the app is unable to continue processing requests until the pool is replenished with new connections or the slow queries are resolved.\n\nTo resolve POOL EXHAUSTED, you should:\n\n1. Identify and kill long-running queries in the database.\n2. Add query timeouts in the app (statement_timeout in PostgreSQL) to force slow queries to fail fast and return connections to the pool.\n3. Increase the pool size or optimize the slow queries to reduce the load on the connection pool.\n\nBy taking these steps, you can alleviate the connection pool exhaustion issue and prevent the app from returning 503 errors due to this condition.",
+    "llm_model": "llama3.2",
+    "n_results": 5,
+    "where_filter": null,
+    "retrieved_docs": [
+      {
+        "doc_id": "runbook_INC-008",
+        "doc_type": "runbook",
+        "title": "Runbook: Database Connection Pool Exhaustion",
+        "incident_ids": [
+          "INC-008"
+        ],
+        "failure_pattern": "connection_pool_exhaustion",
+        "tier": 2,
+        "distance": 0.9182859659194946
+      },
+      {
+        "doc_id": "error_ref_INC-008",
+        "doc_type": "error_ref",
+        "title": "Error Reference: Connection Pool Exhaustion",
+        "incident_ids": [
+          "INC-008"
+        ],
+        "failure_pattern": "connection_pool_exhaustion",
+        "tier": 2,
+        "distance": 0.9491954445838928
+      },
+      {
+        "doc_id": "config_INC-008",
+        "doc_type": "config",
+        "title": "Configuration Reference: Database Connection Pool",
+        "incident_ids": [
+          "INC-008"
+        ],
+        "failure_pattern": "connection_pool_exhaustion",
+        "tier": 2,
+        "distance": 1.0053821802139282
+      },
+      {
+        "doc_id": "error_ref_INC-022",
+        "doc_type": "error_ref",
+        "title": "Error Reference: Thread Pool Exhaustion",
+        "incident_ids": [
+          "INC-022"
+        ],
+        "failure_pattern": "thread_pool_exhaustion",
+        "tier": 3,
+        "distance": 1.1676490306854248
+      },
+      {
+        "doc_id": "runbook_INC-022",
+        "doc_type": "runbook",
+        "title": "Runbook: Thread Pool Exhaustion from External Dependency Latency",
+        "incident_ids": [
+          "INC-022"
+        ],
+        "failure_pattern": "thread_pool_exhaustion",
+        "tier": 3,
+        "distance": 1.2325966358184814
+      }
+    ]
+  },
+  {
+    "question": "How do I investigate a situation where all instances on a cell crash simultaneously?",
+    "answer": "To investigate a situation where all instances on a cell crash simultaneously, you would follow these steps:\n\n1. **Confirm simultaneous crash pattern:** Look for multiple `container killed` events from the SAME cell node_id within milliseconds of each other.\n2. **Check METRICS for the cell-level memory signal:** Verify that `cell_memory_available=512MB` (or less) on a cell with 64GB total capacity.\n3. **Identify which cell failed:** The CELL `node_id` field in kill events identifies the failed cell. Confirm all kills share the same `node_id`.\n4. **Check SCHEDULER for rescheduling cascade:** Look for: `Rescheduling N instances from cell-XXX`. If N instances are rescheduled onto already-busy cells, secondary OOM events may follow.\n5. **Distinguish from app-level OOM (INC-004):** The symptoms described in the runbook indicate a cell-level OOM failure.\n\nBy following these steps, you should be able to identify whether all instances on a cell crashing simultaneously are due to a cell-level OOM event (as indicated by Doc 1: Runbook: Cell-Level OOM) or another cause.",
+    "llm_model": "llama3.2",
+    "n_results": 5,
+    "where_filter": null,
+    "retrieved_docs": [
+      {
+        "doc_id": "runbook_INC-009",
+        "doc_type": "runbook",
+        "title": "Runbook: Cell-Level OOM (All Co-Located Instances Killed)",
+        "incident_ids": [
+          "INC-009"
+        ],
+        "failure_pattern": "cell_oom",
+        "tier": 2,
+        "distance": 0.5865808725357056
+      },
+      {
+        "doc_id": "arch_failure_propagation",
+        "doc_type": "architecture",
+        "title": "Platform Architecture: Failure Propagation Patterns",
+        "incident_ids": [
+          "INC-008",
+          "INC-009",
+          "INC-016",
+          "INC-022",
+          "INC-025"
+        ],
+        "failure_pattern": "architectural_reference",
+        "tier": 2,
+        "distance": 0.8659212589263916
+      },
+      {
+        "doc_id": "error_ref_INC-009",
+        "doc_type": "error_ref",
+        "title": "Error Reference: Cell-Level OOM Kill",
+        "incident_ids": [
+          "INC-009"
+        ],
+        "failure_pattern": "cell_oom",
+        "tier": 2,
+        "distance": 0.9749672412872314
+      },
+      {
+        "doc_id": "runbook_INC-017",
+        "doc_type": "runbook",
+        "title": "Runbook: Noisy Neighbor CPU Throttling",
+        "incident_ids": [
+          "INC-017"
+        ],
+        "failure_pattern": "noisy_neighbor_cpu",
+        "tier": 2,
+        "distance": 1.126753330230713
+      },
+      {
+        "doc_id": "runbook_INC-004",
+        "doc_type": "runbook",
+        "title": "Runbook: App OOM Kill (Memory Quota Exceeded)",
+        "incident_ids": [
+          "INC-004"
+        ],
+        "failure_pattern": "app_oom",
+        "tier": 1,
+        "distance": 1.1521260738372803
+      }
+    ]
+  },
+  {
+    "question": "What is the Gorouter cache TTL and why does it cause 502s after a blue-green deploy?",
+    "answer": "The Gorouter cache TTL is set to approximately 30 seconds by default, as stated in [Doc 1: configuration](#configuration-reference-gorouter-cache-ttl) under \"Cache TTL\".\n\nThis fixed value of ~30s causes 502 errors after a blue-green deploy because the ROUTER instances use their cached routes for up to 30 seconds after a route deregistration message from the CONTROLLER propagates via NATS. When the cache TTL expires (~30s), the ROUTER updates its routing table and routes requests to the green app, resolving the stale cache issue.\n\nThe expected behavior is that 502 errors should resolve on their own within 30-45 seconds of the swap, as stated in [Doc 3: Error Reference](#error-reference-route-cache-staleness-502s-after-blue-green) under \"Log Messages and Their Meanings\". This is because all ROUTER instances update their routing tables after the cache TTL expires.\n\nIn summary, the Gorouter cache TTL causes 502 errors after a blue-green deploy due to stale cached routes being used by ROUTER instances for up to 30 seconds, but the issue resolves as expected when the cache TTL expires and ROUTER updates its routing table.",
+    "llm_model": "llama3.2",
+    "n_results": 5,
+    "where_filter": null,
+    "retrieved_docs": [
+      {
+        "doc_id": "config_INC-018",
+        "doc_type": "config",
+        "title": "Configuration Reference: Gorouter Cache TTL",
+        "incident_ids": [
+          "INC-018"
+        ],
+        "failure_pattern": "route_cache_staleness",
+        "tier": 2,
+        "distance": 0.6695707440376282
+      },
+      {
+        "doc_id": "runbook_INC-018",
+        "doc_type": "runbook",
+        "title": "Runbook: Gorouter Route Cache Staleness After Blue-Green Swap",
+        "incident_ids": [
+          "INC-018"
+        ],
+        "failure_pattern": "route_cache_staleness",
+        "tier": 2,
+        "distance": 0.7466117739677429
+      },
+      {
+        "doc_id": "error_ref_INC-018",
+        "doc_type": "error_ref",
+        "title": "Error Reference: Route Cache Staleness (502s After Blue-Green)",
+        "incident_ids": [
+          "INC-018"
+        ],
+        "failure_pattern": "route_cache_staleness",
+        "tier": 2,
+        "distance": 1.0753846168518066
+      },
+      {
+        "doc_id": "config_INC-006",
+        "doc_type": "config",
+        "title": "Configuration Reference: Buildpack Cache",
+        "incident_ids": [
+          "INC-006"
+        ],
+        "failure_pattern": "buildpack_cache_corruption",
+        "tier": 1,
+        "distance": 1.146145224571228
+      },
+      {
+        "doc_id": "config_INC-016",
+        "doc_type": "config",
+        "title": "Configuration Reference: NATS Message Bus",
+        "incident_ids": [
+          "INC-016"
+        ],
+        "failure_pattern": "nats_saturation",
+        "tier": 3,
+        "distance": 1.2393914461135864
+      }
+    ]
+  },
+  {
+    "question": "What steps should I follow when NATS message rate spikes far above normal?",
+    "answer": "To address a NATS message rate spike far above normal, follow these steps:\n\n1. **Check MESSAGE_BUS for message rate spike**: Look for `NATS: message rate=48000/s` in the logs. This indicates that the message rate is 20x higher than the normal threshold of 2000/s.\n2. **Check MESSAGE_BUS for slow consumer drops**: Verify if there are any slow consumer detections on subscription router.register followed by NATS dropping slow consumer router.register. If so, this confirms the cause of the issue.\n3. **Identify the runaway publisher**: Look for `NATS: identified publisher: metrics-agent/cell-011 \u2014 49800 msg/s` in the logs to pinpoint the specific publisher causing the spike in message rate.\n4. **Confirm downstream symptoms are consequences, not causes**: Verify that the routing table is stale (ROUTER: routing table stale), cell heartbeats are missing (SCHEDULER: cell heartbeat missing), and cell evacuation is occurring (CELL evacuation). These symptoms indicate that the NATS saturation is causing the issues, but the root cause lies with the publisher.\n5. **Check for recovery after publisher restart**: After identifying the runaway publisher, verify if the message rate normalizes after restarting the publisher and if downstream symptoms resolve.\n\nIn summary, follow these steps to address a NATS message rate spike:\n\n1. Investigate and identify the runaway publisher causing the high message rate.\n2. Verify that downstream symptoms are consequences of the NATS saturation rather than causes of the issue.\n3. Restart the runaway publisher to normalize the message rate.\n4. Confirm recovery from the restart.\n\nThese steps will help you address the NATS message rate spike and resolve the issues caused by the saturated message bus.",
+    "llm_model": "llama3.2",
+    "n_results": 5,
+    "where_filter": {
+      "doc_type": "runbook"
+    },
+    "retrieved_docs": [
+      {
+        "doc_id": "runbook_INC-016",
+        "doc_type": "runbook",
+        "title": "Runbook: NATS Message Bus Saturation",
+        "incident_ids": [
+          "INC-016"
+        ],
+        "failure_pattern": "nats_saturation",
+        "tier": 3,
+        "distance": 0.762516438961029
+      },
+      {
+        "doc_id": "runbook_INC-018",
+        "doc_type": "runbook",
+        "title": "Runbook: Gorouter Route Cache Staleness After Blue-Green Swap",
+        "incident_ids": [
+          "INC-018"
+        ],
+        "failure_pattern": "route_cache_staleness",
+        "tier": 2,
+        "distance": 1.3145780563354492
+      },
+      {
+        "doc_id": "runbook_INC-022",
+        "doc_type": "runbook",
+        "title": "Runbook: Thread Pool Exhaustion from External Dependency Latency",
+        "incident_ids": [
+          "INC-022"
+        ],
+        "failure_pattern": "thread_pool_exhaustion",
+        "tier": 3,
+        "distance": 1.417464256286621
+      },
+      {
+        "doc_id": "runbook_INC-015",
+        "doc_type": "runbook",
+        "title": "Runbook: Loggregator Backpressure and Metric Drops",
+        "incident_ids": [
+          "INC-015"
+        ],
+        "failure_pattern": "loggregator_saturation",
+        "tier": 2,
+        "distance": 1.4506884813308716
+      },
+      {
+        "doc_id": "runbook_INC-012",
+        "doc_type": "runbook",
+        "title": "Runbook: Container Registry Pull Rate Limit",
+        "incident_ids": [
+          "INC-012"
+        ],
+        "failure_pattern": "registry_rate_limit",
+        "tier": 1,
+        "distance": 1.4933685064315796
+      }
+    ]
+  },
+  {
+    "question": "What configuration value must be larger than instance startup time?",
+    "answer": "According to Doc 1, section \"Configuration Reference: Autoscaler Cooldown Period\":\n\n\"cooldown_period MUST BE > instance_startup_time\"\n\nIn other words, the cooldown period must be larger than the instance startup time.\n\nSpecifically, the minimum recommended value for cooldown_period is 90 seconds (more than instance startup time), but the condition states it must be greater than instance startup time.",
+    "llm_model": "llama3.2",
+    "n_results": 5,
+    "where_filter": {
+      "doc_type": "config"
+    },
+    "retrieved_docs": [
+      {
+        "doc_id": "config_INC-020",
+        "doc_type": "config",
+        "title": "Configuration Reference: Autoscaler Cooldown Period",
+        "incident_ids": [
+          "INC-020"
+        ],
+        "failure_pattern": "autoscaler_oscillation",
+        "tier": 2,
+        "distance": 0.8596602082252502
+      },
+      {
+        "doc_id": "config_INC-008",
+        "doc_type": "config",
+        "title": "Configuration Reference: Database Connection Pool",
+        "incident_ids": [
+          "INC-008"
+        ],
+        "failure_pattern": "connection_pool_exhaustion",
+        "tier": 2,
+        "distance": 1.1526906490325928
+      },
+      {
+        "doc_id": "config_INC-014",
+        "doc_type": "config",
+        "title": "Configuration Reference: Autoscaler and Rolling Deploy Interaction",
+        "incident_ids": [
+          "INC-014"
+        ],
+        "failure_pattern": "autoscaler_rolling_deploy_interference",
+        "tier": 3,
+        "distance": 1.2402095794677734
+      },
+      {
+        "doc_id": "config_INC-012",
+        "doc_type": "config",
+        "title": "Configuration Reference: Container Registry Pull Authentication",
+        "incident_ids": [
+          "INC-012"
+        ],
+        "failure_pattern": "registry_rate_limit",
+        "tier": 1,
+        "distance": 1.242660641670227
+      },
+      {
+        "doc_id": "config_INC-019",
+        "doc_type": "config",
+        "title": "Configuration Reference: Startup Dependencies and Health Checks",
+        "incident_ids": [
+          "INC-019"
+        ],
+        "failure_pattern": "circular_startup_dependency",
+        "tier": 3,
+        "distance": 1.2883732318878174
+      }
+    ]
+  }
+]
