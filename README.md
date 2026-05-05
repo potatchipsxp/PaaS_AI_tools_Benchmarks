@@ -22,7 +22,6 @@ ollama pull llama3.2
 ## Installation
 
 ```bash
-cd PaaS_Benchmark
 pip install -r requirements.txt
 ```
 
@@ -127,7 +126,7 @@ python diagnostic_agent.py
 ## Project Structure
 
 ```
-PaaS_Benchmark/
+PaaS_AI_tools_Benchmarks/
 ├── run_benchmark.py          # Entry point — runs incidents, saves results
 ├── benchmark_incidents.py    # The 25 test cases (Tier 1–3)
 ├── diagnostic_agent.py       # Orchestrator agent + model config
