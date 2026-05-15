@@ -16,7 +16,6 @@ Dependencies:
 """
 
 import json
-import os
 import ollama
 
 from build_doc_index import retrieve_docs, DB_PATH, COLLECTION_NAME, EMBEDDING_MODEL
@@ -26,10 +25,9 @@ from build_doc_index import retrieve_docs, DB_PATH, COLLECTION_NAME, EMBEDDING_M
 # CONFIG
 # ============================================================================
 
-LLM_MODEL    = "llama3.2"     # swap to qwen2.5-coder:7b etc. as desired
-LLM_BACKEND  = "openai"       # "ollama" (local), "groq", "deepinfra", or "openai"
-N_RESULTS    = 5              # docs to retrieve per query
-VERBOSE      = True
+LLM_MODEL  = "llama3.2"   # swap to qwen2.5-coder:7b etc. as desired
+N_RESULTS  = 5             # docs to retrieve per query
+VERBOSE    = True
 OUTPUT_FILE = "doc_query_results.json"
 
 
@@ -69,47 +67,10 @@ If the documentation does not contain enough information to answer, say so expli
 When citing specific values (thresholds, timeouts, command syntax), quote them exactly."""
 
 
-def generate_doc_answer(prompt, llm_model=LLM_MODEL, backend=LLM_BACKEND):
-    if backend in ("groq", "deepinfra", "openai"):
-        from openai import OpenAI
+def generate_doc_answer(prompt, llm_model=LLM_MODEL):
+    response = ollama.generate(model=llm_model, prompt=prompt)
+    return response["response"]
 
-        if backend == "groq":
-            api_base = "https://api.groq.com/openai/v1"
-            env_var  = "GROQ_API_KEY"
-            example  = "gsk_..."
-        elif backend == "deepinfra":
-            api_base = "https://api.deepinfra.com/v1/openai"
-            env_var  = "DEEPINFRA_API_KEY"
-            example  = "your-deepinfra-key"
-        else:  # openai
-            api_base = None  # use OpenAI default endpoint
-            env_var  = "OPENAI_API_KEY"
-            example  = "sk-..."
-
-        api_key = os.environ.get(env_var)
-        if not api_key:
-            raise RuntimeError(
-                f"{env_var} not set in environment. "
-                f"Set it before running: $env:{env_var} = '{example}'"
-            )
-        client_kwargs = {"api_key": api_key}
-        if api_base is not None:
-            client_kwargs["base_url"] = api_base
-        client = OpenAI(**client_kwargs)
-        response = client.chat.completions.create(
-            model=llm_model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.0,
-        )
-        return response.choices[0].message.content
-    elif backend == "ollama":
-        response = ollama.generate(model=llm_model, prompt=prompt)
-        return response["response"]
-    else:
-        raise ValueError(
-            f"Unknown doc backend: {backend!r}. "
-            f"Use 'ollama', 'groq', 'deepinfra', or 'openai'."
-        )
 
 # ============================================================================
 # FULL QUERY PIPELINE
@@ -119,7 +80,6 @@ def query(
     question,
     n_results=N_RESULTS,
     llm_model=LLM_MODEL,
-    backend=LLM_BACKEND,
     where_filter=None,
     db_path=DB_PATH,
     collection_name=COLLECTION_NAME,
@@ -167,7 +127,7 @@ def query(
         print("\nStep 2: Generating answer...")
 
     prompt = build_doc_prompt(question, docs)
-    answer = generate_doc_answer(prompt, llm_model, backend=backend)
+    answer = generate_doc_answer(prompt, llm_model)
 
     if verbose:
         print("\nANSWER:")

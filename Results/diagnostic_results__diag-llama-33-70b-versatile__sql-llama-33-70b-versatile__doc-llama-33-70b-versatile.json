@@ -1,0 +1,156 @@
+[
+  {
+    "incident_id": "INC-001",
+    "question": "payments-api (app-q0k5oz) in org-payments is crash-looping: the platform health check reports 'connection refused' on port 8080 but the container starts successfully. What is the root cause?",
+    "diagnosis": "Agent error: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kgjstd0hegjb50d1knxmx4mq` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99928, Requested 1238. Please try again in 16m47.424s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+    "status": "error",
+    "tool_call_trace": [
+      {
+        "tool": "query_docs",
+        "inputs": {
+          "question": "What does connection refused mean on port 8080 and what causes it?"
+        },
+        "result": {
+          "answer": "According to the documentation, a \"connection refused\" on port 8080 can have two different causes. \n\nAs stated in [Doc 2] type=error_ref pattern=missing_network_policy, \"ECONNREFUSED: Two Different Causes\" table:\n| Source of ECONNREFUSED | Root Cause | How to Confirm |\n|------------------------|-----------|----------------|\n| App is down (crashed, OOM) | App failure | Check CELL/HEALTH \u2014 app not running |\n| Network policy missing | Policy enforcement | Check NETWORK \u2014 DENY event present |\n\nIn the context of \"connection refused on port 8080\", it can mean either the app is down or the network policy is missing. \n\nTo confirm the root cause, one should check the logs. As mentioned in [Doc 1] type=error_ref pattern=wrong_port_binding, if the app logs show \"Server starting on port XXXX\" where XXXX is not the expected port (typically 8080), it indicates the app is listening on the wrong port. \n\nOn the other hand, if the NETWORK logs show a \"DENY: source=order-service dest=inventory-service port=8080\" event as mentioned in [Doc 2] type=error_ref pattern=missing_network_policy, it confirms that the network policy is missing, causing the connection to be refused.\n\nIn summary, \"connection refused on port 8080\" can be caused by either the app not listening on the correct port or a missing network policy, and the root cause can be determined by checking the app and network logs.",
+          "retrieved_docs": [
+            {
+              "doc_id": "error_ref_INC-001",
+              "doc_type": "error_ref",
+              "title": "Error Reference: Wrong Port Binding",
+              "incident_ids": [
+                "INC-001"
+              ],
+              "failure_pattern": "wrong_port_binding",
+              "tier": 1,
+              "distance": 0.7106367945671082
+            },
+            {
+              "doc_id": "error_ref_INC-010",
+              "doc_type": "error_ref",
+              "title": "Error Reference: Missing Network Policy",
+              "incident_ids": [
+                "INC-010"
+              ],
+              "failure_pattern": "missing_network_policy",
+              "tier": 2,
+              "distance": 0.9270687699317932
+            },
+            {
+              "doc_id": "runbook_INC-001",
+              "doc_type": "runbook",
+              "title": "Runbook: App Listening on Wrong Port",
+              "incident_ids": [
+                "INC-001"
+              ],
+              "failure_pattern": "wrong_port_binding",
+              "tier": 1,
+              "distance": 0.9792666435241699
+            },
+            {
+              "doc_id": "config_INC-001",
+              "doc_type": "config",
+              "title": "Configuration Reference: Port Binding and $PORT",
+              "incident_ids": [
+                "INC-001"
+              ],
+              "failure_pattern": "wrong_port_binding",
+              "tier": 1,
+              "distance": 1.1104748249053955
+            },
+            {
+              "doc_id": "runbook_INC-010",
+              "doc_type": "runbook",
+              "title": "Runbook: Missing Network Policy (App-to-App Communication Blocked)",
+              "incident_ids": [
+                "INC-010"
+              ],
+              "failure_pattern": "missing_network_policy",
+              "tier": 2,
+              "distance": 1.1286438703536987
+            }
+          ]
+        },
+        "duration_ms": 3170.4
+      },
+      {
+        "tool": "query_logs",
+        "inputs": {
+          "question": "What ERROR-level events appear in the payments-api component?"
+        },
+        "result": "Sorry, need more steps to process this request.",
+        "duration_ms": 67418.4
+      }
+    ],
+    "timing": {
+      "total_seconds": 153.291,
+      "active_seconds": 153.291,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 70588.8,
+      "sql_ms_total": 67418.4,
+      "doc_ms_total": 3170.4,
+      "orchestrator_ms": 82701.9,
+      "n_tool_calls": 2,
+      "mean_ms_per_tool_call": 35294.4
+    },
+    "model_config": {
+      "diagnostic_model": "llama-3.3-70b-versatile",
+      "diagnostic_backend": "groq",
+      "sql_model": "llama-3.3-70b-versatile",
+      "sql_backend": "groq",
+      "doc_model": "llama-3.3-70b-versatile",
+      "doc_backend": "groq"
+    }
+  },
+  {
+    "incident_id": "INC-002",
+    "question": "app-ocmoe0 in org-analytics was killed by the platform with 'disk_quota_exceeded'. The app was running fine for hours before this. What is consuming the disk and what should be changed to prevent recurrence?",
+    "diagnosis": "Agent error: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kgjstd0hegjb50d1knxmx4mq` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99896, Requested 1238. Please try again in 16m19.776s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+    "status": "error",
+    "tool_call_trace": [],
+    "timing": {
+      "total_seconds": 28.156,
+      "active_seconds": 28.156,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 0,
+      "sql_ms_total": 0,
+      "doc_ms_total": 0,
+      "orchestrator_ms": 28155.6,
+      "n_tool_calls": 0,
+      "mean_ms_per_tool_call": 0.0
+    },
+    "model_config": {
+      "diagnostic_model": "llama-3.3-70b-versatile",
+      "diagnostic_backend": "groq",
+      "sql_model": "llama-3.3-70b-versatile",
+      "sql_backend": "groq",
+      "doc_model": "llama-3.3-70b-versatile",
+      "doc_backend": "groq"
+    }
+  },
+  {
+    "incident_id": "INC-003",
+    "question": "app-ia54l8 in org-devops crashes immediately on startup with exit_status=1. The stderr shows a network error when trying to connect to its bound PostgreSQL service. What is causing the failure?",
+    "diagnosis": "Agent error: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kgjstd0hegjb50d1knxmx4mq` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99863, Requested 1277. Please try again in 16m24.96s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+    "status": "error",
+    "tool_call_trace": [],
+    "timing": {
+      "total_seconds": 28.167,
+      "active_seconds": 28.167,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 0,
+      "sql_ms_total": 0,
+      "doc_ms_total": 0,
+      "orchestrator_ms": 28166.6,
+      "n_tool_calls": 0,
+      "mean_ms_per_tool_call": 0.0
+    },
+    "model_config": {
+      "diagnostic_model": "llama-3.3-70b-versatile",
+      "diagnostic_backend": "groq",
+      "sql_model": "llama-3.3-70b-versatile",
+      "sql_backend": "groq",
+      "doc_model": "llama-3.3-70b-versatile",
+      "doc_backend": "groq"
+    }
+  }
+]

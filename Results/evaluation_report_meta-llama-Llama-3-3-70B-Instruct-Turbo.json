@@ -1,0 +1,2464 @@
+{
+  "evaluated_at": "2026-05-13T21:04:00.396231Z",
+  "n_incidents": 25,
+  "summary": {
+    "answer": {
+      "full_credit": 17,
+      "partial": 4,
+      "miss": 0,
+      "error": 4
+    },
+    "retrieval": {
+      "avg_recall": 0.76,
+      "avg_precision": 0.552
+    },
+    "trace": {
+      "avg_score": 4.16,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 25,
+        "total_seconds_mean": 60.46,
+        "total_seconds_med": 55.63,
+        "total_seconds_p95": 165.76,
+        "total_seconds_min": 3.21,
+        "total_seconds_max": 186.13,
+        "sql_ms_mean": 39112.9,
+        "doc_ms_mean": 9904.1,
+        "orchestrator_ms_mean": 11439.1,
+        "n_tool_calls_mean": 2.64,
+        "orchestrator_share": 0.189
+      },
+      "by_tier": {
+        "tier_1": {
+          "n": 7,
+          "total_seconds_mean": 82.98,
+          "total_seconds_med": 61.7,
+          "total_seconds_p95": 158.42,
+          "total_seconds_min": 51.59,
+          "total_seconds_max": 180.45,
+          "sql_ms_mean": 59087.4,
+          "doc_ms_mean": 7100.5,
+          "orchestrator_ms_mean": 16788.4,
+          "n_tool_calls_mean": 2.57,
+          "orchestrator_share": 0.202
+        },
+        "tier_2": {
+          "n": 10,
+          "total_seconds_mean": 49.71,
+          "total_seconds_med": 44.41,
+          "total_seconds_p95": 95.83,
+          "total_seconds_min": 3.72,
+          "total_seconds_max": 96.27,
+          "sql_ms_mean": 29489.9,
+          "doc_ms_mean": 11012.9,
+          "orchestrator_ms_mean": 9209.5,
+          "n_tool_calls_mean": 2.7,
+          "orchestrator_share": 0.185
+        },
+        "tier_3": {
+          "n": 8,
+          "total_seconds_mean": 54.18,
+          "total_seconds_med": 38.24,
+          "total_seconds_p95": 151.76,
+          "total_seconds_min": 3.21,
+          "total_seconds_max": 186.13,
+          "sql_ms_mean": 33663.8,
+          "doc_ms_mean": 10971.3,
+          "orchestrator_ms_mean": 9545.5,
+          "n_tool_calls_mean": 2.62,
+          "orchestrator_share": 0.176
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "incident_id": "INC-001",
+      "tier": 1,
+      "status": "malformed_tool_call_unrecovered",
+      "answer_grade": "error",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "called_logs": false,
+        "called_docs": false,
+        "logs_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_log_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 55.633,
+        "active_seconds": 55.633,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "sql_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 55633.3,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 3
+      },
+      "diagnosis_excerpt": "<function=query_logs {\"question\": \"What ERROR-level events appear in the payments-api component for app-q0k5oz?\"}</function>"
+    },
+    {
+      "incident_id": "INC-002",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What are the common causes of 'disk_quota_exceeded' errors in Cloud Foundry and how can they be prevented?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "config_INC-002",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": true,
+                "distance": 0.725306510925293
+              },
+              {
+                "doc_id": "error_ref_INC-002",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": true,
+                "distance": 0.7639825940132141
+              },
+              {
+                "doc_id": "runbook_INC-002",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": true,
+                "distance": 0.8104909658432007
+              },
+              {
+                "doc_id": "config_INC-004",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 0.9617305994033813
+              },
+              {
+                "doc_id": "runbook_INC-004",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 1.106157660484314
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 180.449,
+        "active_seconds": 180.449,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 161057.6,
+        "sql_ms_total": 147249.2,
+        "doc_ms_total": 13808.4,
+        "orchestrator_ms": 19391.9,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 53685.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the 'disk_quota_exceeded' error for app-ocmoe0 in org-analytics is likely due to unmanaged disk writes, such as logging to files instead of stdout/stderr, temporary files not being cleaned up, or cache growth. \n* The events that occurred on app-ocmoe0 before the error include a ste..."
+    },
+    {
+      "incident_id": "INC-003",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a network error when trying to connect to a bound PostgreSQL service mean and what are the common causes?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-003",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-003"
+                ],
+                "relevant": true,
+                "distance": 0.8475544452667236
+              },
+              {
+                "doc_id": "runbook_INC-003",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-003"
+                ],
+                "relevant": true,
+                "distance": 0.8542587161064148
+              },
+              {
+                "doc_id": "config_INC-003",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-003"
+                ],
+                "relevant": true,
+                "distance": 1.1825370788574219
+              },
+              {
+                "doc_id": "runbook_INC-013",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": false,
+                "distance": 1.2003161907196045
+              },
+              {
+                "doc_id": "runbook_INC-005",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-005"
+                ],
+                "relevant": false,
+                "distance": 1.2120747566223145
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 61.702,
+        "active_seconds": 61.702,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 51696.8,
+        "sql_ms_total": 39365.5,
+        "doc_ms_total": 12331.3,
+        "orchestrator_ms": 10005.5,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 17232.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the failure is a DNS misconfiguration issue, which is causing the app to be unable to resolve the hostname of the PostgreSQL service. The key log evidence that supports this diagnosis includes:\n* A network error when trying to connect to the bound PostgreSQL service\n* An error mess..."
+    },
+    {
+      "incident_id": "INC-004",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What JVM error is associated with the memory_limit_exceeded error in Cloud Foundry?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-004",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": true,
+                "distance": 0.7440037727355957
+              },
+              {
+                "doc_id": "config_INC-004",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": true,
+                "distance": 0.951406717300415
+              },
+              {
+                "doc_id": "error_ref_INC-009",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 0.9964577555656433
+              },
+              {
+                "doc_id": "runbook_INC-004",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": true,
+                "distance": 1.0549583435058594
+              },
+              {
+                "doc_id": "config_INC-009",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 1.070515751838684
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 66.16,
+        "active_seconds": 66.16,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 57211.9,
+        "sql_ms_total": 54331.8,
+        "doc_ms_total": 2880.1,
+        "orchestrator_ms": 8948.1,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 28606.0,
+        "malformed_tool_call_retries": 1
+      },
+      "diagnosis_excerpt": "The root cause of the app-z5lhyd crashes in org-payments is the `java.lang.OutOfMemoryError: Java heap space` error. The key log evidence that supports this diagnosis includes:\n* The `memory_limit_exceeded` error message in the logs\n* The steady climb in memory usage before each crash, as shown in t..."
+    },
+    {
+      "incident_id": "INC-005",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does CERTIFICATE_VERIFY_FAILED mean when connecting to RabbitMQ?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-005",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-005"
+                ],
+                "relevant": true,
+                "distance": 0.6688673496246338
+              },
+              {
+                "doc_id": "runbook_INC-025",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-025"
+                ],
+                "relevant": false,
+                "distance": 1.1401538848876953
+              },
+              {
+                "doc_id": "config_INC-005",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 1.147544503211975
+              },
+              {
+                "doc_id": "error_ref_INC-005",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 1.167114496231079
+              },
+              {
+                "doc_id": "runbook_INC-013",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": false,
+                "distance": 1.3111932277679443
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 107.016,
+        "active_seconds": 107.016,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 99613.0,
+        "sql_ms_total": 90783.2,
+        "doc_ms_total": 8829.8,
+        "orchestrator_ms": 7403.1,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 33204.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the certificate used for the connection to RabbitMQ has expired, causing a `CERTIFICATE_VERIFY_FAILED` error when the app-p8hcke component tries to connect to its RabbitMQ binding. \n* The app-p8hcke component started returning 503s at midnight, indicating a sudden..."
+    },
+    {
+      "incident_id": "INC-006",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "partial",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does EINTEGRITY: sha512 integrity check failed mean and what causes it?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-023",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-023"
+                ],
+                "relevant": false,
+                "distance": 1.2281670570373535
+              },
+              {
+                "doc_id": "runbook_INC-023",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-023"
+                ],
+                "relevant": false,
+                "distance": 1.299221396446228
+              },
+              {
+                "doc_id": "runbook_INC-024",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.3140170574188232
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.3398593664169312
+              },
+              {
+                "doc_id": "runbook_INC-021",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": false,
+                "distance": 1.3778325319290161
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 3,
+        "n_doc_calls": 1,
+        "total_calls": 4,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 58.286,
+        "active_seconds": 58.286,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 50349.6,
+        "sql_ms_total": 47134.9,
+        "doc_ms_total": 3214.7,
+        "orchestrator_ms": 7936.0,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 12587.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is a corrupted or tampered package in the npm registry, which caused the sha512 integrity check to fail for express@4.18.2. \n* The build log shows 'EINTEGRITY: sha512 integrity check failed for express@4.18.2', indicating a problem with the package integrity.\n* The same a..."
+    },
+    {
+      "incident_id": "INC-007",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What are the steps to register a route in Cloud Foundry?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "config_INC-007",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": true,
+                "distance": 0.9422411918640137
+              },
+              {
+                "doc_id": "error_ref_INC-007",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": true,
+                "distance": 1.1327810287475586
+              },
+              {
+                "doc_id": "config_INC-018",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": false,
+                "distance": 1.1545393466949463
+              },
+              {
+                "doc_id": "runbook_INC-007",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": true,
+                "distance": 1.2102309465408325
+              },
+              {
+                "doc_id": "config_INC-003",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-003"
+                ],
+                "relevant": false,
+                "distance": 1.2937535047531128
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 51.588,
+        "active_seconds": 51.588,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 43386.7,
+        "sql_ms_total": 34747.4,
+        "doc_ms_total": 8639.3,
+        "orchestrator_ms": 8200.9,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 14462.2,
+        "malformed_tool_call_retries": 1
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the route for api.example.com was not properly registered during the deployment of app-bcwwwh. \n* The sequence of events for the ROUTER component around the time of the deployment shows no evidence of a route being registered for api.example.com.\n* The documentati..."
+    },
+    {
+      "incident_id": "INC-008",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does db_pool_active_connections mean and what causes it to be at maximum?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "config_INC-008",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": true,
+                "distance": 0.5524957180023193
+              },
+              {
+                "doc_id": "error_ref_INC-008",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": true,
+                "distance": 0.6394186615943909
+              },
+              {
+                "doc_id": "runbook_INC-008",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": true,
+                "distance": 0.7126342058181763
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.1881520748138428
+              },
+              {
+                "doc_id": "error_ref_INC-022",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": false,
+                "distance": 1.2606685161590576
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 59.441,
+        "active_seconds": 59.441,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 49296.6,
+        "sql_ms_total": 40316.2,
+        "doc_ms_total": 8980.4,
+        "orchestrator_ms": 10144.8,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 16432.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the sustained 503s is the database connection pool exhaustion, where all available connections in the pool are held by slow queries or other database operations, preventing new requests from acquiring a connection. \n* The key log evidence that supports this diagnosis includes error..."
+    },
+    {
+      "incident_id": "INC-009",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What is the runbook for simultaneous instance crashes on a cell with memory_available=0MB?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-009",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": true,
+                "distance": 0.4239363968372345
+              },
+              {
+                "doc_id": "error_ref_INC-009",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": true,
+                "distance": 0.6874392628669739
+              },
+              {
+                "doc_id": "runbook_INC-004",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 0.6908763647079468
+              },
+              {
+                "doc_id": "error_ref_INC-004",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 0.8402251601219177
+              },
+              {
+                "doc_id": "config_INC-009",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": true,
+                "distance": 0.845232367515564
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 96.27,
+        "active_seconds": 96.27,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 87114.5,
+        "sql_ms_total": 75057.3,
+        "doc_ms_total": 12057.2,
+        "orchestrator_ms": 9155.9,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 29038.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the simultaneous crashes of all 8 instances of app-nwgzbp in org-payments is that the cell-009 ran out of memory, causing the instances to be killed. \n* The key log evidence that supports this diagnosis is the sequence of events for the cell-009 component around the time of the app..."
+    },
+    {
+      "incident_id": "INC-010",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does 'Outbound policy DENY' mean in the context of network logs and how does it relate to the 'ECONNREFUSED' error?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-010",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-010"
+                ],
+                "relevant": true,
+                "distance": 0.7967842221260071
+              },
+              {
+                "doc_id": "config_INC-010",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-010"
+                ],
+                "relevant": true,
+                "distance": 0.851995587348938
+              },
+              {
+                "doc_id": "error_ref_INC-010",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-010"
+                ],
+                "relevant": true,
+                "distance": 0.938261866569519
+              },
+              {
+                "doc_id": "error_ref_INC-012",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": false,
+                "distance": 1.2052221298217773
+              },
+              {
+                "doc_id": "error_ref_INC-016",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": false,
+                "distance": 1.2881073951721191
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 29.379,
+        "active_seconds": 29.379,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 18175.7,
+        "sql_ms_total": 9795.1,
+        "doc_ms_total": 8380.6,
+        "orchestrator_ms": 11203.2,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 6058.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the network policy is missing for the order-service to connect to the inventory-svc, resulting in an 'ECONNREFUSED' error. The key log evidence that supports this diagnosis includes:\n* The 'ECONNREFUSED' error logged by the order-service for every call to the inve..."
+    },
+    {
+      "incident_id": "INC-011",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does ImportError: cannot import name typing_extensions from numpy mean and what causes it?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-011",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": true,
+                "distance": 0.8539559245109558
+              },
+              {
+                "doc_id": "error_ref_INC-011",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": true,
+                "distance": 0.9368327856063843
+              },
+              {
+                "doc_id": "config_INC-011",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": true,
+                "distance": 1.242890477180481
+              },
+              {
+                "doc_id": "error_ref_INC-006",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": false,
+                "distance": 1.4476646184921265
+              },
+              {
+                "doc_id": "runbook_INC-006",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": false,
+                "distance": 1.6303932666778564
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 25.755,
+        "active_seconds": 25.755,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 18742.6,
+        "sql_ms_total": 10196.1,
+        "doc_ms_total": 8546.5,
+        "orchestrator_ms": 7011.9,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 9371.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the buildpack is installing an older version of numpy (e.g., `1.21.0`) that does not contain the required symbol `typing_extensions`, instead of the version pinned in `requirements.txt` (e.g., `1.24.0`).\n* The key log evidence that supports this diagnosis is the `..."
+    },
+    {
+      "incident_id": "INC-012",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does the 429 Too Many Requests error from registry-1.docker.io mean and what are the common causes?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-012",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": true,
+                "distance": 0.6469730138778687
+              },
+              {
+                "doc_id": "error_ref_INC-012",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": true,
+                "distance": 0.696054220199585
+              },
+              {
+                "doc_id": "config_INC-012",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": true,
+                "distance": 0.9189108610153198
+              },
+              {
+                "doc_id": "config_INC-002",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": false,
+                "distance": 1.262532353401184
+              },
+              {
+                "doc_id": "config_INC-001",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-001"
+                ],
+                "relevant": false,
+                "distance": 1.2716355323791504
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 3,
+        "n_doc_calls": 1,
+        "total_calls": 4,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 63.062,
+        "active_seconds": 63.062,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 51909.4,
+        "sql_ms_total": 39797.5,
+        "doc_ms_total": 12111.9,
+        "orchestrator_ms": 11152.6,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 12977.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the platform's shared egress IP has exceeded Docker Hub's anonymous pull rate limit of 100 pulls/6hr, causing the 429 Too Many Requests error from registry-1.docker.io. \nThe key log evidence that supports the diagnosis includes:\n* The error message '429 toomanyreq..."
+    },
+    {
+      "incident_id": "INC-013",
+      "tier": 2,
+      "status": "malformed_tool_call_unrecovered",
+      "answer_grade": "error",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "called_logs": false,
+        "called_docs": false,
+        "logs_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_log_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 3.723,
+        "active_seconds": 3.723,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "sql_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 3723.0,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 3
+      },
+      "diagnosis_excerpt": "<function=query_logs {\"question\": \"What ERROR-level events appear in the redis-cache component around the time the cf bind-service command was executed?\"}</function>"
+    },
+    {
+      "incident_id": "INC-014",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "partial",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does'missing field idempotency_key' mean and what causes it?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-023",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-023"
+                ],
+                "relevant": false,
+                "distance": 1.5253257751464844
+              },
+              {
+                "doc_id": "error_ref_INC-022",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": false,
+                "distance": 1.590779185295105
+              },
+              {
+                "doc_id": "error_ref_INC-007",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": false,
+                "distance": 1.6117035150527954
+              },
+              {
+                "doc_id": "error_ref_INC-019",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-019"
+                ],
+                "relevant": false,
+                "distance": 1.6240923404693604
+              },
+              {
+                "doc_id": "error_ref_INC-008",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": false,
+                "distance": 1.6295478343963623
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 21.434,
+        "active_seconds": 21.434,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 11803.4,
+        "sql_ms_total": 7730.4,
+        "doc_ms_total": 4073.0,
+        "orchestrator_ms": 9630.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 5901.7,
+        "malformed_tool_call_retries": 2
+      },
+      "diagnosis_excerpt": "The root cause of the 422/500 errors during the rolling deploy from v1 to v2 is the incompatibility between the v1 and v2 schemas, specifically the missing 'idempotency_key' field in the v2 schema. The key log evidence that supports this diagnosis includes:\n* The'missing field idempotency_key' error..."
+    },
+    {
+      "incident_id": "INC-015",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "partial",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What is the runbook for a doppler buffer fill rate near 98%?",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "config_INC-015",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": true,
+                "distance": 0.8140226602554321
+              },
+              {
+                "doc_id": "error_ref_INC-015",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": true,
+                "distance": 0.8594202399253845
+              },
+              {
+                "doc_id": "runbook_INC-015",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": true,
+                "distance": 0.8824121356010437
+              },
+              {
+                "doc_id": "arch_observability_pipeline",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-015",
+                  "INC-016",
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 1.0416226387023926
+              },
+              {
+                "doc_id": "config_INC-016",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": false,
+                "distance": 1.2907311916351318
+              }
+            ]
+          }
+        ],
+        "precision": 0.8,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 19.769,
+        "active_seconds": 19.769,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 14289.8,
+        "sql_ms_total": 4449.8,
+        "doc_ms_total": 9840.0,
+        "orchestrator_ms": 5479.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 7144.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is the high-volume logging app overloading the Doppler buffer, causing log gaps and metric delays. \n* The key log evidence supporting this diagnosis includes the high doppler buffer fill rate near 98% and the presence of error messages related to the doppler buffer being ..."
+    },
+    {
+      "incident_id": "INC-016",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "partial",
+      "retrieval": {
+        "num_calls": 2,
+        "calls": [
+          {
+            "question": "What are the known causes of high message rates in the MESSAGE_BUS component?",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-016",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.7208507061004639
+              },
+              {
+                "doc_id": "error_ref_INC-016",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.9430930614471436
+              },
+              {
+                "doc_id": "config_INC-016",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 1.0001773834228516
+              },
+              {
+                "doc_id": "arch_operating_baselines",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-015",
+                  "INC-016",
+                  "INC-017",
+                  "INC-018",
+                  "INC-020",
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.0272698402404785
+              },
+              {
+                "doc_id": "error_ref_INC-015",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": false,
+                "distance": 1.1469922065734863
+              }
+            ]
+          },
+          {
+            "question": "What is the runbook for a runaway publisher causing MESSAGE_BUS saturation?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-016",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.5855371952056885
+              },
+              {
+                "doc_id": "error_ref_INC-016",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.8572089672088623
+              },
+              {
+                "doc_id": "config_INC-016",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.8652384281158447
+              },
+              {
+                "doc_id": "runbook_INC-015",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": false,
+                "distance": 1.0963025093078613
+              },
+              {
+                "doc_id": "error_ref_INC-015",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": false,
+                "distance": 1.1055912971496582
+              }
+            ]
+          }
+        ],
+        "precision": 0.7,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 2,
+        "total_calls": 4,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 95.292,
+        "active_seconds": 95.292,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 85100.7,
+        "sql_ms_total": 60012.1,
+        "doc_ms_total": 25088.6,
+        "orchestrator_ms": 10191.3,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 21275.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the message bus saturation is a runaway publisher, specifically the metrics-agent on cell-011, which was publishing messages at a rate of 49,800 messages per second. \n* The key log evidence that supports the diagnosis includes the high message rate in the MESSAGE_BUS component, the..."
+    },
+    {
+      "incident_id": "INC-017",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 2,
+        "calls": [
+          {
+            "question": "What is the runbook for high CPU usage on a cell?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-017",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.7172552943229675
+              },
+              {
+                "doc_id": "config_INC-017",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.848522424697876
+              },
+              {
+                "doc_id": "runbook_INC-009",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 0.9283564686775208
+              },
+              {
+                "doc_id": "runbook_INC-004",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 0.9908612966537476
+              },
+              {
+                "doc_id": "runbook_INC-002",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": false,
+                "distance": 1.0839405059814453
+              }
+            ]
+          },
+          {
+            "question": "What does high CPU usage on a cell mean and what causes it?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-017",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.8033725619316101
+              },
+              {
+                "doc_id": "config_INC-017",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.9067871570587158
+              },
+              {
+                "doc_id": "error_ref_INC-017",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.9956707954406738
+              },
+              {
+                "doc_id": "config_INC-009",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 1.166869044303894
+              },
+              {
+                "doc_id": "runbook_INC-009",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 1.1865520477294922
+              }
+            ]
+          }
+        ],
+        "precision": 0.5,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 2,
+        "total_calls": 4,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 82.997,
+        "active_seconds": 82.997,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 68595.7,
+        "sql_ms_total": 47544.6,
+        "doc_ms_total": 21051.1,
+        "orchestrator_ms": 14401.4,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 17148.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the health check timeouts is the high CPU usage on cell-012, which is causing CPU throttling of co-located apps. \n* The key log evidence that supports this diagnosis includes `cell_cpu_utilization=94% (cell-012)`, indicating high CPU usage on the cell, and `app_cpu_usage=95% (app-X..."
+    },
+    {
+      "incident_id": "INC-018",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a 'deregistered blue instance' error mean in the context of a blue-green swap?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-018",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": true,
+                "distance": 1.0853387117385864
+              },
+              {
+                "doc_id": "error_ref_INC-018",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": true,
+                "distance": 1.1837081909179688
+              },
+              {
+                "doc_id": "error_ref_INC-021",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": false,
+                "distance": 1.2937233448028564
+              },
+              {
+                "doc_id": "error_ref_INC-009",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 1.3287080526351929
+              },
+              {
+                "doc_id": "config_INC-018",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": true,
+                "distance": 1.3308521509170532
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 47.271,
+        "active_seconds": 47.271,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 35944.2,
+        "sql_ms_total": 25950.6,
+        "doc_ms_total": 9993.6,
+        "orchestrator_ms": 11327.1,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 11981.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the transient 502 errors was a temporary mismatch between the router's cached route entries and the actual availability of the application instances during the blue-green swap. \n* The router logs showed requests hitting a 'deregistered blue instance', indicating that some router in..."
+    },
+    {
+      "incident_id": "INC-019",
+      "tier": 3,
+      "status": "malformed_tool_call_unrecovered",
+      "answer_grade": "error",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "called_logs": false,
+        "called_docs": false,
+        "logs_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_log_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 3.215,
+        "active_seconds": 3.215,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "sql_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 3215.2,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 3
+      },
+      "diagnosis_excerpt": "<function=query_docs {\"question\": \"What architectural pattern causes a deadlock when two services poll each other's /health endpoint indefinitely?\"}</function>"
+    },
+    {
+      "incident_id": "INC-020",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 2,
+        "calls": [
+          {
+            "question": "What are the possible configuration mismatches that can cause autoscaler thrashing in a Cloud Foundry-compatible PaaS platform?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-014",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 0.8431243896484375
+              },
+              {
+                "doc_id": "error_ref_INC-020",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.9415730834007263
+              },
+              {
+                "doc_id": "error_ref_INC-014",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 0.9788706302642822
+              },
+              {
+                "doc_id": "config_INC-014",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 0.9964105486869812
+              },
+              {
+                "doc_id": "runbook_INC-020",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 1.0550591945648193
+              }
+            ]
+          },
+          {
+            "question": "What is the relationship between cooldown period and instance startup time in the context of autoscaling?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-020",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.7155519723892212
+              },
+              {
+                "doc_id": "config_INC-020",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.7442729473114014
+              },
+              {
+                "doc_id": "error_ref_INC-020",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.7502822875976562
+              },
+              {
+                "doc_id": "runbook_INC-014",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 1.0454485416412354
+              },
+              {
+                "doc_id": "config_INC-014",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 1.1159451007843018
+              }
+            ]
+          }
+        ],
+        "precision": 0.5,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 2,
+        "total_calls": 4,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 87.942,
+        "active_seconds": 87.942,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 74591.5,
+        "sql_ms_total": 58332.7,
+        "doc_ms_total": 16258.8,
+        "orchestrator_ms": 13351.0,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 18647.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the autoscaler thrashing is that the cooldown period is too short, being less than the instance startup time. \n* The cooldown period should be set to exceed the maximum instance startup time plus a stabilisation buffer.\n* The instance startup time for app-ec0i16 in org-payments is ..."
+    },
+    {
+      "incident_id": "INC-021",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does BBS is not the active master mean and what causes it?",
+            "n_retrieved": 5,
+            "n_relevant": 5,
+            "precision": 1.0,
+            "docs": [
+              {
+                "doc_id": "config_INC-021",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 1.1096761226654053
+              },
+              {
+                "doc_id": "error_ref_INC-021",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 1.1409578323364258
+              },
+              {
+                "doc_id": "runbook_INC-021",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 1.1826725006103516
+              },
+              {
+                "doc_id": "arch_control_data_plane",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-007",
+                  "INC-009",
+                  "INC-013",
+                  "INC-016",
+                  "INC-018",
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 1.3260786533355713
+              },
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": true,
+                "distance": 1.384706974029541
+              }
+            ]
+          }
+        ],
+        "precision": 1.0,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 27.137,
+        "active_seconds": 27.137,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 15675.6,
+        "sql_ms_total": 7616.5,
+        "doc_ms_total": 8059.1,
+        "orchestrator_ms": 11461.8,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 5225.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the distributed system failure blocking new deployments is a quorum loss in the Locket component, which caused BBS to step down as the master. \n* The BBS logs show 'BBS is not the active master', indicating that BBS has stepped down as the master.\n* The Locket logs show 'Locket: lo..."
+    },
+    {
+      "incident_id": "INC-022",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 2,
+        "calls": [
+          {
+            "question": "What does RejectedExecutionException: no threads available mean and what causes it?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-022",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.0696871280670166
+              },
+              {
+                "doc_id": "error_ref_INC-008",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": false,
+                "distance": 1.1998426914215088
+              },
+              {
+                "doc_id": "runbook_INC-022",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.213148832321167
+              },
+              {
+                "doc_id": "config_INC-022",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.2167118787765503
+              },
+              {
+                "doc_id": "config_INC-008",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": false,
+                "distance": 1.3097962141036987
+              }
+            ]
+          },
+          {
+            "question": "What is the runbook for UAA slow response times?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-022",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.1251606941223145
+              },
+              {
+                "doc_id": "arch_operating_baselines",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-015",
+                  "INC-016",
+                  "INC-017",
+                  "INC-018",
+                  "INC-020",
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.1996779441833496
+              },
+              {
+                "doc_id": "arch_control_data_plane",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-007",
+                  "INC-009",
+                  "INC-013",
+                  "INC-016",
+                  "INC-018",
+                  "INC-021"
+                ],
+                "relevant": false,
+                "distance": 1.271309494972229
+              },
+              {
+                "doc_id": "runbook_INC-017",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": false,
+                "distance": 1.2781178951263428
+              },
+              {
+                "doc_id": "runbook_INC-012",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": false,
+                "distance": 1.2849994897842407
+              }
+            ]
+          }
+        ],
+        "precision": 0.5,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 2,
+        "total_calls": 4,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 29.214,
+        "active_seconds": 29.214,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 20919.4,
+        "sql_ms_total": 11209.3,
+        "doc_ms_total": 9710.1,
+        "orchestrator_ms": 8294.6,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 5229.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the full outage of the payments-api app is the slow response times of the UAA component, which is an external dependency. \n* The key log evidence that supports this diagnosis is the increase in OAuth validate latency from 80ms to 3800ms, followed by the 'RejectedExecutionException:..."
+    },
+    {
+      "incident_id": "INC-023",
+      "tier": 3,
+      "status": "malformed_tool_call_unrecovered",
+      "answer_grade": "error",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "called_logs": false,
+        "called_docs": false,
+        "logs_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_log_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 4.629,
+        "active_seconds": 4.629,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "sql_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 4628.7,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 3
+      },
+      "diagnosis_excerpt": "<function=query_logs {\"question\": \"What ERROR-level events appear in the BLOBSTORE component for app-8fxpjz in org-devops?\"}</function>"
+    },
+    {
+      "incident_id": "INC-024",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 2,
+        "calls": [
+          {
+            "question": "What does a 503 error with 'cache not warmed' message mean for a canary instance during a rolling deploy?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-024",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": true,
+                "distance": 0.873403012752533
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": true,
+                "distance": 0.9889850616455078
+              },
+              {
+                "doc_id": "config_INC-006",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": false,
+                "distance": 1.0149140357971191
+              },
+              {
+                "doc_id": "runbook_INC-014",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 1.1101033687591553
+              },
+              {
+                "doc_id": "error_ref_INC-014",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 1.1174927949905396
+              }
+            ]
+          },
+          {
+            "question": "What is the runbook for a rolling deploy being paused due to a canary instance returning 503 with 'cache not warmed'?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-024",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": true,
+                "distance": 0.7065965533256531
+              },
+              {
+                "doc_id": "runbook_INC-014",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 0.8855257630348206
+              },
+              {
+                "doc_id": "config_INC-014",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 0.963770866394043
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": true,
+                "distance": 0.9945448040962219
+              },
+              {
+                "doc_id": "runbook_INC-013",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": false,
+                "distance": 1.1152393817901611
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 2,
+        "total_calls": 4,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 186.127,
+        "active_seconds": 186.127,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 169552.6,
+        "sql_ms_total": 142651.7,
+        "doc_ms_total": 26900.9,
+        "orchestrator_ms": 16574.7,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 42388.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the deploy being blocked is the canary instance returning a 503 error with 'cache not warmed' message, indicating that the cache warming process is taking too long. \n* The key log evidence that supports the diagnosis includes the liveness check passing with an HTTP 200 response, th..."
+    },
+    {
+      "incident_id": "INC-025",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What is the runbook for TLS handshake errors due to certificate expiration and how can they be prevented?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-005",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-005"
+                ],
+                "relevant": false,
+                "distance": 0.5347234010696411
+              },
+              {
+                "doc_id": "runbook_INC-025",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.5400872230529785
+              },
+              {
+                "doc_id": "error_ref_INC-005",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.6607096791267395
+              },
+              {
+                "doc_id": "config_INC-005",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.7045316696166992
+              },
+              {
+                "doc_id": "runbook_INC-018",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": false,
+                "distance": 1.3410611152648926
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 47.908,
+        "active_seconds": 47.908,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 40397.7,
+        "sql_ms_total": 23549.5,
+        "doc_ms_total": 16848.2,
+        "orchestrator_ms": 7510.8,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 13465.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the outage was the expiration of a TLS certificate used for inter-service communication in org-platform, which caused a TLS handshake error. \n* The key log evidence that supports this diagnosis is the 'TLS handshake error: certificate has expired' message in the logs.\n* The failure..."
+    }
+  ]
+}

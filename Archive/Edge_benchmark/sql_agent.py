@@ -203,55 +203,19 @@ def build_agent(
             return [SystemMessage(content=system_prompt)] + msgs
         return msgs
 
-    if backend in ("groq", "deepinfra", "openai"):
-        # OpenAI-compatible API backend. All three providers surface
-        # tool_calls correctly via the standard /v1 chat completions format,
-        # so we use ChatOpenAI with a different base_url + key per provider.
-        # OpenAI itself uses the default base_url (no override needed).
-        import os
-        from langchain_openai import ChatOpenAI
+    from langchain_ollama import ChatOllama
+    llm = ChatOllama(model=llm_model, temperature=llm_temp, base_url=ollama_base)
 
-        if backend == "groq":
-            api_base = "https://api.groq.com/openai/v1"
-            env_var  = "GROQ_API_KEY"
-            example  = "gsk_..."
-        elif backend == "deepinfra":
-            api_base = "https://api.deepinfra.com/v1/openai"
-            env_var  = "DEEPINFRA_API_KEY"
-            example  = "your-deepinfra-key"
-        else:  # openai
-            api_base = None  # use ChatOpenAI default
-            env_var  = "OPENAI_API_KEY"
-            example  = "sk-..."
-
-        api_key = os.environ.get(env_var)
-        if not api_key:
-            raise RuntimeError(
-                f"{env_var} not set in environment. "
-                f"Set it before running: $env:{env_var} = '{example}'"
-            )
-        kwargs = {"model": llm_model, "temperature": llm_temp, "api_key": api_key}
-        if api_base is not None:
-            kwargs["base_url"] = api_base
-        llm = ChatOpenAI(**kwargs)
+    if backend == "qwen":
         tools = [QuerySQLDatabaseTool(db=db)]
+    elif backend == "ollama":
+        from langchain_community.tools.sql_database.tool import QuerySQLCheckerTool
+        tools = [
+            QuerySQLCheckerTool(db=db, llm=llm),
+            QuerySQLDatabaseTool(db=db),
+        ]
     else:
-        from langchain_ollama import ChatOllama
-        llm = ChatOllama(model=llm_model, temperature=llm_temp, base_url=ollama_base)
-
-        if backend == "qwen":
-            tools = [QuerySQLDatabaseTool(db=db)]
-        elif backend == "ollama":
-            from langchain_community.tools.sql_database.tool import QuerySQLCheckerTool
-            tools = [
-                QuerySQLCheckerTool(db=db, llm=llm),
-                QuerySQLDatabaseTool(db=db),
-            ]
-        else:
-            raise ValueError(
-                f"Unknown SQL backend: {backend!r}. "
-                f"Use 'qwen', 'ollama', 'groq', 'deepinfra', or 'openai'."
-            )
+        raise ValueError(f"Unknown SQL backend: {backend!r}. Use 'qwen' or 'ollama'.")
 
     agent = create_react_agent(llm, tools, prompt=_state_mod)
     agent._max_iterations = max_iterations

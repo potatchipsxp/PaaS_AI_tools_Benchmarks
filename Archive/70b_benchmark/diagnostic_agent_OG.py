@@ -47,6 +47,56 @@ from build_doc_index import DB_PATH as DOC_DB_PATH, COLLECTION_NAME as DOC_COLLE
 
 
 # ============================================================================
+# RATE LIMIT HANDLING
+#
+# Groq's free tier has a 12K tokens-per-minute limit. A single incident's
+# tool-calling chain can approach or exceed that. We wrap agent.invoke() in
+# a retry loop that catches 429s, sleeps for the duration the API requests,
+# and tracks the slept time so timing metrics can subtract it.
+# ============================================================================
+
+import re
+
+def _parse_retry_delay(error_message):
+    """Pull the 'try again in Xs' value from a Groq 429 error message."""
+    m = re.search(r"try again in ([\d.]+)s", str(error_message))
+    if m:
+        return float(m.group(1))
+    return 5.0  # safe default
+
+def invoke_with_rate_limit_retry(agent, payload, config, max_retries=5, verbose=True):
+    """
+    Invoke a langgraph agent, catching 429 rate-limit errors and retrying
+    after the API-suggested delay.
+
+    Returns:
+        (result, total_sleep_seconds)
+    """
+    total_sleep = 0.0
+    for attempt in range(max_retries + 1):
+        try:
+            result = agent.invoke(payload, config=config)
+            return result, total_sleep
+        except Exception as e:
+            err_str = str(e)
+            is_rate_limit = (
+                "429" in err_str
+                or "rate_limit" in err_str.lower()
+                or "tokens per minute" in err_str.lower()
+            )
+            if not is_rate_limit or attempt == max_retries:
+                raise
+            delay = _parse_retry_delay(err_str) + 0.5  # small buffer
+            if verbose:
+                print(f"  [Rate limit hit, attempt {attempt+1}/{max_retries}] "
+                      f"sleeping {delay:.1f}s before retry...")
+            time.sleep(delay)
+            total_sleep += delay
+    # unreachable
+    raise RuntimeError("retry loop exhausted")
+
+
+# ============================================================================
 # CONFIG — change model names here to run different benchmark configurations
 #
 # To run a controlled experiment:
@@ -54,32 +104,33 @@ from build_doc_index import DB_PATH as DOC_DB_PATH, COLLECTION_NAME as DOC_COLLE
 #   - The output filename encodes the model combo so results don't overwrite.
 #
 # Backends:
-#   "qwen"   — local Qwen2.5 family via ChatOllama (native /api/chat)
-#   "ollama" — local non-tool-calling models via ChatOllama
-#   "groq"   — Groq API (Llama 3.3 70B etc.) via ChatOpenAI -> /v1 endpoint
-#              Requires $env:GROQ_API_KEY in environment.
+#   "qwen"      — local Qwen2.5 family via ChatOllama (native /api/chat)
+#   "ollama"    — local non-tool-calling models via ChatOllama
+#   "groq"      — Groq API via ChatOpenAI -> /v1. Requires $env:GROQ_API_KEY.
+#   "deepinfra" — DeepInfra API via ChatOpenAI -> /v1/openai.
+#                 Requires $env:DEEPINFRA_API_KEY.
 # ============================================================================
 
 # --- Diagnostic agent (orchestrator) ---
-DIAGNOSTIC_MODEL    = "llama-3.3-70b-versatile"
-DIAGNOSTIC_BACKEND  = "groq"        # "qwen", "ollama", or "groq"
+DIAGNOSTIC_MODEL    = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+DIAGNOSTIC_BACKEND  = "deepinfra"   # "qwen", "ollama", "groq", or "deepinfra"
 DIAGNOSTIC_TEMP     = 0.0
-DIAGNOSTIC_BASE_URL = "http://localhost:11434/v1"   # ignored when backend="groq"
-DIAGNOSTIC_API_KEY  = "ollama"                      # ignored when backend="groq"
+DIAGNOSTIC_BASE_URL = "http://localhost:11434/v1"   # ignored for groq/deepinfra
+DIAGNOSTIC_API_KEY  = "ollama"                      # ignored for groq/deepinfra
 
 # --- SQL agent ---
-SQL_MODEL           = "llama-3.3-70b-versatile"
-SQL_BACKEND         = "groq"        # "qwen", "ollama", or "groq"
+SQL_MODEL           = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+SQL_BACKEND         = "deepinfra"   # "qwen", "ollama", "groq", or "deepinfra"
 SQL_TEMP            = 0.0
-SQL_BASE_URL        = "http://localhost:11434/v1"   # ignored when backend="groq"
-SQL_API_KEY         = "ollama"                      # ignored when backend="groq"
+SQL_BASE_URL        = "http://localhost:11434/v1"   # ignored for groq/deepinfra
+SQL_API_KEY         = "ollama"                      # ignored for groq/deepinfra
 SQL_DB_URI          = "sqlite:///./data/benchmark_db.sqlite"
 SQL_MAX_ITER        = 12
 SQL_MAX_ROWS        = 20
 
 # --- Documentation agent ---
-DOC_MODEL           = "llama-3.3-70b-versatile"
-DOC_BACKEND         = "groq"        # "ollama" or "groq"
+DOC_MODEL           = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+DOC_BACKEND         = "deepinfra"   # "ollama", "groq", or "deepinfra"
 DOC_BASE_URL        = "http://localhost:11434"
 DOC_N_RESULTS       = 5
 
@@ -88,11 +139,18 @@ MAX_TURNS           = 6
 VERBOSE             = True
 
 # Output filename encodes the model combo for easy result comparison.
+# Strip any chars that would break filenames or look like path separators
+# (model IDs like "meta-llama/Llama-3.3-70B-Instruct-Turbo" contain '/').
+def _sanitize_model_name(name):
+    for ch in ("/", "\\", ":", ".", " "):
+        name = name.replace(ch, "-")
+    return name
+
 OUTPUT_FILE = (
     f"diagnostic_results"
-    f"__diag-{DIAGNOSTIC_MODEL.replace(':', '-').replace('.', '')}"
-    f"__sql-{SQL_MODEL.replace(':', '-').replace('.', '')}"
-    f"__doc-{DOC_MODEL.replace(':', '-').replace('.', '')}"
+    f"__diag-{_sanitize_model_name(DIAGNOSTIC_MODEL)}"
+    f"__sql-{_sanitize_model_name(SQL_MODEL)}"
+    f"__doc-{_sanitize_model_name(DOC_MODEL)}"
     f".json"
 )
 
@@ -136,26 +194,37 @@ def _build_diagnostic_llm(
     elif backend == "ollama":
         from langchain_ollama import ChatOllama
         return ChatOllama(model=model, temperature=temp, base_url=base_url)
-    elif backend == "groq":
-        # Groq's OpenAI-compatible endpoint correctly surfaces tool_calls,
-        # unlike Ollama's /v1 — so ChatOpenAI works here.
+    elif backend in ("groq", "deepinfra"):
+        # OpenAI-compatible API backends. Both correctly surface tool_calls,
+        # so ChatOpenAI works. They differ only in base_url and env var name.
         import os
         from langchain_openai import ChatOpenAI
-        groq_key = os.environ.get("GROQ_API_KEY")
-        if not groq_key:
+
+        if backend == "groq":
+            api_base = "https://api.groq.com/openai/v1"
+            env_var  = "GROQ_API_KEY"
+            example  = "gsk_..."
+        else:  # deepinfra
+            api_base = "https://api.deepinfra.com/v1/openai"
+            env_var  = "DEEPINFRA_API_KEY"
+            example  = "your-deepinfra-key"
+
+        api_key = os.environ.get(env_var)
+        if not api_key:
             raise RuntimeError(
-                "GROQ_API_KEY not set in environment. "
-                "Set it before running: $env:GROQ_API_KEY = 'gsk_...'"
+                f"{env_var} not set in environment. "
+                f"Set it before running: $env:{env_var} = '{example}'"
             )
         return ChatOpenAI(
             model=model,
             temperature=temp,
-            base_url="https://api.groq.com/openai/v1",
-            api_key=groq_key,
+            base_url=api_base,
+            api_key=api_key,
         )
     else:
         raise ValueError(
-            f"Unknown diagnostic backend: {backend!r}. Use 'qwen', 'ollama', or 'groq'."
+            f"Unknown diagnostic backend: {backend!r}. "
+            f"Use 'qwen', 'ollama', 'groq', or 'deepinfra'."
         )
 
 
@@ -238,12 +307,15 @@ def build_tools(
           "Which node_id had the most ERROR-level entries?"
         """
         t0 = time.perf_counter()
-        result = sql_agent.invoke(
+        result, sql_sleep = invoke_with_rate_limit_retry(
+            sql_agent,
             {"messages": [HumanMessage(content=question)]},
             config={"recursion_limit": sql_max_iter * 3},
+            verbose=False,
         )
         answer = sql_extract(result)
-        duration_ms = (time.perf_counter() - t0) * 1000
+        # Subtract rate-limit sleep from tool duration
+        duration_ms = (time.perf_counter() - t0 - sql_sleep) * 1000
         record("query_logs", {"question": question}, answer, duration_ms)
         return answer
 
@@ -408,6 +480,28 @@ def build_diagnostic_agent(
     except Exception as e:
         print(f"  WARNING: could not verify tool binding for diagnostic agent: {e}")
 
+    # Warm-up call: some hosted backends (e.g. DeepInfra) emit a malformed
+    # response on the very first invocation after the model is loaded —
+    # tool calls come back as raw "<function=name {...}>" text instead of
+    # being routed through the tool_calls field. Subsequent calls are fine.
+    # A throwaway invocation here guarantees the real benchmark loop starts
+    # from a warm, correctly-routed state. The trace is cleared after so
+    # it doesn't contaminate the first real incident's metrics.
+    if diagnostic_backend in ("groq", "deepinfra"):
+        try:
+            print("  Warming up the orchestrator (one throwaway invocation)...")
+            _ = agent.invoke(
+                {"messages": [HumanMessage(content=(
+                    "Acknowledge readiness. Respond with the single word: ready"
+                ))]},
+                config={"recursion_limit": 4},
+            )
+            trace.clear()
+            print("  Warm-up complete.")
+        except Exception as e:
+            print(f"  WARNING: warm-up call failed ({e}); proceeding anyway.")
+            trace.clear()
+
     return agent, tools, trace
 
 
@@ -451,10 +545,13 @@ def diagnose(
     status    = "ok"
 
     t_start = time.perf_counter()
+    rate_limit_sleep = 0.0
     try:
-        result = agent.invoke(
+        result, rate_limit_sleep = invoke_with_rate_limit_retry(
+            agent,
             {"messages": [HumanMessage(content=question)]},
             config={"recursion_limit": max_iter * 3},
+            verbose=verbose,
         )
         messages  = result.get("messages", [])
         diagnosis = messages[-1].content if messages else str(result)
@@ -463,18 +560,23 @@ def diagnose(
         diagnosis = f"Agent error: {e}"
         status    = "error"
     total_seconds = time.perf_counter() - t_start
+    # Subtract rate-limit sleep so timing reflects actual reasoning, not waiting
+    active_seconds = max(0.0, total_seconds - rate_limit_sleep)
 
     # Timing breakdown: separate tool time (SQL + doc agents) from orchestrator
     # time (the diagnostic LLM's own reasoning between tool calls). Tool time
     # is the sum of per-call durations from the trace; orchestrator time is
-    # whatever wall-clock is left over after tools finish.
+    # whatever wall-clock is left over after tools finish — using active_seconds
+    # so any rate-limit sleeps don't get charged to the orchestrator.
     tool_ms_total = sum(c.get("duration_ms", 0) for c in trace)
     sql_ms        = sum(c.get("duration_ms", 0) for c in trace if c["tool"] == "query_logs")
     doc_ms        = sum(c.get("duration_ms", 0) for c in trace if c["tool"] == "query_docs")
-    orchestrator_ms = max(0.0, total_seconds * 1000 - tool_ms_total)
+    orchestrator_ms = max(0.0, active_seconds * 1000 - tool_ms_total)
 
     timing = {
         "total_seconds":        round(total_seconds, 3),
+        "active_seconds":       round(active_seconds, 3),
+        "rate_limit_sleep_s":   round(rate_limit_sleep, 3),
         "tool_ms_total":        round(tool_ms_total, 1),
         "sql_ms_total":         round(sql_ms, 1),
         "doc_ms_total":         round(doc_ms, 1),

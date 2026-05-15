@@ -27,7 +27,7 @@ from build_doc_index import retrieve_docs, DB_PATH, COLLECTION_NAME, EMBEDDING_M
 # ============================================================================
 
 LLM_MODEL    = "llama3.2"     # swap to qwen2.5-coder:7b etc. as desired
-LLM_BACKEND  = "openai"       # "ollama" (local), "groq", "deepinfra", or "openai"
+LLM_BACKEND  = "deepinfra"    # "ollama" (local), "groq" (API), or "deepinfra" (API)
 N_RESULTS    = 5              # docs to retrieve per query
 VERBOSE      = True
 OUTPUT_FILE = "doc_query_results.json"
@@ -70,21 +70,17 @@ When citing specific values (thresholds, timeouts, command syntax), quote them e
 
 
 def generate_doc_answer(prompt, llm_model=LLM_MODEL, backend=LLM_BACKEND):
-    if backend in ("groq", "deepinfra", "openai"):
+    if backend in ("groq", "deepinfra"):
         from openai import OpenAI
 
         if backend == "groq":
             api_base = "https://api.groq.com/openai/v1"
             env_var  = "GROQ_API_KEY"
             example  = "gsk_..."
-        elif backend == "deepinfra":
+        else:  # deepinfra
             api_base = "https://api.deepinfra.com/v1/openai"
             env_var  = "DEEPINFRA_API_KEY"
             example  = "your-deepinfra-key"
-        else:  # openai
-            api_base = None  # use OpenAI default endpoint
-            env_var  = "OPENAI_API_KEY"
-            example  = "sk-..."
 
         api_key = os.environ.get(env_var)
         if not api_key:
@@ -92,10 +88,7 @@ def generate_doc_answer(prompt, llm_model=LLM_MODEL, backend=LLM_BACKEND):
                 f"{env_var} not set in environment. "
                 f"Set it before running: $env:{env_var} = '{example}'"
             )
-        client_kwargs = {"api_key": api_key}
-        if api_base is not None:
-            client_kwargs["base_url"] = api_base
-        client = OpenAI(**client_kwargs)
+        client = OpenAI(api_key=api_key, base_url=api_base)
         response = client.chat.completions.create(
             model=llm_model,
             messages=[{"role": "user", "content": prompt}],
@@ -108,7 +101,7 @@ def generate_doc_answer(prompt, llm_model=LLM_MODEL, backend=LLM_BACKEND):
     else:
         raise ValueError(
             f"Unknown doc backend: {backend!r}. "
-            f"Use 'ollama', 'groq', 'deepinfra', or 'openai'."
+            f"Use 'ollama', 'groq', or 'deepinfra'."
         )
 
 # ============================================================================

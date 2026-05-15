@@ -52,42 +52,37 @@ from build_doc_index import DB_PATH as DOC_DB_PATH, COLLECTION_NAME as DOC_COLLE
 # To run a controlled experiment:
 #   - Change one block only; leave the others untouched.
 #   - The output filename encodes the model combo so results don't overwrite.
-#
-# Backends:
-#   "qwen"   — local Qwen2.5 family via ChatOllama (native /api/chat)
-#   "ollama" — local non-tool-calling models via ChatOllama
-#   "groq"   — Groq API (Llama 3.3 70B etc.) via ChatOpenAI -> /v1 endpoint
-#              Requires $env:GROQ_API_KEY in environment.
 # ============================================================================
 
 # --- Diagnostic agent (orchestrator) ---
-DIAGNOSTIC_MODEL    = "llama-3.3-70b-versatile"
-DIAGNOSTIC_BACKEND  = "groq"        # "qwen", "ollama", or "groq"
+DIAGNOSTIC_MODEL    = "qwen2.5:latest"
+DIAGNOSTIC_BACKEND  = "qwen"       # "qwen" (ChatOpenAI/v1) or "ollama" (ChatOllama)
 DIAGNOSTIC_TEMP     = 0.0
-DIAGNOSTIC_BASE_URL = "http://localhost:11434/v1"   # ignored when backend="groq"
-DIAGNOSTIC_API_KEY  = "ollama"                      # ignored when backend="groq"
+DIAGNOSTIC_BASE_URL = "http://localhost:11434/v1"   # only used for "qwen" backend
+DIAGNOSTIC_API_KEY  = "ollama"                      # only used for "qwen" backend
 
 # --- SQL agent ---
-SQL_MODEL           = "llama-3.3-70b-versatile"
-SQL_BACKEND         = "groq"        # "qwen", "ollama", or "groq"
+SQL_MODEL           = "qwen2.5:latest"
+SQL_BACKEND         = "qwen"       # "qwen" (recommended) or "ollama"
 SQL_TEMP            = 0.0
-SQL_BASE_URL        = "http://localhost:11434/v1"   # ignored when backend="groq"
-SQL_API_KEY         = "ollama"                      # ignored when backend="groq"
+SQL_BASE_URL        = "http://localhost:11434/v1"
+SQL_API_KEY         = "ollama"
 SQL_DB_URI          = "sqlite:///./data/benchmark_db.sqlite"
 SQL_MAX_ITER        = 12
 SQL_MAX_ROWS        = 20
 
 # --- Documentation agent ---
-DOC_MODEL           = "llama-3.3-70b-versatile"
-DOC_BACKEND         = "groq"        # "ollama" or "groq"
+DOC_MODEL           = "llama3.2"
+DOC_BACKEND         = "ollama"     # doc agent always uses ChatOllama (no tool calling needed)
 DOC_BASE_URL        = "http://localhost:11434"
-DOC_N_RESULTS       = 5
+DOC_N_RESULTS       = 5            # docs to retrieve per query_docs call
 
 # --- Orchestrator behaviour ---
 MAX_TURNS           = 6
 VERBOSE             = True
 
 # Output filename encodes the model combo for easy result comparison.
+# This is just the filename — the output directory is set in run_benchmark.py.
 OUTPUT_FILE = (
     f"diagnostic_results"
     f"__diag-{DIAGNOSTIC_MODEL.replace(':', '-').replace('.', '')}"
@@ -95,6 +90,7 @@ OUTPUT_FILE = (
     f"__doc-{DOC_MODEL.replace(':', '-').replace('.', '')}"
     f".json"
 )
+
 
 # ============================================================================
 # SQL AGENT IMPORT
@@ -136,26 +132,9 @@ def _build_diagnostic_llm(
     elif backend == "ollama":
         from langchain_ollama import ChatOllama
         return ChatOllama(model=model, temperature=temp, base_url=base_url)
-    elif backend == "groq":
-        # Groq's OpenAI-compatible endpoint correctly surfaces tool_calls,
-        # unlike Ollama's /v1 — so ChatOpenAI works here.
-        import os
-        from langchain_openai import ChatOpenAI
-        groq_key = os.environ.get("GROQ_API_KEY")
-        if not groq_key:
-            raise RuntimeError(
-                "GROQ_API_KEY not set in environment. "
-                "Set it before running: $env:GROQ_API_KEY = 'gsk_...'"
-            )
-        return ChatOpenAI(
-            model=model,
-            temperature=temp,
-            base_url="https://api.groq.com/openai/v1",
-            api_key=groq_key,
-        )
     else:
         raise ValueError(
-            f"Unknown diagnostic backend: {backend!r}. Use 'qwen', 'ollama', or 'groq'."
+            f"Unknown diagnostic backend: {backend!r}. Use 'qwen' or 'ollama'."
         )
 
 
@@ -191,7 +170,6 @@ def build_tools(
     sql_db_uri=SQL_DB_URI,
     sql_max_iter=SQL_MAX_ITER,
     doc_model=DOC_MODEL,
-    doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
     doc_db_path=DOC_DB_PATH,
     doc_collection=DOC_COLLECTION,
@@ -271,7 +249,6 @@ def build_tools(
             question=question,
             n_results=doc_n_results,
             llm_model=doc_model,
-            backend=doc_backend,
             db_path=doc_db_path,
             collection_name=doc_collection,
             verbose=False,
@@ -342,7 +319,6 @@ def build_diagnostic_agent(
     sql_db_uri=SQL_DB_URI,
     sql_max_iter=SQL_MAX_ITER,
     doc_model=DOC_MODEL,
-    doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
     doc_db_path=DOC_DB_PATH,
     doc_collection=DOC_COLLECTION,
@@ -376,7 +352,6 @@ def build_diagnostic_agent(
         sql_db_uri=sql_db_uri,
         sql_max_iter=sql_max_iter,
         doc_model=doc_model,
-        doc_backend=doc_backend,
         doc_n_results=doc_n_results,
         doc_db_path=doc_db_path,
         doc_collection=doc_collection,
@@ -510,7 +485,6 @@ def diagnose(
             "sql_model":          SQL_MODEL,
             "sql_backend":        SQL_BACKEND,
             "doc_model":          DOC_MODEL,
-            "doc_backend":        DOC_BACKEND,
         },
     }
 
