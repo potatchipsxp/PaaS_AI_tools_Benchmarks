@@ -1,0 +1,2481 @@
+{
+  "evaluated_at": "2026-05-15T22:33:16.977510Z",
+  "n_incidents": 25,
+  "summary": {
+    "answer": {
+      "full_credit": 25,
+      "partial": 0,
+      "miss": 0,
+      "error": 0
+    },
+    "retrieval": {
+      "avg_recall": 1.0,
+      "avg_precision": 0.656
+    },
+    "trace": {
+      "avg_score": 4.36,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 25,
+        "total_seconds_mean": 36.15,
+        "total_seconds_med": 34.42,
+        "total_seconds_p95": 53.95,
+        "total_seconds_min": 19.36,
+        "total_seconds_max": 61.76,
+        "sql_ms_mean": 23672.3,
+        "doc_ms_mean": 9354.7,
+        "orchestrator_ms_mean": 4227.5,
+        "n_tool_calls_mean": 2.12,
+        "orchestrator_share": 0.113
+      },
+      "by_tier": {
+        "tier_1": {
+          "n": 7,
+          "total_seconds_mean": 35.18,
+          "total_seconds_med": 27.28,
+          "total_seconds_p95": 59.01,
+          "total_seconds_min": 23.38,
+          "total_seconds_max": 61.76,
+          "sql_ms_mean": 21261.9,
+          "doc_ms_mean": 9030.1,
+          "orchestrator_ms_mean": 5776.6,
+          "n_tool_calls_mean": 2.14,
+          "orchestrator_share": 0.16
+        },
+        "tier_2": {
+          "n": 10,
+          "total_seconds_mean": 37.97,
+          "total_seconds_med": 40.77,
+          "total_seconds_p95": 49.87,
+          "total_seconds_min": 19.36,
+          "total_seconds_max": 54.16,
+          "sql_ms_mean": 25712.5,
+          "doc_ms_mean": 9742.7,
+          "orchestrator_ms_mean": 3755.6,
+          "n_tool_calls_mean": 2.1,
+          "orchestrator_share": 0.096
+        },
+        "tier_3": {
+          "n": 8,
+          "total_seconds_mean": 34.71,
+          "total_seconds_med": 31.76,
+          "total_seconds_p95": 52.9,
+          "total_seconds_min": 20.31,
+          "total_seconds_max": 53.08,
+          "sql_ms_mean": 23231.2,
+          "doc_ms_mean": 9153.7,
+          "orchestrator_ms_mean": 3462.1,
+          "n_tool_calls_mean": 2.12,
+          "orchestrator_share": 0.097
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "incident_id": "INC-001",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does it mean when an app container starts successfully and logs show the app listening on port 3000, but Diego health checks probe GET http://instance:8080/health and fail with connection refused / port unreachable, causing exit reason=health-check-failed and crash loop backoff? What is the root cause category and recommended fix?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-001",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-001"
+                ],
+                "relevant": true,
+                "distance": 0.6374620795249939
+              },
+              {
+                "doc_id": "runbook_INC-001",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-001"
+                ],
+                "relevant": true,
+                "distance": 0.6726875901222229
+              },
+              {
+                "doc_id": "config_INC-001",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-001"
+                ],
+                "relevant": true,
+                "distance": 0.7346054911613464
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 0.769097626209259
+              },
+              {
+                "doc_id": "config_INC-024",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 0.9618352055549622
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 61.756,
+        "active_seconds": 61.756,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 53706.7,
+        "sql_ms_total": 44801.6,
+        "doc_ms_total": 8905.1,
+        "orchestrator_ms": 8049.2,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 26853.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: **payments-api is hardcoded to listen on port 3000 instead of the platform-assigned `$PORT` (8080 in this case), so Diego health checks fail and the instance is repeatedly killed as `health-check-failed`.**\n\n- Logs show the app starts normally: `Server starting on port 3000`, `Connected ..."
+    },
+    {
+      "incident_id": "INC-002",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In Cloud Foundry-compatible platforms, what does it mean when an app hits disk_quota_exceeded after running for hours, with logs showing writes to /home/vcap/app/logs/app.log and then 'no space left on device' and failure to write a transaction log? What is the usual root cause and what configuration or application changes prevent recurrence?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-002",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": true,
+                "distance": 0.5905695557594299
+              },
+              {
+                "doc_id": "runbook_INC-002",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": true,
+                "distance": 0.7217731475830078
+              },
+              {
+                "doc_id": "config_INC-002",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-002"
+                ],
+                "relevant": true,
+                "distance": 0.790571928024292
+              },
+              {
+                "doc_id": "config_INC-004",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 0.9721616506576538
+              },
+              {
+                "doc_id": "error_ref_INC-004",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 1.1057145595550537
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 52.587,
+        "active_seconds": 52.587,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 43221.5,
+        "sql_ms_total": 33152.8,
+        "doc_ms_total": 10068.7,
+        "orchestrator_ms": 9365.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 21610.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: app-ocmoe0 exhausted its 2048MB container ephemeral disk because it was writing runtime logs to `/home/vcap/app/logs/app.log` over time, and once the filesystem filled it could no longer write its transaction log, triggering `disk_quota_exceeded`.\n\n- Log evidence:\n  - Disk usage rose ste..."
+    },
+    {
+      "incident_id": "INC-003",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does a startup crash with exit_status=1 and stderr showing a network error connecting to a bound PostgreSQL service typically indicate? Include known failure patterns around service bindings, credential delivery, DNS, and service instance availability.",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-003",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-003"
+                ],
+                "relevant": true,
+                "distance": 0.959247887134552
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.0455944538116455
+              },
+              {
+                "doc_id": "runbook_INC-013",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": false,
+                "distance": 1.050713300704956
+              },
+              {
+                "doc_id": "arch_failure_propagation",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-016",
+                  "INC-022",
+                  "INC-025"
+                ],
+                "relevant": false,
+                "distance": 1.1090806722640991
+              },
+              {
+                "doc_id": "error_ref_INC-003",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-003"
+                ],
+                "relevant": true,
+                "distance": 1.1173510551452637
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 23.38,
+        "active_seconds": 23.38,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 29622.8,
+        "sql_ms_total": 13474.2,
+        "doc_ms_total": 16148.6,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 14811.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: `app-ia54l8` is failing on startup because the PostgreSQL hostname in its bound service credentials cannot be resolved from the app container (`socket.gaierror: [Errno -2] Name or service not known`), i.e. a DNS/service-discovery failure, not an app-code crash.\n\n- Log evidence:\n  - `APP/..."
+    },
+    {
+      "incident_id": "INC-004",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry Java app, what does 'java.lang.OutOfMemoryError: Java heap space' immediately before a Diego rep OOM kill and memory_limit_exceeded indicate? What is the typical failure pattern and recommended fix?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-004",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": true,
+                "distance": 0.5390970706939697
+              },
+              {
+                "doc_id": "config_INC-004",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": true,
+                "distance": 0.8672100901603699
+              },
+              {
+                "doc_id": "runbook_INC-004",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": true,
+                "distance": 0.9128328561782837
+              },
+              {
+                "doc_id": "config_INC-009",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 0.9818567037582397
+              },
+              {
+                "doc_id": "error_ref_INC-009",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": false,
+                "distance": 0.9893065690994263
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 25.049,
+        "active_seconds": 25.049,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 19067.6,
+        "sql_ms_total": 11241.8,
+        "doc_ms_total": 7825.8,
+        "orchestrator_ms": 5981.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 9533.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: **The app is throwing `java.lang.OutOfMemoryError: Java heap space`, and as heap usage keeps growing to the 512 MB container limit, Diego hard-kills the container as `memory_limit_exceeded`.**\n\nEvidence:\n- `2008-11-10T02:07:10Z` \u2014 `APP/app.stderr` \u2014 **`java.lang.OutOfMemoryError: Java he..."
+    },
+    {
+      "incident_id": "INC-005",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does CERTIFICATE_VERIFY_FAILED mean for an app connecting to a RabbitMQ service binding on a Cloud Foundry-compatible platform, especially if it starts suddenly at midnight? Look for known failure patterns involving expiring service broker/generated certificates, RabbitMQ TLS cert rotation/expiry, and resulting app symptoms like 503s from a background queue processor dependency failure. Include recommended fixes.",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-005",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-005"
+                ],
+                "relevant": true,
+                "distance": 0.48346590995788574
+              },
+              {
+                "doc_id": "runbook_INC-025",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-025"
+                ],
+                "relevant": false,
+                "distance": 0.8332871198654175
+              },
+              {
+                "doc_id": "config_INC-005",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.8853616118431091
+              },
+              {
+                "doc_id": "runbook_INC-013",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": false,
+                "distance": 0.9544317126274109
+              },
+              {
+                "doc_id": "error_ref_INC-005",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.9777909517288208
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 32.505,
+        "active_seconds": 32.505,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 30266.6,
+        "sql_ms_total": 17907.1,
+        "doc_ms_total": 12359.5,
+        "orchestrator_ms": 2238.0,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 10088.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the app\u2019s RabbitMQ service binding TLS certificate most likely expired at midnight, causing `CERTIFICATE_VERIFY_FAILED` on AMQP connections; the 503s were a downstream symptom of the app failing when its queue dependency became unavailable.\n\n- Log evidence: I could not find direct matchi..."
+    },
+    {
+      "incident_id": "INC-006",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry staging context, what does npm 'EINTEGRITY: sha512 integrity check failed for express@4.18.2' mean during buildpack compile, and what is the usual root cause and recommended fix? Also, if the same app staged successfully previously, what changed is most likely?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-006",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": true,
+                "distance": 1.0844427347183228
+              },
+              {
+                "doc_id": "config_INC-006",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": true,
+                "distance": 1.0962532758712769
+              },
+              {
+                "doc_id": "runbook_INC-006",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": true,
+                "distance": 1.1127508878707886
+              },
+              {
+                "doc_id": "error_ref_INC-011",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": false,
+                "distance": 1.1284630298614502
+              },
+              {
+                "doc_id": "config_INC-011",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": false,
+                "distance": 1.1682757139205933
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 27.284,
+        "active_seconds": 27.284,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 19016.8,
+        "sql_ms_total": 14365.1,
+        "doc_ms_total": 4651.7,
+        "orchestrator_ms": 8267.3,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 9508.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the app\u2019s staging failed because the Node.js buildpack was using a corrupted cached dependency artifact for `express@4.18.2`, causing npm to raise `EINTEGRITY` during compile.\n\n- Log evidence: the platform logs show `cloud_controller` reporting `Staging failed for app app-7zwece: buildpa..."
+    },
+    {
+      "incident_id": "INC-007",
+      "tier": 1,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does router log message 'No route registered for: <host> \u2014 returning 502' mean, and what deployment step is typically missing if an app is running in Diego but the router has no route for the hostname?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-007",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": true,
+                "distance": 0.8643401861190796
+              },
+              {
+                "doc_id": "error_ref_INC-007",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": true,
+                "distance": 0.8698557019233704
+              },
+              {
+                "doc_id": "config_INC-007",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": true,
+                "distance": 0.9305740594863892
+              },
+              {
+                "doc_id": "config_INC-018",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": false,
+                "distance": 1.1007840633392334
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.2145789861679077
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 23.676,
+        "active_seconds": 23.676,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 17141.5,
+        "sql_ms_total": 13890.4,
+        "doc_ms_total": 3251.1,
+        "orchestrator_ms": 6534.3,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 8570.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the app was started in Diego, but the route `api.example.com` was not mapped to `app-bcwwwh` at deployment time, so the router had no routing table entry and returned 502.\n\n- Router logs show: `No route registered for: api.example.com \u2014 returning 502` at `07:01:18Z`, followed by repeated..."
+    },
+    {
+      "incident_id": "INC-008",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does app metric/log evidence like 'db_pool_active_connections=20/20 (POOL EXHAUSTED)' and app errors 'TimeoutError: connection pool exhausted after 5000ms' indicate? Why would scaling an app from 2 to 4 instances not resolve sustained 503s if slow queries are present? Please explain the failure pattern and recommended fix.",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "config_INC-008",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": true,
+                "distance": 0.6906461715698242
+              },
+              {
+                "doc_id": "error_ref_INC-008",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": true,
+                "distance": 0.721217930316925
+              },
+              {
+                "doc_id": "runbook_INC-008",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-008"
+                ],
+                "relevant": true,
+                "distance": 0.7233242392539978
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 0.9507042169570923
+              },
+              {
+                "doc_id": "arch_failure_propagation",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-016",
+                  "INC-022",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 1.0039935111999512
+              }
+            ]
+          }
+        ],
+        "precision": 0.8,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 54.165,
+        "active_seconds": 54.165,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 45206.0,
+        "sql_ms_total": 36342.6,
+        "doc_ms_total": 8863.4,
+        "orchestrator_ms": 8958.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 22603.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: **payments-api was bottlenecked by an exhausted shared database connection pool (`20/20` in use), likely held by slow queries, so adding app instances only increased contention for the same saturated DB resource and did not reduce 503s.**\n\n- Logs show the actual choke point before the 50..."
+    },
+    {
+      "incident_id": "INC-009",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does a cell metric memory_available=0MB indicate, what failure pattern causes simultaneous app instance crashes on a cell, and why would rescheduled instances fail health checks afterward? Include relevant component behavior (Diego/rep) and likely health check failure mechanism.",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-009",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": true,
+                "distance": 0.6322333812713623
+              },
+              {
+                "doc_id": "error_ref_INC-009",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": true,
+                "distance": 0.6547948718070984
+              },
+              {
+                "doc_id": "arch_failure_propagation",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-016",
+                  "INC-022",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.7035240530967712
+              },
+              {
+                "doc_id": "config_INC-009",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-009"
+                ],
+                "relevant": true,
+                "distance": 0.79334557056427
+              },
+              {
+                "doc_id": "error_ref_INC-004",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-004"
+                ],
+                "relevant": false,
+                "distance": 0.8865645527839661
+              }
+            ]
+          }
+        ],
+        "precision": 0.8,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 43.323,
+        "active_seconds": 43.323,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 46608.8,
+        "sql_ms_total": 33908.7,
+        "doc_ms_total": 12700.1,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 23304.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: all 8 instances of app-nwgzbp were co-located on cell-009, and that cell hit a host-level OOM condition (`memory_available=0MB`), so diego rep killed every container on the cell; the rescheduled instances were initially unhealthy because startup on the destination cells was slow under ad..."
+    },
+    {
+      "incident_id": "INC-010",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does a network log message 'Outbound policy DENY' mean for app-to-app communication, how can it cause ECONNREFUSED between two running apps, and how is it fixed? Include relevant concepts like app-to-app policies after redeploy.",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "config_INC-010",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-010"
+                ],
+                "relevant": true,
+                "distance": 0.8187016248703003
+              },
+              {
+                "doc_id": "runbook_INC-010",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-010"
+                ],
+                "relevant": true,
+                "distance": 0.9697384834289551
+              },
+              {
+                "doc_id": "error_ref_INC-010",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-010"
+                ],
+                "relevant": true,
+                "distance": 1.0881516933441162
+              },
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": true,
+                "distance": 1.2335090637207031
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.244362235069275
+              }
+            ]
+          }
+        ],
+        "precision": 0.8,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 19.363,
+        "active_seconds": 19.363,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 21740.3,
+        "sql_ms_total": 10729.9,
+        "doc_ms_total": 11010.4,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 10870.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the redeploy created/used an app identity without a matching app-to-app network policy, so traffic from `order-service` (`app-17shto`) to `inventory-svc` on port `8080` was blocked by the platform\u2019s default deny policy.\n\nEvidence:\n- Logs show a network enforcement event: `Outbound policy..."
+    },
+    {
+      "incident_id": "INC-011",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In Python apps on Cloud Foundry, what does a startup error 'ImportError: cannot import name typing_extensions from numpy' alongside 'pandas requires numpy>=1.24' indicate? What is the likely root cause if requirements.txt is believed to pin numpy==1.24 but runtime logs show numpy 1.21.6 loaded, and what fixes are recommended?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-011",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": true,
+                "distance": 0.7102381587028503
+              },
+              {
+                "doc_id": "runbook_INC-011",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": true,
+                "distance": 0.7383168935775757
+              },
+              {
+                "doc_id": "config_INC-011",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-011"
+                ],
+                "relevant": true,
+                "distance": 1.0523892641067505
+              },
+              {
+                "doc_id": "error_ref_INC-006",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": false,
+                "distance": 1.32746422290802
+              },
+              {
+                "doc_id": "runbook_INC-006",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": false,
+                "distance": 1.387411117553711
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 34.711,
+        "active_seconds": 34.711,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 25497.7,
+        "sql_ms_total": 20317.9,
+        "doc_ms_total": 5179.8,
+        "orchestrator_ms": 9213.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 12748.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the app is crashing because the runtime image loaded `numpy 1.21.6` instead of the required `1.24.x`, so this is a Python buildpack/dependency resolution mismatch, not an app-code startup bug.\n\n- App startup logs from `instance-0000` on `cell-003` show: `ImportError: cannot import name '..."
+    },
+    {
+      "incident_id": "INC-012",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a 429 toomanyrequests from registry-1.docker.io during Cloud Foundry staging mean, what failure pattern does it indicate, and what are the recommended mitigations/fixes?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-012",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": true,
+                "distance": 0.9050176739692688
+              },
+              {
+                "doc_id": "error_ref_INC-012",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": true,
+                "distance": 0.948716938495636
+              },
+              {
+                "doc_id": "config_INC-012",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": true,
+                "distance": 0.9965054988861084
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.1956584453582764
+              },
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": false,
+                "distance": 1.2131011486053467
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 39.963,
+        "active_seconds": 39.963,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 41189.4,
+        "sql_ms_total": 31145.7,
+        "doc_ms_total": 10043.7,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 13729.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: staging is failing because the platform\u2019s BUILD_SERVICE hit Docker Hub pull rate limits on the shared egress IP while pulling images from `registry-1.docker.io`, causing `image_pull_failed` during staging.\n\n- `2008-11-10T15:53:10Z` `BUILD_SERVICE/buildpack.compile`: `toomanyrequests: You..."
+    },
+    {
+      "incident_id": "INC-013",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible platform, what does a service broker bind timeout during Redis master unreachable/failover mean operationally? What failure pattern is this, and what is the recommended fix when the broker logs show 'Redis master node unreachable' and bind times out after 30s until failover completes?",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-013",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": true,
+                "distance": 0.5984764695167542
+              },
+              {
+                "doc_id": "runbook_INC-013",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": true,
+                "distance": 0.6332969069480896
+              },
+              {
+                "doc_id": "config_INC-013",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-013"
+                ],
+                "relevant": true,
+                "distance": 0.7954391241073608
+              },
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": true,
+                "distance": 0.9348695278167725
+              },
+              {
+                "doc_id": "config_INC-003",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-003"
+                ],
+                "relevant": false,
+                "distance": 1.1108402013778687
+              }
+            ]
+          }
+        ],
+        "precision": 0.8,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 41.576,
+        "active_seconds": 41.576,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 33024.7,
+        "sql_ms_total": 20865.5,
+        "doc_ms_total": 12159.2,
+        "orchestrator_ms": 8551.4,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 16512.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: The bind timed out because the Redis service broker could not complete the synchronous bind within Cloud Controller\u2019s 30s `broker_client_timeout` while the Redis master at `10.0.8.22:6379` was unreachable and the cluster was mid-failover.\n\n- Logs show `cf bind-service app-dj02vx redis-ca..."
+    },
+    {
+      "incident_id": "INC-014",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does an application log error 'missing field idempotency_key' during a rolling deploy likely indicate? How can mixed-version traffic during rolling deployment cause 422/500s, and is autoscaler activity during the same window typically causal or a symptom?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-014",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": true,
+                "distance": 0.7971072196960449
+              },
+              {
+                "doc_id": "config_INC-014",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": true,
+                "distance": 0.8873919248580933
+              },
+              {
+                "doc_id": "error_ref_INC-014",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": true,
+                "distance": 0.996281087398529
+              },
+              {
+                "doc_id": "config_INC-012",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-012"
+                ],
+                "relevant": false,
+                "distance": 1.149533748626709
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.1660369634628296
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 44.614,
+        "active_seconds": 44.614,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 45389.6,
+        "sql_ms_total": 35004.0,
+        "doc_ms_total": 10385.6,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 22694.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: a backward-incompatible v2 change requiring `idempotency_key` was deployed via rolling update, so live traffic was split between v1 and v2 instances and the autoscaler scaled out old-version instances during the deploy, extending the mixed-version window and causing 422 validation failur..."
+    },
+    {
+      "incident_id": "INC-015",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In Cloud Foundry Loggregator, what does doppler buffer fill near 98%, 'dropping envelopes; send buffer exceeded', agent message drops due to backpressure, and 'metric gaps detected; autoscaler may have stale data' indicate? Which component is failing, what is the impact, and what is the recommended fix?",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-015",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": true,
+                "distance": 0.48630011081695557
+              },
+              {
+                "doc_id": "arch_observability_pipeline",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-015",
+                  "INC-016",
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.5050579905509949
+              },
+              {
+                "doc_id": "runbook_INC-015",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": true,
+                "distance": 0.5159850716590881
+              },
+              {
+                "doc_id": "config_INC-015",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-015"
+                ],
+                "relevant": true,
+                "distance": 0.5536977052688599
+              },
+              {
+                "doc_id": "arch_control_data_plane",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-007",
+                  "INC-009",
+                  "INC-013",
+                  "INC-016",
+                  "INC-018",
+                  "INC-021"
+                ],
+                "relevant": false,
+                "distance": 1.0970637798309326
+              }
+            ]
+          }
+        ],
+        "precision": 0.8,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 42.181,
+        "active_seconds": 42.181,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 33776.0,
+        "sql_ms_total": 23322.7,
+        "doc_ms_total": 10453.3,
+        "orchestrator_ms": 8404.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 16888.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: **Loggregator Doppler is saturated/backpressured**\u2014its send buffer is effectively full (~98%), causing envelope drops in Doppler and upstream drops in agents/RLP, which leads to missing or delayed app logs and metrics.\n\n- **Key evidence**\n  - `loggregator.doppler` logged **\u201cDoppler buffe..."
+    },
+    {
+      "incident_id": "INC-016",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what known failure pattern causes NATS message rate to spike far above normal (e.g. 48000/s vs 2000/s), leading to Diego missed cell heartbeats, stale routing table, and cell evacuations? Which component typically floods the message bus and why?",
+            "n_retrieved": 5,
+            "n_relevant": 5,
+            "precision": 1.0,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-016",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.6723241209983826
+              },
+              {
+                "doc_id": "config_INC-016",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.8250001072883606
+              },
+              {
+                "doc_id": "error_ref_INC-016",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-016"
+                ],
+                "relevant": true,
+                "distance": 0.8335572481155396
+              },
+              {
+                "doc_id": "arch_failure_propagation",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-016",
+                  "INC-022",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.9663459062576294
+              },
+              {
+                "doc_id": "arch_operating_baselines",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-015",
+                  "INC-016",
+                  "INC-017",
+                  "INC-018",
+                  "INC-020",
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.0360389947891235
+              }
+            ]
+          }
+        ],
+        "precision": 1.0,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 34.419,
+        "active_seconds": 34.419,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 31991.5,
+        "sql_ms_total": 26890.6,
+        "doc_ms_total": 5100.9,
+        "orchestrator_ms": 2427.1,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 15995.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: a runaway `metrics-agent` on `cell-011` flooded NATS at ~49,800 messages/sec, saturating the message bus and causing downstream subscribers to miss route and heartbeat traffic.\n\n- Logs show `NATS: message rate=48000/s (normal: 2000/s)` followed by `slow consumer detected on subscription ..."
+    },
+    {
+      "incident_id": "INC-017",
+      "tier": 2,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what causes app health checks to time out while instances are running on a cell with sustained CPU around 94%? Look for documentation on health check timeout behavior under cell CPU saturation or host contention, and relevant failure pattern/remediation.",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-017",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.7489824295043945
+              },
+              {
+                "doc_id": "error_ref_INC-017",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.8310178518295288
+              },
+              {
+                "doc_id": "config_INC-017",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-017"
+                ],
+                "relevant": true,
+                "distance": 0.8765963912010193
+              },
+              {
+                "doc_id": "arch_failure_propagation",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-016",
+                  "INC-022",
+                  "INC-025"
+                ],
+                "relevant": false,
+                "distance": 0.9112855195999146
+              },
+              {
+                "doc_id": "config_INC-020",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": false,
+                "distance": 1.000028371810913
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 25.411,
+        "active_seconds": 25.411,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 30128.5,
+        "sql_ms_total": 18597.7,
+        "doc_ms_total": 11530.8,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 15064.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: A CPU-heavy noisy-neighbor workload on cell-012 saturated the cell (94% sustained CPU), causing co-located app instances including app-q16e4q to be CPU-throttled so their health check responses exceeded the 5s timeout even though the processes were still running.\n\n- Log evidence:\n  - `ME..."
+    },
+    {
+      "incident_id": "INC-018",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does it mean when after a blue-green swap routers continue routing to a stale backend or deregistered instance for ~30-60 seconds, causing intermittent 502 connection refused errors? Explain the failure pattern, likely component behavior (router route table/cache propagation, route-emitter/NATS convergence, endpoint deregistration), and why it self-resolves.",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-018",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": true,
+                "distance": 0.6111421585083008
+              },
+              {
+                "doc_id": "error_ref_INC-018",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": true,
+                "distance": 0.6658562421798706
+              },
+              {
+                "doc_id": "config_INC-018",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-018"
+                ],
+                "relevant": true,
+                "distance": 0.9103577136993408
+              },
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": false,
+                "distance": 1.0944459438323975
+              },
+              {
+                "doc_id": "error_ref_INC-007",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-007"
+                ],
+                "relevant": false,
+                "distance": 1.1232818365097046
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 53.08,
+        "active_seconds": 53.08,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 41448.0,
+        "sql_ms_total": 28444.1,
+        "doc_ms_total": 13003.9,
+        "orchestrator_ms": 11632.2,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 20724.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the transient 502s were caused by Gorouter serving a stale route cache entry for the old blue backend after the blue-green swap, so some requests were still sent to the deregistered blue instance until router cache/route propagation converged.\n\n- Logs show the swap sequence: `CONTROLLER:..."
+    },
+    {
+      "incident_id": "INC-019",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what architectural pattern causes two services deployed together to poll each other's /health endpoints indefinitely until both hit the 90-second health_check_timeout? What is this failure pattern called and what is the recommended fix?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "config_INC-024",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 0.9056518077850342
+              },
+              {
+                "doc_id": "arch_failure_propagation",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-016",
+                  "INC-022",
+                  "INC-025"
+                ],
+                "relevant": false,
+                "distance": 0.9288854002952576
+              },
+              {
+                "doc_id": "runbook_INC-019",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-019"
+                ],
+                "relevant": true,
+                "distance": 0.9433732032775879
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 0.9775596857070923
+              },
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": false,
+                "distance": 0.9799810647964478
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 30.246,
+        "active_seconds": 30.246,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 23143.1,
+        "sql_ms_total": 17830.1,
+        "doc_ms_total": 5313.0,
+        "orchestrator_ms": 7102.9,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 11571.5,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "**Root cause:** a **circular startup dependency deadlock** \u2014 auth-service would not become healthy until gateway-service was healthy, and gateway-service was doing the same to auth-service.\n\n**Evidence:**\n- `auth-service: waiting for gateway /health to be UP...` and `gateway-service: waiting for aut..."
+    },
+    {
+      "incident_id": "INC-020",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In Cloud Foundry autoscaler, what configuration mismatch causes scale-up/scale-down oscillation when new instances are not yet healthy before the next evaluation? Specifically explain the relationship between instance startup time, cooldown periods, and evaluation interval/breach duration.",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-014",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 0.6359633207321167
+              },
+              {
+                "doc_id": "error_ref_INC-020",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.662152886390686
+              },
+              {
+                "doc_id": "runbook_INC-020",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.7138511538505554
+              },
+              {
+                "doc_id": "config_INC-020",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-020"
+                ],
+                "relevant": true,
+                "distance": 0.7795991897583008
+              },
+              {
+                "doc_id": "config_INC-014",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 0.8544472455978394
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_log_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 52.559,
+        "active_seconds": 52.559,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 52400.3,
+        "sql_ms_total": 43367.4,
+        "doc_ms_total": 9032.9,
+        "orchestrator_ms": 158.7,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 17466.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the autoscaler cooldown is shorter than the app\u2019s instance startup/health time, so it reevaluates after ~30s and scales down before newly added instances become healthy, causing repeated up/down thrashing.\n\n- Logs show a repeating pattern in `AUTOSCALER`: `Scale up` at `03:48:04`, then `..."
+    },
+    {
+      "incident_id": "INC-021",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does 'scheduler unavailable' during cf push mean when BBS logs say 'BBS is not the active master'? What distributed system failure pattern causes this, involving BBS leadership, locket, or etcd/consensus backing services?",
+            "n_retrieved": 5,
+            "n_relevant": 5,
+            "precision": 1.0,
+            "docs": [
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": true,
+                "distance": 0.7884654402732849
+              },
+              {
+                "doc_id": "error_ref_INC-021",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 0.8804209232330322
+              },
+              {
+                "doc_id": "runbook_INC-021",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 0.929620087146759
+              },
+              {
+                "doc_id": "config_INC-021",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 0.9331141710281372
+              },
+              {
+                "doc_id": "arch_control_data_plane",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-007",
+                  "INC-009",
+                  "INC-013",
+                  "INC-016",
+                  "INC-018",
+                  "INC-021"
+                ],
+                "relevant": true,
+                "distance": 0.9862512946128845
+              }
+            ]
+          }
+        ],
+        "precision": 1.0,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 27.921,
+        "active_seconds": 27.921,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 29328.5,
+        "sql_ms_total": 20847.9,
+        "doc_ms_total": 8480.6,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 14664.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: a Locket consensus quorum loss, most likely from a network partition isolating one of the 3 Locket nodes, caused BBS to lose leadership and refuse scheduling, which blocked new deployments with `scheduler unavailable`.\n\n- Logs show the sequence: `Locket: failed to acquire lock \u2014 quorum l..."
+    },
+    {
+      "incident_id": "INC-022",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry app, what does rising OAuth validate latency followed by 'RejectedExecutionException: no threads available' typically indicate? What external dependency is involved in OAuth token validation, and what failure pattern causes full app unresponsiveness?",
+            "n_retrieved": 5,
+            "n_relevant": 4,
+            "precision": 0.8,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-022",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 0.6339380741119385
+              },
+              {
+                "doc_id": "runbook_INC-022",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 0.9182455539703369
+              },
+              {
+                "doc_id": "config_INC-022",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.0626296997070312
+              },
+              {
+                "doc_id": "arch_operating_baselines",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-008",
+                  "INC-009",
+                  "INC-015",
+                  "INC-016",
+                  "INC-017",
+                  "INC-018",
+                  "INC-020",
+                  "INC-022"
+                ],
+                "relevant": true,
+                "distance": 1.0687713623046875
+              },
+              {
+                "doc_id": "arch_component_dependencies",
+                "doc_type": "architecture",
+                "incident_ids": [
+                  "INC-001",
+                  "INC-003",
+                  "INC-007",
+                  "INC-010",
+                  "INC-013",
+                  "INC-016",
+                  "INC-021",
+                  "INC-023"
+                ],
+                "relevant": false,
+                "distance": 1.1497225761413574
+              }
+            ]
+          }
+        ],
+        "precision": 0.8,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 34.909,
+        "active_seconds": 34.909,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 42211.1,
+        "sql_ms_total": 28005.0,
+        "doc_ms_total": 14206.1,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 21105.5,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the full outage was caused by the external OAuth provider degrading sharply, making token validation calls block until the app\u2019s auth/request thread pool was exhausted.\n\n- Log evidence:\n  - `OAuth validate` latency rose from normal `~80ms` to `1200ms`, then `3800ms`, with the app logging..."
+    },
+    {
+      "incident_id": "INC-023",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does a blob store error 'Blob key conflict: partial blob exists' mean after a successful build when deploy retries fail, and how does it relate to client-facing checksum mismatch errors? Include the failure pattern and recommended fix.",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_INC-023",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-023"
+                ],
+                "relevant": true,
+                "distance": 0.5208719372749329
+              },
+              {
+                "doc_id": "runbook_INC-023",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-023"
+                ],
+                "relevant": true,
+                "distance": 0.5478142499923706
+              },
+              {
+                "doc_id": "config_INC-023",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-023"
+                ],
+                "relevant": true,
+                "distance": 0.7170267105102539
+              },
+              {
+                "doc_id": "config_INC-006",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": false,
+                "distance": 1.0314841270446777
+              },
+              {
+                "doc_id": "runbook_INC-006",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-006"
+                ],
+                "relevant": false,
+                "distance": 1.1716525554656982
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 25.425,
+        "active_seconds": 25.425,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 17743.7,
+        "sql_ms_total": 11191.3,
+        "doc_ms_total": 6552.4,
+        "orchestrator_ms": 7681.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 8871.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: a previous deploy left a stale partial droplet blob for `app-8fxpjz` in the blob store, so every new deploy reuses/conflicts with that corrupted key and surfaces as a checksum mismatch.\n\n- Log evidence shows the actual first failure was in `BLOB_STORE`, not the build: `Partial blob writt..."
+    },
+    {
+      "incident_id": "INC-024",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In a Cloud Foundry-compatible PaaS, what does it mean when a rolling deploy canary instance passes liveness but readiness endpoint returns 503 'cache not warmed' for several minutes? How do rolling deployments decide to pause/block on readiness, and what is the recommended fix?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "runbook_INC-024",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": true,
+                "distance": 0.7739826440811157
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": true,
+                "distance": 0.8395066857337952
+              },
+              {
+                "doc_id": "config_INC-024",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": true,
+                "distance": 0.9420968890190125
+              },
+              {
+                "doc_id": "config_INC-014",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 1.023008942604065
+              },
+              {
+                "doc_id": "runbook_INC-014",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-014"
+                ],
+                "relevant": false,
+                "distance": 1.089931607246399
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 33.265,
+        "active_seconds": 33.265,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 33615.5,
+        "sql_ms_total": 24375.2,
+        "doc_ms_total": 9240.3,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 16807.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: The rolling deploy is blocked because the v3.1 canary never becomes ready within the platform\u2019s 5-minute canary window\u2014`/readiness` keeps returning `503 cache not warmed`, so Cloud Controller pauses progression even though the process is alive.\n\n- Log evidence:\n  - `cloud_controller` log..."
+    },
+    {
+      "incident_id": "INC-025",
+      "tier": 3,
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In this Cloud Foundry-compatible PaaS, what does a CERT WARNING about an upcoming certificate expiry mean operationally, why might an outage still occur 6 hours later, and what automated detection/runbook is recommended for preventing cert expiry outages? Include any thresholds or alerting guidance.",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "config_INC-005",
+                "doc_type": "config",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.7527647018432617
+              },
+              {
+                "doc_id": "runbook_INC-005",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-005"
+                ],
+                "relevant": false,
+                "distance": 0.7539509534835815
+              },
+              {
+                "doc_id": "runbook_INC-025",
+                "doc_type": "runbook",
+                "incident_ids": [
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.82124263048172
+              },
+              {
+                "doc_id": "error_ref_INC-005",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-005",
+                  "INC-025"
+                ],
+                "relevant": true,
+                "distance": 0.9224117994308472
+              },
+              {
+                "doc_id": "error_ref_INC-024",
+                "doc_type": "error_ref",
+                "incident_ids": [
+                  "INC-024"
+                ],
+                "relevant": false,
+                "distance": 1.2504795789718628
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "called_logs": true,
+        "called_docs": true,
+        "logs_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_log_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 20.311,
+        "active_seconds": 20.311,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 19189.5,
+        "sql_ms_total": 11788.8,
+        "doc_ms_total": 7400.7,
+        "orchestrator_ms": 1121.6,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 9594.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: an internal platform mTLS certificate was allowed to reach its expiry time without rotation, so all internal TLS connections failed abruptly at expiry even though the only advance signal, `CERT WARNING`, had appeared hours earlier.\n\n- Log evidence:\n  - At `2008-11-11T11:06:40Z`, multiple..."
+    }
+  ]
+}

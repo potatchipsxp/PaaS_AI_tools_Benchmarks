@@ -79,8 +79,8 @@ CASES_BY_ID = {c["incident_id"]: c for c in BENCHMARK_CASES}
 # an absolute path or by editing these defaults.
 SCRIPT_DIR = Path(__file__).resolve().parent
 
-RESULTS_FILE = SCRIPT_DIR / "diagnostic_results__diag-meta-llama-Llama-3-3-70B-Instruct-Turbo__sql-meta-llama-Llama-3-3-70B-Instruct-Turbo__doc-meta-llama-Llama-3-3-70B-Instruct-Turbo.json"
-REPORT_FILE  = SCRIPT_DIR / "evaluation_report_meta-llama-Llama-3-3-70B-Instruct-Turbo.json"
+RESULTS_FILE = SCRIPT_DIR / "diagnostic_results__diag-gpt-5-4__sql-gpt-5-4__doc-gpt-5-4.json"
+REPORT_FILE  = SCRIPT_DIR / "evaluation_report__diag-gpt-5-4__sql-gpt-5-4__doc-gpt-5-4.json"
 
 
 # ============================================================================
