@@ -53,15 +53,7 @@ def split_sql_statements(text):
 
         if in_single:
             if ch == '\\' and i + 1 < n:
-                nxt = text[i + 1]
-                if nxt == "'":
-                    # MySQL backslash-escape -> SQLite doubled-quote escape.
-                    # Preserving the raw backslash here was the bug: SQLite
-                    # doesn't recognize \' as an escape, so it read the
-                    # backslash as a literal char and the following ' as the
-                    # real closing quote, truncating the string early.
-                    buf.append("''"); i += 2; continue
-                buf.append(ch); buf.append(nxt); i += 2; continue
+                buf.append(ch); buf.append(text[i + 1]); i += 2; continue
             if ch == "'":
                 if i + 1 < n and text[i + 1] == "'":
                     buf.append("''"); i += 2; continue
@@ -184,17 +176,15 @@ def split_value_tuples(tuples_blob):
     while i < n:
         ch = tuples_blob[i]
         if in_single:
+            buf.append(ch)
             if ch == '\\' and i + 1 < n:
-                nxt = tuples_blob[i + 1]
-                if nxt == "'":
-                    buf.append("''"); i += 2; continue
-                buf.append(ch); buf.append(nxt); i += 2; continue
+                i += 1; buf.append(tuples_blob[i]); i += 1; continue
             if ch == "'":
                 if i + 1 < n and tuples_blob[i + 1] == "'":
-                    buf.append("''"); i += 2; continue
+                    buf.append("'"); i += 2; continue
                 in_single = False
-                buf.append(ch); i += 1; continue
-            buf.append(ch); i += 1; continue
+            i += 1
+            continue
         if in_backtick:
             buf.append(ch)
             if ch == '`':
