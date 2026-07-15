@@ -243,18 +243,27 @@ if __name__ == "__main__":
     conn.commit()
     print("Created Edge table manually (schema absent from source dump).")
 
-    sql_files = sorted(glob.glob(os.path.join(SQL_DIR, "*.sql")))
-    print(f"Found {len(sql_files)} .sql files")
-
     # The trace-set / fault label (e.g. "AN_Data_corruptBlk_r_00FDN_...") only
     # exists as the source filename — Trace.Title holds the HDFS command
-    # ('fs -copyToLocal'), not the fault. Without tagging rows by source file
-    # here, ground truth for any given TraceID becomes unrecoverable once
-    # everything lands in the shared Trace table. Tag lazily per file: after
-    # a file loads, every Trace row still NULL in trace_set was inserted by
-    # that file (earlier files already got backfilled), so this is safe even
-    # though INSERT OR IGNORE means no per-statement row list is available.
-    trace_set_col_added = False
+    # ('fs -copyToLocal'), not the fault. Without recording it, ground truth
+    # for any given TraceID is unrecoverable once rows land in the shared
+    # Trace table. IMPORTANT: do NOT ALTER TABLE Trace to add a column —
+    # every subsequent file's "INSERT INTO Trace VALUES (...)" is a bare
+    # positional statement with no column list, sized to the *original*
+    # 8-column schema. Adding a 9th column breaks every later file's insert
+    # ("table Trace has 9 columns but 8 values were supplied") and silently
+    # drops ~370k rows down to a few hundred — this happened on the first
+    # attempt. Keep the mapping in a separate side table instead.
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS `Trace_Source` (
+            `TraceID` TEXT PRIMARY KEY,
+            `trace_set` TEXT
+        )
+    """)
+    conn.commit()
+
+    sql_files = sorted(glob.glob(os.path.join(SQL_DIR, "*.sql")))
+    print(f"Found {len(sql_files)} .sql files")
 
     reject_path = "data/tracebench_load_rejects.log"
     with open(reject_path, "w", encoding="utf-8") as reject_log:
@@ -262,26 +271,26 @@ if __name__ == "__main__":
             print(f"[{i+1}/{len(sql_files)}] {os.path.basename(f)}", end=" ... ")
             skipped, errors = load_sql_file(conn, f, reject_log)
 
-            if not trace_set_col_added:
-                cur = conn.cursor()
-                cur.execute("PRAGMA table_info(`Trace`)")
-                cols = {row[1] for row in cur.fetchall()}
-                if cols and "trace_set" not in cols:
-                    conn.execute("ALTER TABLE `Trace` ADD COLUMN `trace_set` TEXT")
-                    conn.commit()
-                    trace_set_col_added = True
-
-            if trace_set_col_added:
-                conn.execute(
-                    "UPDATE `Trace` SET `trace_set` = ? WHERE `trace_set` IS NULL",
-                    (os.path.basename(f),),
-                )
-                conn.commit()
+            # NOTE: the dump's real PK column is `TaskID`, not `TraceID` — the
+            # blanket `\bTask\b` -> `Trace` rename in clean_statement() only
+            # renames the bare table-name token, not "TaskID" (no word
+            # boundary between "Task" and "ID"). Trace_Source itself still
+            # uses the `TraceID` name to match the terminology used
+            # everywhere else in the port (spec, manifest, downstream code).
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO `Trace_Source` (`TraceID`, `trace_set`)
+                SELECT `TaskID`, ? FROM `Trace`
+                WHERE `TaskID` NOT IN (SELECT `TraceID` FROM `Trace_Source`)
+                """,
+                (os.path.basename(f),),
+            )
+            conn.commit()
 
             print(f"done (skipped {skipped} directives, {errors} errors)")
 
     cur = conn.cursor()
-    for table in ("Event", "Edge", "Trace", "Operation"):
+    for table in ("Event", "Edge", "Trace", "Operation", "Trace_Source"):
         try:
             cur.execute(f"SELECT COUNT(*) FROM `{table}`")
             count = cur.fetchone()[0]
@@ -289,9 +298,9 @@ if __name__ == "__main__":
         except sqlite3.OperationalError as e:
             print(f"  {table}: NOT FOUND — {e}")
 
-    cur.execute("SELECT COUNT(*) FROM `Trace` WHERE `trace_set` IS NULL")
+    cur.execute("SELECT COUNT(*) FROM `Trace` WHERE `TaskID` NOT IN (SELECT `TraceID` FROM `Trace_Source`)")
     untagged = cur.fetchone()[0]
-    cur.execute("SELECT COUNT(DISTINCT `trace_set`) FROM `Trace`")
+    cur.execute("SELECT COUNT(DISTINCT `trace_set`) FROM `Trace_Source`")
     distinct_sets = cur.fetchone()[0]
     print(f"  trace_set: {distinct_sets:,} distinct sets, {untagged:,} Trace rows untagged")
 
