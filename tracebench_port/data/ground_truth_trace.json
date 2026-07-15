@@ -1,0 +1,425 @@
+[
+  {
+    "case_id": "TB-001",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "COM_Mul_AA_rwrpc_2_30C_1to19B_0to120INTR_0to600INTW_0to0INTRPC_150RT_10WT.sql",
+    "trace_id": "99B14FE25B6D4910",
+    "fault_category": "AA",
+    "fault_name": "Mul_AA",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode003"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode003 averages 84,461,227ns for OP: new blockSender across this trace_set vs 3,060,219ns for its peer datanodes (27.6x)"
+  },
+  {
+    "case_id": "TB-002",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "COM_Sin_Bug_rwrpc_2_30C_1to5B_0to120INTR_0to600INTW_0to10INTRPC_30RT_5WT.sql",
+    "trace_id": "3722734FFCFC8E63",
+    "fault_category": "Bug",
+    "fault_name": "Sin_Bug",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode003"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode003 averages 1,051,558,172ns for verifiedByClient across this trace_set vs 908,410ns for its peer datanodes (1157.6x)"
+  },
+  {
+    "case_id": "TB-003",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "COM_Sin_Data_rwrpc_2_30C_1to19B_0to120INTR_0to600INTW_0to0INTRPC_60RT_10WT.sql",
+    "trace_id": "0166FE80C78C3CF7",
+    "fault_category": "Data",
+    "fault_name": "Sin_Data",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode045",
+      "datanode047",
+      "datanode050"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 3 with bytesPerChecksum 50529027"
+  },
+  {
+    "case_id": "TB-004",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "COM_Sin_Net_rwrpc_2_30C_1to19B_0to120INTR_0to600INTW_0to0INTRPC_60RT_10WT.sql",
+    "trace_id": "DAB15CFA9D91F989",
+    "fault_category": "Net",
+    "fault_name": "Sin_Net",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode046"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode046 averages 27,658,900ns for OP: new blockSender across this trace_set vs 1,269,153ns for its peer datanodes (21.8x)"
+  },
+  {
+    "case_id": "TB-005",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "COM_Sin_Proc_rwrpc_2_30C_1to19B_0to120INTR_0to600INTW_0to0INTRPC_60RT_10WT.sql",
+    "trace_id": "A051712AA7AE25A9",
+    "fault_category": "Proc",
+    "fault_name": "Sin_Proc",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode033"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode033 averages 92,702,267ns for verifiedByClient across this trace_set vs 6,892,375ns for its peer datanodes (13.4x)"
+  },
+  {
+    "case_id": "TB-006",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "COM_Sin_Sys_rwrpc_2_30C_1to19B_0to120INTR_0to600INTW_0to0INTRPC_60RT_10WT.sql",
+    "trace_id": "010AD72099CF744E",
+    "fault_category": "Sys",
+    "fault_name": "Sin_Sys",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode016",
+      "datanode043"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: failed to connect to 10.107.100.96:50010"
+  },
+  {
+    "case_id": "TB-007",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "AN_Data_corruptBlk_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "0207F6FDA149694E",
+    "fault_category": "Data",
+    "fault_name": "corruptBlk",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode002"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: org.apache.hadoop.fs.ChecksumException: Checksum error: /blk_-5596974342584343053:of:/user/hadoop/hdfsFile_2_blocks at 0"
+  },
+  {
+    "case_id": "TB-008",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "AN_Data_corruptMeta_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "017819C0E34B6EFF",
+    "fault_category": "Data",
+    "fault_name": "corruptMeta",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode001",
+      "datanode003"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 3 with bytesPerChecksum 50529027"
+  },
+  {
+    "case_id": "TB-009",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "AN_Data_cutBlk_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "012D78362237F73E",
+    "fault_category": "Data",
+    "fault_name": "cutBlk",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode004"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.io.IOException:  Offset 0 and length 67108864 don't match block blk_2749751980111740114_1415 ( blockLen 2201 )"
+  },
+  {
+    "case_id": "TB-010",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "AN_Data_cutMeta_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "002CE32105569C3C",
+    "fault_category": "Data",
+    "fault_name": "cutMeta",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode002",
+      "datanode005"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 49 with bytesPerChecksum 825307441"
+  },
+  {
+    "case_id": "TB-011",
+    "tier": 1,
+    "is_anomalous": true,
+    "trace_set": "AN_Sys_deadDN_r_02FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "03FB08C229C2844D",
+    "fault_category": "Sys",
+    "fault_name": "deadDN",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "client002"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue"
+  },
+  {
+    "case_id": "TB-012",
+    "tier": 2,
+    "is_anomalous": true,
+    "trace_set": "AN_Net_disconnectDN_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "0309988149E3639A",
+    "fault_category": "Net",
+    "fault_name": "disconnectDN",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "client010"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.64:50010, add to deadNodes and continue"
+  },
+  {
+    "case_id": "TB-013",
+    "tier": 1,
+    "is_anomalous": true,
+    "trace_set": "AN_Proc_killDN_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "016683939AD657E8",
+    "fault_category": "Proc",
+    "fault_name": "killDN",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "client023"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue"
+  },
+  {
+    "case_id": "TB-014",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "AN_Data_lossBlk_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "0308449B3F12B0A3",
+    "fault_category": "Data",
+    "fault_name": "lossBlk",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode004"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.io.IOException: Block blk_-1603825720303258975_1176 is not valid."
+  },
+  {
+    "case_id": "TB-015",
+    "tier": 3,
+    "is_anomalous": true,
+    "trace_set": "AN_Data_lossMeta_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "44C66D6F37A41CF3",
+    "fault_category": "Data",
+    "fault_name": "lossMeta",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode048"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode048 averages 33,456,252ns for verifiedByClient across this trace_set vs 168,563ns for its peer datanodes (198.5x)"
+  },
+  {
+    "case_id": "TB-016",
+    "tier": 1,
+    "is_anomalous": true,
+    "trace_set": "AN_Sys_panicDN_r_02FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "04737D2A819A255A",
+    "fault_category": "Sys",
+    "fault_name": "panicDN",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "client003"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.60:50010, add to deadNodes and continue"
+  },
+  {
+    "case_id": "TB-017",
+    "tier": 1,
+    "is_anomalous": true,
+    "trace_set": "AN_Sys_readOnlyDN_w_02FDN_30C_1to19B_0to600INT_15RT_5WT.sql",
+    "trace_id": "47781BAF44C33DBE",
+    "fault_category": "Sys",
+    "fault_name": "readOnlyDN",
+    "severity": "2",
+    "delay_ms": null,
+    "affected_component": [
+      "datanode027"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode027 averages 39,022,155ns for OP: new BlockReceiver across this trace_set vs 17,688,923ns for its peer datanodes (2.2x)"
+  },
+  {
+    "case_id": "TB-018",
+    "tier": 2,
+    "is_anomalous": true,
+    "trace_set": "AN_Net_slowDN_r_100ms_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "C4113E01C484F2EB",
+    "fault_category": "Net",
+    "fault_name": "slowDN",
+    "severity": "5",
+    "delay_ms": "100",
+    "affected_component": [
+      "datanode046"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode046 averages 58,519,845ns for verifiedByClient across this trace_set vs 178,178ns for its peer datanodes (328.4x)"
+  },
+  {
+    "case_id": "TB-019",
+    "tier": 2,
+    "is_anomalous": true,
+    "trace_set": "AN_Net_slowHDFS_w_18ms_30C_1to19B_0to600INT_15RT_5WT.sql",
+    "trace_id": "5BBFC8999598FAD8",
+    "fault_category": "Net",
+    "fault_name": "slowHDFS",
+    "severity": null,
+    "delay_ms": "18",
+    "affected_component": [
+      "datanode019"
+    ],
+    "evidence_type": "host_latency_outlier",
+    "evidence_anchor": "datanode019 averages 161,798,467ns for OP: new BlockReceiver across this trace_set vs 114,794,868ns for its peer datanodes (1.4x)"
+  },
+  {
+    "case_id": "TB-020",
+    "tier": 1,
+    "is_anomalous": true,
+    "trace_set": "AN_Proc_suspendDN_r_05FDN_30C_1to19B_0to120INT_15RT_5WT.sql",
+    "trace_id": "02C8C76629FB0876",
+    "fault_category": "Proc",
+    "fault_name": "suspendDN",
+    "severity": "5",
+    "delay_ms": null,
+    "affected_component": [
+      "client012"
+    ],
+    "evidence_type": "description_exception",
+    "evidence_anchor": "IOException: java.net.SocketTimeoutException: 60000 millis timeout while waiting for channel to be ready for read. ch : java.nio.channels.SocketChannel[connected local=/10.107.100.123:42282 remote=/10.107.100.62:50010]: Failed to connect to /10.107.100.62"
+  },
+  {
+    "case_id": "TB-021",
+    "tier": 0,
+    "is_anomalous": false,
+    "trace_set": "NM_CL_r_01C_1to19B_0to0INT_50RT_10WT.sql",
+    "trace_id": "00481732284B6247",
+    "fault_category": "normal",
+    "fault_name": "none / no fault",
+    "severity": null,
+    "delay_ms": null,
+    "affected_component": [],
+    "evidence_type": "clean_normal",
+    "evidence_anchor": "no exception/error text found in Event.Description"
+  },
+  {
+    "case_id": "TB-022",
+    "tier": 0,
+    "is_anomalous": false,
+    "trace_set": "NM_CL_rpc_05C_0to0INT_10RT_1WT.sql",
+    "trace_id": "000074229CD915F7",
+    "fault_category": "normal",
+    "fault_name": "none / no fault",
+    "severity": null,
+    "delay_ms": null,
+    "affected_component": [],
+    "evidence_type": "clean_normal",
+    "evidence_anchor": "no exception/error text found in Event.Description"
+  },
+  {
+    "case_id": "TB-023",
+    "tier": 0,
+    "is_anomalous": false,
+    "trace_set": "NM_CL_rw_10C_1to19B_0to120INTR_0to600INTW_50RT_10WT.sql",
+    "trace_id": "000016D5CDEDD7D9",
+    "fault_category": "normal",
+    "fault_name": "none / no fault",
+    "severity": null,
+    "delay_ms": null,
+    "affected_component": [],
+    "evidence_type": "clean_normal",
+    "evidence_anchor": "no exception/error text found in Event.Description"
+  },
+  {
+    "case_id": "TB-024",
+    "tier": 0,
+    "is_anomalous": false,
+    "trace_set": "NM_CL_rwrpc_15C_1to19B_0to120INTR_0to600INTW_0to0INTRPC_50RT_10WT.sql",
+    "trace_id": "0072C2801761B9A3",
+    "fault_category": "normal",
+    "fault_name": "none / no fault",
+    "severity": null,
+    "delay_ms": null,
+    "affected_component": [],
+    "evidence_type": "clean_normal",
+    "evidence_anchor": "no exception/error text found in Event.Description"
+  },
+  {
+    "case_id": "TB-025",
+    "tier": 0,
+    "is_anomalous": false,
+    "trace_set": "NM_CL_w_20C_1to19B_0to600INT_50RT_10WT.sql",
+    "trace_id": "01E6916E4960ABDD",
+    "fault_category": "normal",
+    "fault_name": "none / no fault",
+    "severity": null,
+    "delay_ms": null,
+    "affected_component": [],
+    "evidence_type": "clean_normal",
+    "evidence_anchor": "no exception/error text found in Event.Description"
+  },
+  {
+    "case_id": "TB-026",
+    "tier": 0,
+    "is_anomalous": false,
+    "trace_set": "NM_DN_r_25DN_30C_1to19B_0to120INT_50RT_10WT.sql",
+    "trace_id": "0011036D9F8D905C",
+    "fault_category": "normal",
+    "fault_name": "none / no fault",
+    "severity": "25",
+    "delay_ms": null,
+    "affected_component": [],
+    "evidence_type": "clean_normal",
+    "evidence_anchor": "no exception/error text found in Event.Description"
+  },
+  {
+    "case_id": "TB-027",
+    "tier": 0,
+    "is_anomalous": false,
+    "trace_set": "NM_DN_rw_30DN_30C_1to19B_0to120INTR_0to600INTW_50RT_10WT.sql",
+    "trace_id": "00BD5474C3AB9F93",
+    "fault_category": "normal",
+    "fault_name": "none / no fault",
+    "severity": "30",
+    "delay_ms": null,
+    "affected_component": [],
+    "evidence_type": "clean_normal",
+    "evidence_anchor": "no exception/error text found in Event.Description"
+  }
+]

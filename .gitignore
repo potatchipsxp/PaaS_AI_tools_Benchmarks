@@ -9,8 +9,12 @@ build/
 PaaS_Benchmark/data/HDFS_v1/
 API_keys.txt
 
-# Trace data and logs (too large for git)
-tracebench_port/data/
+# Trace data and logs (too large for git) — but the manifest and ground
+# truth are the actual durable Phase 2 output (KB-sized) and should survive
+# container recycling, so they're carved out of the blanket ignore.
+tracebench_port/data/*
+!tracebench_port/data/tracebench_manifest.csv
+!tracebench_port/data/ground_truth_trace.json
 *.sqlite
 *.sqlite3
 *.log
