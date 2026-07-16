@@ -119,3 +119,37 @@ the Cleanliness Contract still holds, do one phase, append below, stop.
 committed; every retrieval/evidence signal in `ground_truth_trace.json` verified present in
 actual Event/Trace data for its specific TraceID (spec's Phase 2 exit check). Phase 2C
 (question authoring) remains open.
+
+### Independent verification + Phase 2C + Operation table fix (this session)
+
+**What changed:**
+- `verify_data_integrity.py` (new): independently re-parses the raw `.sql` files (reusing only
+  `split_sql_statements()`, never the load path under test) and diffs row counts, Trace fields,
+  evidence-anchor text, and Edge structure against `tracebench_raw.sqlite` for a sample (or
+  `--all`) of admitted cases. Sanity-tested against deliberately corrupted ground truth to
+  confirm it actually fails rather than rubber-stamping. **183/183 checks pass across all 27
+  cases.**
+- Found and fixed a second provenance bug, same root cause as the `Trace_Source` one but a
+  different symptom: `Operation`'s `PRIMARY KEY (OpName)` also gets stripped by
+  `clean_statement()`, so its 6,894 rows were anonymous (~19 per file, no way to attribute a
+  row to a trace_set — not row loss this time, but unusable for the Track B baseline role the
+  addendum assigns it). Added `Operation_Source(op_rowid, trace_set)`, tagged by rowid range
+  since `OpName` isn't unique per file (unlike `TraceID`). Verified independently: 15 raw
+  `Operation` tuples in a sample file match 15 tagged rows.
+- Found and fixed a ground-truth accuracy gap: 5 cases (killDN/deadDN/panicDN/disconnectDN/
+  suspendDN) are observed from the client side, where the exception names the target datanode
+  only as a bare IP, never by HostName — `affected_component` was recording the observing
+  client instead. Added an IP→datanode `HostName` resolution map from `Event.HostAddress`.
+  Re-ran the pipeline: same 27 cases, same trace_ids, only those 5 `affected_component` values
+  changed.
+- `benchmark_cases_trace.py` (new) — Phase 2C: one operator-style question per admitted case,
+  written from each case's real `evidence_anchor` (never invented), same anti-leakage
+  discipline as `benchmark_incidents.py`. **Finding:** `killDN`/`deadDN` share an identical
+  `ConnectException` signature, and `panicDN`/`disconnectDN` share an identical
+  `NoRouteToHostException` signature, in their admitted cases' evidence — Description text
+  alone may not disambiguate these pairs. Directly relevant to the addendum's Track A
+  (flat) vs. Track B (trace-native) comparison: if flattening can't tell these apart, that's
+  evidence trace structure carries signal a log-only tool can't see.
+
+**Exit check (Phase 2C):** `benchmark_cases_trace.py` holds all 27 questions; every question
+verified to embed its own case's `trace_id` and to omit the case's `fault_name`.
