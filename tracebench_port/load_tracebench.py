@@ -260,11 +260,32 @@ if __name__ == "__main__":
             `trace_set` TEXT
         )
     """)
+    # Operation has the same provenance problem as Trace did, for a different
+    # reason: clean_statement() strips its `PRIMARY KEY (OpName)` clause along
+    # with every other file's dump, so nothing deduplicates across files —
+    # each file contributes its own ~19 rows, all equally named 'readBlock'
+    # etc., with no way to tell which file/condition a given row came from.
+    # Unlike Trace this doesn't drop rows, but it means a future Track B
+    # agent querying Operation for one OpName gets back many unattributed,
+    # conflicting rows. OpName isn't unique per file (that's the point — we
+    # want to keep per-file granularity), so this can't be tagged the same
+    # "WHERE col IS NULL/NOT IN" way Trace_Source is. Tag by rowid range
+    # instead: SQLite gives every table an implicit rowid, and each file's
+    # INSERTs land at the end (OR IGNORE has no PK to trigger on anymore, so
+    # they always append), so "everything inserted since last time" is just
+    # "rowid > last seen max".
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS `Operation_Source` (
+            `op_rowid` INTEGER PRIMARY KEY,
+            `trace_set` TEXT
+        )
+    """)
     conn.commit()
 
     sql_files = sorted(glob.glob(os.path.join(SQL_DIR, "*.sql")))
     print(f"Found {len(sql_files)} .sql files")
 
+    last_op_rowid = 0
     reject_path = "data/tracebench_load_rejects.log"
     with open(reject_path, "w", encoding="utf-8") as reject_log:
         for i, f in enumerate(sql_files):
@@ -285,12 +306,24 @@ if __name__ == "__main__":
                 """,
                 (os.path.basename(f),),
             )
+
+            cur = conn.cursor()
+            cur.execute("SELECT MAX(rowid) FROM `Operation`")
+            max_op_rowid = cur.fetchone()[0] or 0
+            if max_op_rowid > last_op_rowid:
+                conn.execute(
+                    "INSERT OR IGNORE INTO `Operation_Source` (`op_rowid`, `trace_set`) "
+                    "SELECT rowid, ? FROM `Operation` WHERE rowid > ? AND rowid <= ?",
+                    (os.path.basename(f), last_op_rowid, max_op_rowid),
+                )
+                last_op_rowid = max_op_rowid
+
             conn.commit()
 
             print(f"done (skipped {skipped} directives, {errors} errors)")
 
     cur = conn.cursor()
-    for table in ("Event", "Edge", "Trace", "Operation", "Trace_Source"):
+    for table in ("Event", "Edge", "Trace", "Operation", "Trace_Source", "Operation_Source"):
         try:
             cur.execute(f"SELECT COUNT(*) FROM `{table}`")
             count = cur.fetchone()[0]
@@ -303,6 +336,12 @@ if __name__ == "__main__":
     cur.execute("SELECT COUNT(DISTINCT `trace_set`) FROM `Trace_Source`")
     distinct_sets = cur.fetchone()[0]
     print(f"  trace_set: {distinct_sets:,} distinct sets, {untagged:,} Trace rows untagged")
+
+    cur.execute("SELECT COUNT(*) FROM `Operation` WHERE rowid NOT IN (SELECT op_rowid FROM `Operation_Source`)")
+    op_untagged = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(DISTINCT `trace_set`) FROM `Operation_Source`")
+    op_distinct_sets = cur.fetchone()[0]
+    print(f"  Operation trace_set: {op_distinct_sets:,} distinct sets, {op_untagged:,} Operation rows untagged")
 
     conn.close()
     print(f"\nDone. DB at {DB_PATH}")

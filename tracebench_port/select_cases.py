@@ -176,14 +176,37 @@ def find_cluster_wide_deviation(rows, nm_avg_by_op):
     return best
 
 
-def affected_hosts_from_rows(rows, host_idx=0):
+IP_PATTERN = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
+
+
+def build_ip_to_datanode_map(cur):
+    """Some faults (killDN/deadDN/panicDN/disconnectDN/suspendDN) are
+    observed from the CLIENT side — the Description exception names the
+    target datanode only as a bare IP ('Failed to connect to
+    /10.107.100.58:50010'), never by HostName. Event.HostAddress/HostName
+    give a real IP->hostname mapping to resolve it, instead of leaving
+    affected_component pointing at the observing client."""
+    cur.execute("SELECT DISTINCT HostAddress, HostName FROM Event WHERE HostName LIKE 'datanode%'")
+    return {addr: host for addr, host in cur.fetchall() if addr}
+
+
+def affected_hosts_from_rows(rows, host_idx=0, desc_idx=None, ip_map=None):
     hosts = sorted({r[host_idx] for r in rows if r[host_idx] and "datanode" in r[host_idx].lower()})
     if hosts:
         return hosts
+    if desc_idx is not None and ip_map:
+        resolved = {
+            ip_map[ip]
+            for r in rows
+            for ip in IP_PATTERN.findall(r[desc_idx] or "")
+            if ip in ip_map
+        }
+        if resolved:
+            return sorted(resolved)
     return sorted({r[host_idx] for r in rows if r[host_idx]})
 
 
-def verify_case(cur, trace_set, is_anomalous, nm_baseline, reject_log):
+def verify_case(cur, trace_set, is_anomalous, nm_baseline, ip_map, reject_log):
     cur.execute(
         "SELECT TraceID FROM Trace_Source WHERE trace_set=? ORDER BY TraceID LIMIT ?",
         (trace_set, MAX_TRACEIDS_TO_TRY),
@@ -226,7 +249,9 @@ def verify_case(cur, trace_set, is_anomalous, nm_baseline, reject_log):
                 "trace_id": tid,
                 "evidence_type": "description_exception",
                 "evidence_anchor": desc,
-                "affected_component": affected_hosts_from_rows(error_rows, host_idx=0),
+                "affected_component": affected_hosts_from_rows(
+                    error_rows, host_idx=0, desc_idx=2, ip_map=ip_map
+                ),
             }
 
     if not is_anomalous:
@@ -291,6 +316,10 @@ def main():
     nm_baseline = build_nm_latency_baseline(cur)
     print(f"  {len(nm_baseline)} OpNames baselined.\n")
 
+    print("Building IP -> datanode HostName map for client-observed exceptions...")
+    ip_map = build_ip_to_datanode_map(cur)
+    print(f"  {len(ip_map)} datanode IPs mapped.\n")
+
     candidates = pick_mid_severity_per_fault(manifest)
     candidates += pick_normal_controls(manifest, N_NORMAL_CONTROLS)
     print(f"Candidate trace_sets selected: {len(candidates)} "
@@ -302,7 +331,7 @@ def main():
         for i, row in enumerate(candidates):
             trace_set = row["trace_set"]
             is_anomalous = row["is_anomalous"] == "True"
-            result = verify_case(cur, trace_set, is_anomalous, nm_baseline, reject_log)
+            result = verify_case(cur, trace_set, is_anomalous, nm_baseline, ip_map, reject_log)
             if result is None:
                 rejected.append(trace_set)
                 continue

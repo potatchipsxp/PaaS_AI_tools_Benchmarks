@@ -175,7 +175,7 @@
     "severity": "2",
     "delay_ms": null,
     "affected_component": [
-      "client002"
+      "datanode001"
     ],
     "evidence_type": "description_exception",
     "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue"
@@ -191,7 +191,8 @@
     "severity": "5",
     "delay_ms": null,
     "affected_component": [
-      "client010"
+      "datanode002",
+      "datanode004"
     ],
     "evidence_type": "description_exception",
     "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.64:50010, add to deadNodes and continue"
@@ -207,7 +208,7 @@
     "severity": "5",
     "delay_ms": null,
     "affected_component": [
-      "client023"
+      "datanode001"
     ],
     "evidence_type": "description_exception",
     "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue"
@@ -255,7 +256,8 @@
     "severity": "2",
     "delay_ms": null,
     "affected_component": [
-      "client003"
+      "datanode001",
+      "datanode002"
     ],
     "evidence_type": "description_exception",
     "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.60:50010, add to deadNodes and continue"
@@ -319,7 +321,7 @@
     "severity": "5",
     "delay_ms": null,
     "affected_component": [
-      "client012"
+      "datanode003"
     ],
     "evidence_type": "description_exception",
     "evidence_anchor": "IOException: java.net.SocketTimeoutException: 60000 millis timeout while waiting for channel to be ready for read. ch : java.nio.channels.SocketChannel[connected local=/10.107.100.123:42282 remote=/10.107.100.62:50010]: Failed to connect to /10.107.100.62"
