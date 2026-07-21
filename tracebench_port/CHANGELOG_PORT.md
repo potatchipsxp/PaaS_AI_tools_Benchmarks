@@ -153,3 +153,38 @@ actual Event/Trace data for its specific TraceID (spec's Phase 2 exit check). Ph
 
 **Exit check (Phase 2C):** `benchmark_cases_trace.py` holds all 27 questions; every question
 verified to embed its own case's `trace_id` and to omit the case's `fault_name`.
+
+### Phase 3 — Documentation corpus (this session, partial)
+
+**What changed:**
+- `generate_doc_corpus_trace.py` (new): mirrors `generate_doc_corpus.py`'s structure exactly
+  (same JSONL record shape, same runbook/error_ref/config triple pattern). Produces:
+  - `data/doc_corpus_trace_perfault.jsonl` — 64 docs: a triple per distinct fault_name (20
+    faults) + 4 cross-cutting architecture docs (write pipeline, DataNode liveness/deadNodes,
+    checksums & corruption signatures, latency baselines — the last citing the real NM
+    baseline averages per OpName computed fresh from `tracebench_raw.sqlite`).
+  - `data/doc_corpus_trace_category.jsonl` — 6 docs, one per fault_category, for the
+    doc-leakage comparison spec 6.4 calls for.
+  - Content discipline: mechanism from standard HDFS/Hadoop architecture; every quoted error
+    string/latency figure copied verbatim from `ground_truth_trace.json`'s verified
+    `evidence_anchor` for that fault — verified programmatically (no dangling `case_id`
+    references, every `error_ref` quote matches its fault's real evidence exactly).
+  - The docs for the killDN/deadDN and panicDN/disconnectDN pairs explicitly note their
+    shared exception signatures and what the log text alone can and can't distinguish —
+    honest about the ambiguity discovered in Phase 2C rather than glossing over it.
+- Installed `chromadb`/`sentence-transformers` (already pinned in root `requirements.txt`, just
+  not present in this fresh container).
+- **Indexing is blocked, not done.** `build_doc_index.py` (unmodified, as spec 3.4 expects)
+  needs to download the `all-MiniLM-L6-v2` embedding model from `huggingface.co`, which this
+  environment's egress policy denies (confirmed via the proxy status endpoint: a `403` policy
+  denial, not a transient failure — `recentRelayFailures` shows repeated `connect_rejected` for
+  `huggingface.co:443`). Per the proxy's own guidance this is reported, not routed around.
+  Cleaned up the partial/empty `tracebench_doc_chroma_db/` the failed attempt left behind.
+
+**What did NOT happen yet:**
+- Both corpora exist and are verified, but neither is indexed into ChromaDB.
+- No retrieval smoke test has run (depends on indexing).
+
+**Exit check (Phase 3): NOT MET.** Corpora built and content-verified; indexing and smoke
+retrieval blocked on network access to `huggingface.co` (or a pre-cached embedding model) in
+whatever environment continues this — check that first before resuming this phase.
