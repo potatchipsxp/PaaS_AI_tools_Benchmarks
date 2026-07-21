@@ -5,12 +5,14 @@ build_doc_index.py
 Index the synthesised documentation corpus (doc_corpus.jsonl) into ChromaDB.
 
 Each document becomes one chunk — the content field is embedded, and all
-structured fields (doc_id, doc_type, incident_ids, components, failure_pattern,
+structured fields (doc_id, doc_type, case_ids, components, failure_pattern,
 tier) are stored as metadata for filtering and retrieval evaluation.
 
-The incident_ids metadata field is the ground-truth relevance label: a retrieval
-is correct when the returned document's incident_ids contains the incident being
-diagnosed.
+The case_ids metadata field is the ground-truth relevance label: a retrieval
+is correct when the returned document's case_ids contains the case being
+diagnosed. (Named incident_ids in the original PaaS corpus; renamed case_ids
+here to match the TraceBench corpus's case_id-based ground truth — see
+generate_doc_corpus_trace.py.)
 
 Edit the CONFIG section, then run:
     python build_doc_index.py
@@ -87,9 +89,9 @@ def doc_to_metadata(doc):
     return {
         "doc_id":          doc["doc_id"],
         "doc_type":        doc["doc_type"],
-        # Store incident_ids as comma-separated string for ChromaDB
-        # Use the helper parse_incident_ids() to recover the list on read.
-        "incident_ids":    ",".join(doc["incident_ids"]),
+        # Store case_ids as comma-separated string for ChromaDB
+        # Use the helper parse_case_ids() to recover the list on read.
+        "case_ids":        ",".join(doc["case_ids"]),
         "components":      ",".join(doc["components"]),
         "failure_pattern": doc["failure_pattern"],
         "tier":            doc["tier"],
@@ -190,9 +192,9 @@ def get_embedding_model(model_name=EMBEDDING_MODEL):
     return _model_cache[model_name]
 
 
-def parse_incident_ids(metadata):
-    """Recover the incident_ids list from the stored comma-separated string."""
-    raw = metadata.get("incident_ids", "")
+def parse_case_ids(metadata):
+    """Recover the case_ids list from the stored comma-separated string."""
+    raw = metadata.get("case_ids", "")
     return [x.strip() for x in raw.split(",") if x.strip()]
 
 
@@ -216,7 +218,7 @@ def retrieve_docs(
 
     Returns:
         list of dicts with keys: doc_id, doc_type, title, content,
-        incident_ids (list), failure_pattern, tier, distance
+        case_ids (list), failure_pattern, tier, distance
     """
     collection = get_collection(db_path, collection_name)
     model      = get_embedding_model(embedding_model)
@@ -240,7 +242,7 @@ def retrieve_docs(
             "doc_type":        meta["doc_type"],
             "title":           meta["title"],
             "content":         results["documents"][0][i],
-            "incident_ids":    parse_incident_ids(meta),
+            "case_ids":        parse_case_ids(meta),
             "failure_pattern": meta["failure_pattern"],
             "tier":            meta["tier"],
             "distance":        results["distances"][0][i] if "distances" in results else None,

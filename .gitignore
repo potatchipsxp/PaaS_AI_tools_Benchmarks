@@ -20,3 +20,7 @@ tracebench_port/data/*
 *.sqlite
 *.sqlite3
 *.log
+
+# ChromaDB index dirs are regenerable from the committed doc corpora /
+# log data — never commit the vector store itself, only the source of truth.
+tracebench_port/tracebench_doc_chroma_db/

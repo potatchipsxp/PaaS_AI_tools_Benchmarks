@@ -154,7 +154,7 @@ actual Event/Trace data for its specific TraceID (spec's Phase 2 exit check). Ph
 **Exit check (Phase 2C):** `benchmark_cases_trace.py` holds all 27 questions; every question
 verified to embed its own case's `trace_id` and to omit the case's `fault_name`.
 
-### Phase 3 — Documentation corpus (this session, partial)
+### Phase 3 — Documentation corpus (completed this session)
 
 **What changed:**
 - `generate_doc_corpus_trace.py` (new): mirrors `generate_doc_corpus.py`'s structure exactly
@@ -181,10 +181,54 @@ verified to embed its own case's `trace_id` and to omit the case's `fault_name`.
   `huggingface.co:443`). Per the proxy's own guidance this is reported, not routed around.
   Cleaned up the partial/empty `tracebench_doc_chroma_db/` the failed attempt left behind.
 
-**What did NOT happen yet:**
-- Both corpora exist and are verified, but neither is indexed into ChromaDB.
-- No retrieval smoke test has run (depends on indexing).
+**Indexing (this session, local — no egress block here):**
+- Deps already present locally at the pinned versions (`chromadb==1.5.0`,
+  `sentence-transformers==5.2.2`); no install needed.
+- Found and fixed one real bug in `build_doc_index.py` before it would index anything: it still
+  read `doc["incident_ids"]` (the PaaS corpus's field name), but
+  `generate_doc_corpus_trace.py`'s records use `case_ids` per spec 3.2 ("incident_ids →
+  case_ids"). This raised `KeyError: 'incident_ids'` on the first indexing attempt. Renamed
+  consistently throughout `build_doc_index.py` — the metadata key, `parse_incident_ids` →
+  `parse_case_ids`, and `retrieve_docs()`'s returned dict key all now say `case_ids`. This is
+  the one sanctioned tweak to an index script the task anticipated; no other line changed.
+  Downstream note for Phase 5: `evaluate_trace.py` will need `case_ids` (not `incident_ids`)
+  when it adapts `Results/evaluate.py`'s retrieval-scoring logic.
+- Indexed both corpora into `tracebench_doc_chroma_db/` (gitignored — regenerable from the
+  committed JSONL corpora, same as `doc_chroma_db/` for PaaS): `docs_trace_perfault` → 64 docs,
+  `docs_trace_category` → 6 docs. Matches expected counts exactly.
 
-**Exit check (Phase 3): NOT MET.** Corpora built and content-verified; indexing and smoke
-retrieval blocked on network access to `huggingface.co` (or a pre-cached embedding model) in
-whatever environment continues this — check that first before resuming this phase.
+**Smoke-test retrieval (3 real questions from `benchmark_cases_trace.py`, both collections):**
+- **TB-018 (slowDN, Tier 2):** in `docs_trace_perfault`, `runbook_slowDN` is rank 2 (dist
+  0.566) and `arch_latency_baselines` (case_ids includes TB-018) rank 3; `error_ref_slowDN` and
+  `config_slowDN` land at rank 8 (0.737) and rank 10 (0.820) — inside the top 10 of 64 docs but
+  not the top 5. Rank 1 was `runbook_readOnlyDN`, a different but genuinely similar fault
+  (also a latency-degradation signature). In `docs_trace_category`, `category_Net` (the correct
+  category) is rank 2 behind `category_Sys` — expected, this corpus is deliberately coarse.
+  **Partial pass**: the right fault surfaces near the top, but not as cleanly as the original
+  "near the top" expectation implied for all three doc types simultaneously.
+- **TB-021 (normal control, Tier 0):** in `docs_trace_perfault`, nothing scored confidently —
+  best distance ~0.81, versus ~0.54–0.60 for the true-fault matches on TB-018/TB-011. No doc
+  claims relevance and the top results are a scattergun of unrelated faults. This is the
+  expected behavior for a no-fault case and is **not a bug**.
+- **TB-011 (deadDN, Tier 1, added as a third check beyond the two requested):** a real
+  retrieval-quality gap. `error_ref_deadDN` (which contains the exact "Connection refused"
+  string from the question) is only rank 10; `runbook_deadDN` and `config_deadDN` don't appear
+  in the top 20 of 64 docs at all. Rank 1 is `config_readOnlyDN` — topically unrelated (that
+  fault is about slow writes, not connection refusal). Inspecting content directly: the
+  `config_*` docs are short, structurally-uniform markdown tables (parameter/default/relevance)
+  that carry little distinguishing text per fault, so the bi-encoder embeds them into a
+  generic cluster that sometimes lands deceptively close to unrelated queries — a known
+  weakness of embedding very short/templated documents, not a code defect.
+
+**Assessment:** the pipeline works correctly end-to-end (bug fixed, counts match, no-fault
+case correctly shows low confidence). Retrieval precision is uneven across fault types — clean
+for some (TB-018, directionally), poor for others (TB-011). **Flagging for Phase 5** rather
+than fixing now (would mean rewriting corpus content without a specified quality bar): the
+deterministic retrieval-signal design should probably score against the runbook+error_ref+config
+triple as a group within a wider n_results (e.g. 10–15), not literal top-5 rank, and/or note that
+`config_*` docs' low information density may warrant richer content later if this pattern
+recurs across more cases.
+
+**Exit check (Phase 3): MET.** Both corpora indexed at expected counts; smoke-tested against
+real benchmark questions; one real code bug found and fixed; retrieval-quality observations
+recorded for Phase 5 rather than papered over.
