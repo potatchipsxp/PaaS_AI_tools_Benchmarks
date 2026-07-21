@@ -43,6 +43,10 @@ from langgraph.prebuilt import create_react_agent
 
 from doc_agent import query as doc_query
 from sql_agent import build_agent as build_sql_agent
+from sql_agent import (
+    INCLUDE_TABLES as SQL_DEFAULT_INCLUDE_TABLES,
+    DEFAULT_SCHEMA_DESCRIPTION as SQL_DEFAULT_SCHEMA_DESCRIPTION,
+)
 from build_doc_index import DB_PATH as DOC_DB_PATH, COLLECTION_NAME as DOC_COLLECTION
 
 
@@ -129,6 +133,25 @@ SQL_API_KEY         = "ollama"                      # ignored for API backends
 SQL_DB_URI          = "sqlite:///./data/benchmark_db.sqlite"
 SQL_MAX_ITER        = 12
 SQL_MAX_ROWS        = 20
+# Which tables the SQL agent may see and how they're described. Defaults are
+# sql_agent.py's own PaaS-logs config (single source of truth — not
+# duplicated here) so behavior is unchanged unless a caller overrides these.
+# Track A (flat) vs Track B (trace-native) for the TraceBench port differ by
+# EXACTLY these two values — everything else in this file is untouched.
+#
+# To run TraceBench Track A (flat), uncomment:
+#   from trace_sql_schemas import TRACK_A_SCHEMA_DESCRIPTION
+#   SQL_DB_URI             = "sqlite:///./data/benchmark_trace_db.sqlite"
+#   SQL_INCLUDE_TABLES     = ["logs"]
+#   SQL_SCHEMA_DESCRIPTION = TRACK_A_SCHEMA_DESCRIPTION
+#
+# To run TraceBench Track B (trace-native), uncomment instead:
+#   from trace_sql_schemas import TRACK_B_SCHEMA_DESCRIPTION
+#   SQL_DB_URI             = "sqlite:///./data/benchmark_trace_db.sqlite"
+#   SQL_INCLUDE_TABLES     = ["Event", "Edge", "Trace", "Operation"]
+#   SQL_SCHEMA_DESCRIPTION = TRACK_B_SCHEMA_DESCRIPTION
+SQL_INCLUDE_TABLES      = SQL_DEFAULT_INCLUDE_TABLES
+SQL_SCHEMA_DESCRIPTION  = SQL_DEFAULT_SCHEMA_DESCRIPTION
 
 # --- Documentation agent ---
 DOC_MODEL           = "gpt-5.4"
@@ -264,6 +287,8 @@ def build_tools(
     sql_api_key=SQL_API_KEY,
     sql_db_uri=SQL_DB_URI,
     sql_max_iter=SQL_MAX_ITER,
+    sql_include_tables=SQL_INCLUDE_TABLES,
+    sql_schema_description=SQL_SCHEMA_DESCRIPTION,
     doc_model=DOC_MODEL,
     doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
@@ -289,6 +314,8 @@ def build_tools(
         llm_base_url=sql_base_url,
         db_uri=sql_db_uri,
         max_iterations=sql_max_iter,
+        include_tables=sql_include_tables,
+        schema_description=sql_schema_description,
         verbose=False,
     )
     sql_extract = _sql_extract
@@ -418,6 +445,8 @@ def build_diagnostic_agent(
     sql_api_key=SQL_API_KEY,
     sql_db_uri=SQL_DB_URI,
     sql_max_iter=SQL_MAX_ITER,
+    sql_include_tables=SQL_INCLUDE_TABLES,
+    sql_schema_description=SQL_SCHEMA_DESCRIPTION,
     doc_model=DOC_MODEL,
     doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
@@ -452,6 +481,8 @@ def build_diagnostic_agent(
         sql_api_key=sql_api_key,
         sql_db_uri=sql_db_uri,
         sql_max_iter=sql_max_iter,
+        sql_include_tables=sql_include_tables,
+        sql_schema_description=sql_schema_description,
         doc_model=doc_model,
         doc_backend=doc_backend,
         doc_n_results=doc_n_results,

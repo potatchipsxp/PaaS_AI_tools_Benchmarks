@@ -232,3 +232,134 @@ recurs across more cases.
 **Exit check (Phase 3): MET.** Both corpora indexed at expected counts; smoke-tested against
 real benchmark questions; one real code bug found and fixed; retrieval-quality observations
 recorded for Phase 5 rather than papered over.
+
+### Phase 4 — Dual-track query_logs (Track A flatten + Track B trace-native), completed this session
+
+**Precondition work:** `tracebench_raw.sqlite` and `data/raw_sql/` are gitignored/regenerable and
+weren't present in this session's container. Re-cloned `github.com/mtracer/TraceBench` (public,
+plain `git clone` — no auth needed) directly into `data/raw_sql/mtracer-TraceBench-44b29e5/` (the
+exact path `load_tracebench.py` expects) and reran it unmodified. Final counts matched the
+earlier verified run exactly: Event 14,777,715 / Edge 2,560,426 / Trace 370,334 / Operation 6,894
+/ 364 trace_sets, 0 untagged, 0 load errors — confirms the loader is deterministic and the counts
+aren't a fluke of the first run.
+
+**Schema facts verified directly against the loaded DB (not assumed from the spec) before writing
+any flattening code:**
+- `Event` columns: `TaskID, TID, OpName, StartTime, EndTime, HostAddress, HostName, Agent,
+  Description`. `Agent` (assumed by the spec) does exist for real. `Description` is populated on
+  100% of rows (0 NULL) — ~92.5% are `"Success: ..."` text, ~4.9% contain `"Exception"` — it is
+  NOT an error-only field, so ERROR-level detection must look for the substring, not non-nullness.
+- **`TID` is a thread identifier, not a unique per-event id** — the same `TID` repeats across
+  dozens of events on one client thread (confirmed: a single `TID` matched 4× `RPC:getFileInfo` +
+  many repeated `chooseDataNode`/`bestNode`/`newBlockReader` calls, i.e. one thread's retry loop
+  across multiple blocks). `Edge.FatherNID`/`ChildNID` reference this same `TID`, disambiguated
+  for the father row only by the accompanying `FatherStartTime` (no such disambiguator exists for
+  the child row — noted as an honest gap in the Track B schema description, not glossed over).
+- **`Event.StartTime`/`EndTime` are per-host, nanoTime-style relative ticks — NOT a shared
+  wall-clock epoch.** Verified directly: for one sampled `TaskID`, events on `datanode036` had
+  `StartTime` ≈ 4.07e14 while `client024`'s events on the *same TaskID* had `StartTime` ≈ 4.11e15
+  — a ~1.8-hour gap if these were a shared clock, which is impossible for what should be a
+  millisecond-scale RPC. Only same-row durations (`EndTime - StartTime`) and same-host ordering
+  are meaningful; cross-host absolute comparison is not. This directly affects both tracks:
+  - Track A's `logs.timestamp` is anchored per (`TaskID`, `HostName`) to `Trace.FirstSeen` (a real
+    wall-clock date the tracing backend recorded) plus that host's own relative offset — a
+    plausible, correctly-ordered-within-host timestamp, not a fabricated absolute cross-host one.
+  - Track B's schema description explicitly warns the agent never to subtract or compare
+    `StartTime`/`EndTime` across two different `HostName` values.
+  - The spec's ancestor-reconstruction hint (`F1.StartTime < F2.StartTime AND F1.EndTime >
+    F2.EndTime` implies containment) is therefore only trustworthy same-host; Track B's schema
+    description points the agent at the `Edge` join instead of that heuristic for cross-host
+    relationships.
+- **`Trace.NumReports`/`NumEdges` are unreliable** — spot-checked several `TaskID`s with
+  `NumEdges > 0` and found **zero** matching `Edge` rows for any of them (a real data-quality gap
+  in the dump itself: only ~59% of `TaskID`s have any `Edge` row at all despite `NumEdges` often
+  claiming otherwise). Confirmed this is not a join-key bug — 99.9995% of `Edge` rows *do* match
+  a real `TaskID` when one exists, and `FatherNID`/`ChildNID` correctly resolve to real `Event`
+  rows with sensible cross-host parent/child relationships (e.g. an RPC client's `newBlockReader`
+  as father of a DataNode's `verifiedByClient`). Both schema descriptions tell the agent not to
+  trust the count columns and to `COUNT(*)` the real rows instead.
+- One anomalous `Trace.Title` value (`'AA15130628A163E0'`, 1 row out of 26,943) turned out to
+  equal its own `TaskID` — an isolated dump/parsing artifact, confirmed leak-free (doesn't contain
+  any fault/category/trace_set token) and too small a fraction to chase further.
+
+**Scope decision (a deliberate deviation from the spec's literal "keep the four tables" wording,
+flagged per the spec's own "override now if you disagree" convention):** both tracks are scoped
+to the 27 selected cases' **entire trace_sets** (26,943 traces, not just the 27 named TraceIDs),
+not the full 370k-trace corpus. This is necessary, not just an optimization: `select_cases.py`'s
+own fault-verification logic (`trace_set_op_host_avgs` / `find_host_latency_outlier`) compares a
+datanode's average latency against its *peers across the whole trace_set* — that evidence doesn't
+exist if only the one named TraceID is flattened. It's also what keeps the DB tractable (1.36M
+Event rows instead of 14.7M) and the leakage-audit surface checkable.
+
+**Track A (`build_trace_logs.py`, new) — flatten to the existing `logs` schema:**
+- Column mapping: `component`=`OpName`, `subcomponent`=`Agent`, `node_id`=`HostName`,
+  `instance_id`=`TaskID`, `thread_id`=`TID`, `message`=`Description` (verbatim — this is where the
+  real exception strings and `"Success: ..."` text live).
+- `event_type` bucketed into `read`/`write`/`rpc`/`client_command`/`error`/`other` from the full,
+  verified list of 71 distinct `OpName` values (not guessed) — no `heartbeat` bucket exists in
+  this dataset, unlike the spec's assumed PaaS-style categories, since TraceBench traces
+  request/RPC activity, not periodic heartbeats.
+- `level`: `ERROR` if `Description` contains `"Exception"`; `WARN` if the event's (`HostName`,
+  `OpName`) or `OpName` (cluster-wide) was flagged as a peer-latency outlier for that trace_set —
+  reusing `select_cases.py`'s own `build_nm_latency_baseline` / `find_host_latency_outlier` /
+  `find_cluster_wide_deviation` functions directly (same `HOST_OUTLIER_RATIO`/
+  `CLUSTER_DEVIATION_RATIO`/`MIN_SAMPLES` constants) rather than inventing a second, possibly
+  inconsistent heuristic; else `INFO`.
+- `source_file`: deliberately **NULL, not the trace_set filename** — the spec's own mapping table
+  flags this exact column as a leakage risk, so it's left out entirely rather than smuggled in.
+- Result: 1,364,907 rows flattened, 26,941 distinct `instance_id` (2 short of the 26,943 traces in
+  scope — negligible, some TaskIDs apparently have zero Event rows; not chased further). Level
+  distribution: 8,200 ERROR / 31,285 WARN / 1,325,422 INFO.
+- **Leakage audit (`audit_leakage_trace.py`, new)**: greps every distinct value in every
+  agent-visible text column against all fault names/categories/trace_set filenames (750 tokens,
+  ≥5 chars to avoid noise from short common substrings) — **PASS, 0 hits.**
+
+**Track B (`build_trace_native.py`, new) — trace-native, same underlying data:**
+- `Event`/`Edge`/`Trace` copied as-is (real columns), scoped to the same 27 trace_sets.
+- `Operation` is **not** copied as-is: the raw table has ~19 unattributed, non-deduplicated rows
+  per `OpName` per source file (same issue Phase 2's CHANGELOG already flagged), so this
+  aggregates one row per `OpName` (`SUM(Num)`, `MAX(MaxDelay)`, `MIN(MinDelay)`, `Num`-weighted
+  mean `AverageDelay`) from only the `Operation_Source` rows tagged to our 27 scope trace_sets —
+  62 distinct `OpName` rows, self-consistent with what's actually visible in this DB rather than
+  silently borrowing baseline stats from out-of-scope trace_sets the agent can't see.
+- `Trace_Source`/`Operation_Source` (the trace_set-provenance side tables) are never copied into
+  this DB at all — those are exactly what would hand the agent the fault name directly.
+- `trace_sql_schemas.py` (new): `TRACK_A_SCHEMA_DESCRIPTION` / `TRACK_B_SCHEMA_DESCRIPTION`
+  strings, written in the same style/rules as `sql_agent.py`'s PaaS description, documenting the
+  real column names and every caveat above (cross-host time non-comparability, unreliable count
+  columns, `TID` ambiguity). Meant to be pasted into `SQL_SCHEMA_DESCRIPTION`.
+- **Leakage audit, run separately from Track A** per the addendum's explicit warning (Track B
+  exposes far more free text — `Trace.Title`, `Event.Agent`, etc.) — **PASS, 0 hits**, including
+  the anomalous `Trace.Title` row above.
+
+**Orchestrator plumbing (`diagnostic_agent.py`, modified — the one necessary touch to this file):**
+`build_tools()` and `build_diagnostic_agent()` previously hardcoded `sql_agent.py`'s own
+`INCLUDE_TABLES`/`DEFAULT_SCHEMA_DESCRIPTION` (only `db_uri` was ever overridable). Added
+`sql_include_tables`/`sql_schema_description` parameters to both functions, threaded through to
+`build_sql_agent(...)`, plus `SQL_INCLUDE_TABLES`/`SQL_SCHEMA_DESCRIPTION` CONFIG constants that
+default to `sql_agent.py`'s own PaaS values (imported, not duplicated, so there's one source of
+truth) — verified via import that behavior is byte-identical to before unless overridden. Added
+commented example blocks showing exactly what to uncomment for each track. This does **not**
+touch `SYSTEM_PROMPT` or the `query_logs` tool's signature — same category of change as the
+model/backend/temp parameters this file already exposed. Track A vs Track B now differ by
+**exactly two parameters**, satisfying addendum 4C.2's parity-diff requirement.
+
+**Smoke test (no LLM backend/API key available in this session, so this validates what a live
+test would actually be checking — that the schema and data support the diagnosis, independent of
+whether a given model is smart enough to write the SQL):**
+- `SQLDatabase.from_uri()` introspects both configs without error.
+- TB-018 (slowDN, target `datanode046`): filtering `logs` to just the *named* instance already
+  shows 2 WARN rows on `datanode046` out of its 8 read events — the operator doesn't even need to
+  reason cluster-wide to spot it. Track B: `Event JOIN Operation` on `TaskID` executes and returns
+  real durations against the real baseline (a hand-written query using raw duration DESC isn't
+  itself the right diagnostic shape — that needs the same per-op averaging `select_cases.py`
+  uses — but this was only checking the join mechanics work, which they do).
+- TB-011 (deadDN): filtering to the named instance surfaces the exact real
+  `"IOException: java.net.ConnectException: Connection refused..."` string.
+- TB-021 (normal control): 100% INFO, 0 WARN/ERROR, for the named instance — clean negative
+  control.
+
+**Exit check (Phase 4): MET.** `benchmark_trace_db.sqlite` holds both the flat `logs` table
+(Track A) and the four native tables (Track B) over identical scope; both leakage-audited
+separately with 0 hits; both schema-level smoke-tested against real questions; Track A vs Track B
+config diff is exactly `include_tables` + `schema_description`, recorded above.
