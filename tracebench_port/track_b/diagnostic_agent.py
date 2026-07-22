@@ -1,34 +1,35 @@
 #!/usr/bin/env python3
 """
-diagnostic_agent.py
+diagnostic_agent.py  (Track B -- trace-native, deterministic retrieval)
 
-Orchestrating diagnostic agent for the PaaS benchmark.
+Orchestrating diagnostic agent for the TraceBench Track B arm of the port.
+Forked from tracebench_port/diagnostic_agent.py (Track A / PaaS). The rate
+limit handling, LLM builder, tool-call tracing, diagnose()/save_results(),
+and smoke-test harness below are UNCHANGED from that file -- copy, not
+rewrite. What's genuinely different, and why:
 
-Given an incident scenario (a natural-language question describing symptoms),
-this agent reasons over the problem and iteratively calls two sub-agents:
+  query_logs (an LLM SQL sub-agent) -> query_trace (deterministic Python,
+  see query_trace.py). This is the sanctioned, discussed-and-agreed
+  redesign: Track B trades "identical tool interface to Track A" for
+  "no second model's SQL competence confounding the result" -- retrieval
+  for this track has no LLM in the loop at all, so there is no SQL_MODEL /
+  SQL_BACKEND / SQL_DB_URI / SQL_INCLUDE_TABLES / SQL_SCHEMA_DESCRIPTION
+  config block here. Only the orchestrator model and the doc-agent model
+  are in play for Track B -- a real, documented difference in what a
+  "tier" means for this track vs. Track A/PaaS (see CHANGELOG_PORT.md).
 
-  sql_agent  : queries benchmark_db.sqlite for log evidence
-  doc_agent  : retrieves relevant documentation from doc_chroma_db
-
-## Model configuration
-
-All three agents have independent model settings in the CONFIG section below.
-To run a controlled experiment varying only one agent's model, change only
-that agent's block — the other two are unaffected.
-
-  DIAGNOSTIC_MODEL  — the orchestrating agent (high-level reasoning)
-  SQL_MODEL         — the SQL agent (query generation and execution)
-  DOC_MODEL         — the documentation agent (RAG answer synthesis)
-
-The SQL agent supports two backends:
-  "qwen"   — ChatOpenAI → Ollama /v1 endpoint, native function calling (recommended)
-  "ollama" — ChatOllama, text-based ReAct (fallback for non-Qwen models)
+The doc agent is UNCHANGED in mechanism (same doc_agent.py, same
+build_doc_index retrieve_docs), but points at the shared trace doc corpus
+(tracebench_port/tracebench_doc_chroma_db, collection docs_trace_perfault)
+via explicit DOC_DB_PATH/DOC_COLLECTION overrides -- Track A's
+diagnostic_agent.py needed the identical fix (it had no override for these
+at all and would otherwise default to the PaaS doc index).
 
 Edit the CONFIG section, then run:
     python diagnostic_agent.py
 
 Dependencies:
-    pip install langchain-community langchain-openai langgraph sqlalchemy
+    pip install langchain-community langchain-openai langgraph
     pip install chromadb sentence-transformers ollama
 """
 
@@ -41,25 +42,15 @@ from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
 from langgraph.prebuilt import create_react_agent
 
-from doc_agent import query as doc_query
-from sql_agent import build_agent as build_sql_agent
-from sql_agent import (
-    INCLUDE_TABLES as SQL_DEFAULT_INCLUDE_TABLES,
-    DEFAULT_SCHEMA_DESCRIPTION as SQL_DEFAULT_SCHEMA_DESCRIPTION,
-)
-from build_doc_index import (
-    DB_PATH as DOC_DEFAULT_DB_PATH,
-    COLLECTION_NAME as DOC_DEFAULT_COLLECTION,
-)
+import sys
+sys.path.insert(0, "..")
+from doc_agent import query as doc_query  # noqa: E402
+
+from query_trace import query_trace as _query_trace_impl
 
 
 # ============================================================================
-# RATE LIMIT HANDLING
-#
-# Groq's free tier has a 12K tokens-per-minute limit. A single incident's
-# tool-calling chain can approach or exceed that. We wrap agent.invoke() in
-# a retry loop that catches 429s, sleeps for the duration the API requests,
-# and tracks the slept time so timing metrics can subtract it.
+# RATE LIMIT HANDLING -- identical to Track A / PaaS diagnostic_agent.py
 # ============================================================================
 
 import re
@@ -127,58 +118,26 @@ DIAGNOSTIC_TEMP     = 0.0
 DIAGNOSTIC_BASE_URL = "http://localhost:11434/v1"   # ignored for API backends
 DIAGNOSTIC_API_KEY  = "ollama"                      # ignored for API backends
 
-# --- SQL agent ---
-SQL_MODEL           = "gpt-5.4"
-SQL_BACKEND         = "openai"      # "qwen", "ollama", "groq", "deepinfra", or "openai"
-SQL_TEMP            = 0.0
-SQL_BASE_URL        = "http://localhost:11434/v1"   # ignored for API backends
-SQL_API_KEY         = "ollama"                      # ignored for API backends
-SQL_DB_URI          = "sqlite:///./data/benchmark_db.sqlite"
-SQL_MAX_ITER        = 12
-SQL_MAX_ROWS        = 20
-# Which tables the SQL agent may see and how they're described. Defaults are
-# sql_agent.py's own PaaS-logs config (single source of truth — not
-# duplicated here) so behavior is unchanged unless a caller overrides these.
-# Track A (flat) vs Track B (trace-native) for the TraceBench port differ by
-# EXACTLY these two values — everything else in this file is untouched.
-#
-# To run TraceBench Track A (flat), uncomment:
-#   from trace_sql_schemas import TRACK_A_SCHEMA_DESCRIPTION
-#   SQL_DB_URI             = "sqlite:///./data/benchmark_trace_db.sqlite"
-#   SQL_INCLUDE_TABLES     = ["logs"]
-#   SQL_SCHEMA_DESCRIPTION = TRACK_A_SCHEMA_DESCRIPTION
-#
-# To run TraceBench Track B (trace-native), uncomment instead:
-#   from trace_sql_schemas import TRACK_B_SCHEMA_DESCRIPTION
-#   SQL_DB_URI             = "sqlite:///./data/benchmark_trace_db.sqlite"
-#   SQL_INCLUDE_TABLES     = ["Event", "Edge", "Trace", "Operation"]
-#   SQL_SCHEMA_DESCRIPTION = TRACK_B_SCHEMA_DESCRIPTION
-SQL_INCLUDE_TABLES      = SQL_DEFAULT_INCLUDE_TABLES
-SQL_SCHEMA_DESCRIPTION  = SQL_DEFAULT_SCHEMA_DESCRIPTION
+# --- Retrieval: query_trace is deterministic Python, not an LLM sub-agent ---
+# (No SQL_MODEL/SQL_BACKEND/etc block here -- see module docstring.)
 
 # --- Documentation agent ---
 DOC_MODEL           = "gpt-5.4"
 DOC_BACKEND         = "openai"      # "ollama", "groq", "deepinfra", or "openai"
 DOC_BASE_URL        = "http://localhost:11434"
 DOC_N_RESULTS       = 5
-# Which doc index/collection to query. Defaults are build_doc_index.py's own
-# PaaS values (single source of truth — not duplicated here), same pattern
-# as SQL_INCLUDE_TABLES/SQL_SCHEMA_DESCRIPTION above.
-#
-# To run against the TraceBench doc corpus (Phase 3, shared with Track B),
-# uncomment:
-#   DOC_DB_PATH    = "./tracebench_doc_chroma_db"
-#   DOC_COLLECTION = "docs_trace_perfault"   # or "docs_trace_category"
-DOC_DB_PATH         = DOC_DEFAULT_DB_PATH
-DOC_COLLECTION      = DOC_DEFAULT_COLLECTION
+# Shared trace doc corpus (Phase 3, built once, used by BOTH tracks) -- NOT
+# the PaaS default build_doc_index.DB_PATH/COLLECTION_NAME would otherwise
+# import. Point at the primary per-fault collection; swap to
+# "docs_trace_category" for the secondary leakage-comparison run.
+DOC_DB_PATH         = "../tracebench_doc_chroma_db"
+DOC_COLLECTION      = "docs_trace_perfault"
 
 # --- Orchestrator behaviour ---
 MAX_TURNS           = 6
 VERBOSE             = True
 
 # Output filename encodes the model combo for easy result comparison.
-# Strip any chars that would break filenames or look like path separators
-# (model IDs like "meta-llama/Llama-3.3-70B-Instruct-Turbo" contain '/').
 def _sanitize_model_name(name):
     for ch in ("/", "\\", ":", ".", " "):
         name = name.replace(ch, "-")
@@ -187,30 +146,13 @@ def _sanitize_model_name(name):
 OUTPUT_FILE = (
     f"diagnostic_results"
     f"__diag-{_sanitize_model_name(DIAGNOSTIC_MODEL)}"
-    f"__sql-{_sanitize_model_name(SQL_MODEL)}"
     f"__doc-{_sanitize_model_name(DOC_MODEL)}"
-    f".json"
+    f"__track-Bnative.json"
 )
 
-# ============================================================================
-# SQL AGENT IMPORT
-#
-# The SQL agent is defined in sql_agent.py. We import its build_agent function
-# here (aliased as build_sql_agent at the top of this file). The orchestrator
-# only needs the agent object plus a tiny helper to pull the final text answer
-# out of a langgraph result dict.
-# ============================================================================
-
-def _sql_extract(result):
-    """Pull the final text answer out of an SQL agent invocation result."""
-    messages = result.get("messages", [])
-    return messages[-1].content if messages else str(result)
-
-
-
 
 # ============================================================================
-# DIAGNOSTIC AGENT LLM BUILDER
+# DIAGNOSTIC AGENT LLM BUILDER -- identical to Track A / PaaS
 # ============================================================================
 
 def _build_diagnostic_llm(
@@ -221,9 +163,6 @@ def _build_diagnostic_llm(
     api_key=DIAGNOSTIC_API_KEY,
 ):
     if backend == "qwen":
-        # Same rationale as in sql_agent.py: native ChatOllama, not ChatOpenAI->/v1.
-        # The /v1 endpoint does not return tool_calls in the structured field,
-        # so the orchestrator never sees its sub-agents being called.
         from langchain_ollama import ChatOllama as _ChatOllama
         ollama_base = base_url.rstrip("/")
         if ollama_base.endswith("/v1"):
@@ -233,9 +172,6 @@ def _build_diagnostic_llm(
         from langchain_ollama import ChatOllama
         return ChatOllama(model=model, temperature=temp, base_url=base_url)
     elif backend in ("groq", "deepinfra", "openai"):
-        # OpenAI-compatible API backends. All three correctly surface
-        # tool_calls, so ChatOpenAI works. OpenAI uses the default endpoint;
-        # Groq and DeepInfra need an explicit base_url.
         import os
         from langchain_openai import ChatOpenAI
 
@@ -270,7 +206,7 @@ def _build_diagnostic_llm(
 
 
 # ============================================================================
-# TOOL CALL TRACE
+# TOOL CALL TRACE -- identical to Track A / PaaS
 # ============================================================================
 
 def _make_trace():
@@ -286,22 +222,9 @@ def _make_trace():
 
 # ============================================================================
 # TOOL BUILDERS
-#
-# Tools are constructed as closures that capture specific sub-agent instances.
-# build_tools() can be called multiple times with different configs — each
-# call produces a fully isolated pair of tools with no shared state.
 # ============================================================================
 
 def build_tools(
-    sql_model=SQL_MODEL,
-    sql_backend=SQL_BACKEND,
-    sql_temp=SQL_TEMP,
-    sql_base_url=SQL_BASE_URL,
-    sql_api_key=SQL_API_KEY,
-    sql_db_uri=SQL_DB_URI,
-    sql_max_iter=SQL_MAX_ITER,
-    sql_include_tables=SQL_INCLUDE_TABLES,
-    sql_schema_description=SQL_SCHEMA_DESCRIPTION,
     doc_model=DOC_MODEL,
     doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
@@ -316,72 +239,50 @@ def build_tools(
     """
     trace, record = _make_trace()
 
-    # Build the SQL sub-agent. The build_sql_agent function is sql_agent.build_agent
-    # (imported at the top of this file). It returns (agent, system_prompt) but we
-    # only need the agent — the system prompt is already embedded in it. We pair
-    # it with the local _sql_extract helper for pulling the final answer text.
-    sql_agent, _ = build_sql_agent(
-        llm_model=sql_model,
-        backend=sql_backend,
-        llm_temp=sql_temp,
-        llm_base_url=sql_base_url,
-        db_uri=sql_db_uri,
-        max_iterations=sql_max_iter,
-        include_tables=sql_include_tables,
-        schema_description=sql_schema_description,
-        verbose=False,
-    )
-    sql_extract = _sql_extract
-
     @tool
-    def query_logs(question: str) -> str:
+    def query_trace(trace_id: str) -> str:
         """
-        Query the platform log database (SQLite) to find evidence about a specific
-        incident. Use this tool when you need to:
-          - Find error messages, warning patterns, or sequences of events in logs
-          - Count occurrences of a specific event or component
-          - Identify timestamps, node IDs, or instance IDs involved in an incident
-          - Determine the order of events (what happened first vs. what followed)
+        Reconstruct the full HDFS request trace for a specific instance:
+        a per-host timeline of operations (with durations and any real
+        exception text) plus the cross-host call structure. Use this tool
+        when you need to:
+          - See the sequence and timing of operations for a specific instance
+          - Find exception/error text for a specific instance
+          - Identify which host(s) show unusually high latency relative to
+            their peers for this workload
+          - See how operations on different hosts relate to each other
+            (which RPC triggered which downstream operation)
 
-        Input: a natural language question about the logs.
-        Output: a text answer derived from SQL queries over the log database.
+        Input: the instance_id (trace/request identifier) named in the
+        incident description -- always pass it exactly as given.
+        Output: a formatted per-host timeline and call-structure summary.
 
-        Examples:
-          "What ERROR-level events appear in the ROUTER component?"
-          "What is the sequence of events for the MESSAGE_BUS component?"
-          "Which node_id had the most ERROR-level entries?"
+        Example: query_trace("C4113E01C484F2EB")
         """
         t0 = time.perf_counter()
-        result, sql_sleep = invoke_with_rate_limit_retry(
-            sql_agent,
-            {"messages": [HumanMessage(content=question)]},
-            config={"recursion_limit": sql_max_iter * 3},
-            verbose=False,
-        )
-        answer = sql_extract(result)
-        # Subtract rate-limit sleep from tool duration
-        duration_ms = (time.perf_counter() - t0 - sql_sleep) * 1000
-        record("query_logs", {"question": question}, answer, duration_ms)
+        answer = _query_trace_impl(trace_id)
+        duration_ms = (time.perf_counter() - t0) * 1000
+        record("query_trace", {"trace_id": trace_id}, answer, duration_ms)
         return answer
 
     @tool
     def query_docs(question: str) -> str:
         """
-        Search the platform documentation corpus for operational knowledge.
+        Search the HDFS fault documentation corpus for operational knowledge.
         Use this tool when you need to:
-          - Understand what a specific error message or log pattern means
+          - Understand what a specific error message or latency pattern means
           - Find the investigation steps for a known failure pattern
-          - Look up configuration thresholds, normal baselines, or alert values
-          - Understand how two platform components interact or depend on each other
+          - Look up configuration thresholds relevant to a suspected fault
+          - Understand the architecture behind a symptom (e.g. the write
+            pipeline, DataNode liveness handling, checksum verification)
 
-        Input: a natural language question about platform behaviour or operations.
+        Input: a natural language question about HDFS behaviour or operations.
         Output: an answer synthesised from retrieved runbooks, error references,
                 config notes, and architecture documentation.
 
         Examples:
-          "What does POOL EXHAUSTED mean and what causes it?"
-          "What is the runbook for simultaneous instance crashes on a cell?"
-          "What configuration value must exceed instance startup time?"
+          "What does a SocketTimeoutException on a DataNode read mean?"
+          "What is the runbook for a DataNode that is slower than its peers?"
         """
         t0 = time.perf_counter()
         result = doc_query(
@@ -400,41 +301,55 @@ def build_tools(
         }, duration_ms)
         return result["answer"]
 
-    return [query_logs, query_docs], trace
+    return [query_trace, query_docs], trace
 
 
 # ============================================================================
 # SYSTEM PROMPT
+#
+# Necessarily different from Track A/PaaS's prompt -- it describes a
+# genuinely different tool (query_trace, not query_logs). Structure/rules
+# mirror the original closely; only the tool description and terminology
+# (HDFS platform, not Cloud Foundry) change. This is the ONE prompt
+# deviation the Track B redesign requires -- see CHANGELOG_PORT.md.
 # ============================================================================
 
-SYSTEM_PROMPT = """You are an expert platform reliability engineer diagnosing
-incidents on a Cloud Foundry-compatible PaaS platform.
+SYSTEM_PROMPT = """You are an expert distributed-systems reliability engineer
+diagnosing incidents on an HDFS (Hadoop Distributed File System) cluster.
 
 You have two tools:
-  query_logs  — search the live log database for evidence of what happened
-  query_docs  — search platform documentation for operational knowledge
+  query_trace — reconstruct the full timeline and call structure for a
+                specific instance (request/trace)
+  query_docs  — search HDFS fault documentation for operational knowledge
 
 ## Diagnostic approach
 
 1. Read the incident description carefully. Identify the symptoms and the
-   affected component(s).
-2. Use query_logs to find the specific log evidence for this incident.
-   Start with the most distinctive symptom (error messages, specific component).
-3. Use query_docs to understand what the log evidence means and what the
-   root cause category is.
+   instance_id named.
+2. Use query_trace with that instance_id to see the actual timeline: which
+   host(s) are involved, any exception text, and any latency-outlier
+   annotation.
+3. Use query_docs to understand what the observed pattern means and what
+   the root cause category is.
 4. If the first round of evidence is ambiguous, do a second round:
-   query_logs for more specific evidence, then query_docs for confirmation.
+   query_trace again if there's a related instance to check, then query_docs
+   for confirmation.
 5. Synthesise a final diagnosis that states:
    - The root cause (specific and technical, not vague)
-   - The key log evidence that supports the diagnosis
-   - The failure pattern (e.g. connection pool exhaustion, cell OOM, cert expiry)
+   - The key trace evidence that supports the diagnosis (host, operation,
+     exception text, or latency comparison)
+   - The failure pattern
    - The recommended fix
 
 ## Rules
-- Never guess the root cause without log evidence.
-- Always use query_logs before concluding — your diagnosis must be grounded in
-  the actual log data, not just documentation knowledge.
-- Be specific: name the component, the error message, the threshold value.
+- Never guess the root cause without trace evidence.
+- Always use query_trace before concluding — your diagnosis must be grounded
+  in the actual trace data, not just documentation knowledge.
+- Be specific: name the host, the operation, the exception text or latency
+  figure.
+- Times shown for different hosts in a trace are NOT directly comparable to
+  each other (independent clocks) — only use same-host ordering and
+  per-operation durations, not cross-host timing, as evidence.
 - If the evidence points to a red herring (a symptom that looks like a cause),
   say so and identify what the actual upstream cause is.
 - Final answer: root cause in one sentence, evidence in 2-3 bullet points,
@@ -451,15 +366,6 @@ def build_diagnostic_agent(
     diagnostic_temp=DIAGNOSTIC_TEMP,
     diagnostic_base_url=DIAGNOSTIC_BASE_URL,
     diagnostic_api_key=DIAGNOSTIC_API_KEY,
-    sql_model=SQL_MODEL,
-    sql_backend=SQL_BACKEND,
-    sql_temp=SQL_TEMP,
-    sql_base_url=SQL_BASE_URL,
-    sql_api_key=SQL_API_KEY,
-    sql_db_uri=SQL_DB_URI,
-    sql_max_iter=SQL_MAX_ITER,
-    sql_include_tables=SQL_INCLUDE_TABLES,
-    sql_schema_description=SQL_SCHEMA_DESCRIPTION,
     doc_model=DOC_MODEL,
     doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
@@ -470,12 +376,9 @@ def build_diagnostic_agent(
     """
     Build and return (agent, tools, trace) for one benchmark configuration.
 
-    All three model configs are explicit parameters — pass different values
-    to produce differently-configured agents for comparison runs.
-
     Returns:
         agent  — langgraph agent ready for .invoke()
-        tools  — [query_logs, query_docs] closures bound to this config
+        tools  — [query_trace, query_docs] closures bound to this config
         trace  — list populated in-place during .invoke(); pass to diagnose()
     """
     llm = _build_diagnostic_llm(
@@ -487,15 +390,6 @@ def build_diagnostic_agent(
     )
 
     tools, trace = build_tools(
-        sql_model=sql_model,
-        sql_backend=sql_backend,
-        sql_temp=sql_temp,
-        sql_base_url=sql_base_url,
-        sql_api_key=sql_api_key,
-        sql_db_uri=sql_db_uri,
-        sql_max_iter=sql_max_iter,
-        sql_include_tables=sql_include_tables,
-        sql_schema_description=sql_schema_description,
         doc_model=doc_model,
         doc_backend=doc_backend,
         doc_n_results=doc_n_results,
@@ -503,10 +397,6 @@ def build_diagnostic_agent(
         doc_collection=doc_collection,
     )
 
-    # Same rationale as in sql_agent.py: pass prompt= as a callable that
-    # returns list[BaseMessage]. Modern langgraph removed state_modifier;
-    # a callable prompt is the cross-version-safe form that reliably
-    # triggers bind_tools() on the LLM.
     from langchain_core.messages import SystemMessage
 
     def _state_mod(state):
@@ -518,7 +408,6 @@ def build_diagnostic_agent(
     agent = create_react_agent(llm, tools, prompt=_state_mod)
     agent._max_iterations = max_turns
 
-    # Sanity check tool binding on the orchestrator LLM.
     try:
         bound_tools = getattr(llm.bind_tools(tools), "kwargs", {}).get("tools")
         if not bound_tools:
@@ -529,13 +418,6 @@ def build_diagnostic_agent(
     except Exception as e:
         print(f"  WARNING: could not verify tool binding for diagnostic agent: {e}")
 
-    # Warm-up call: some hosted backends (e.g. DeepInfra) emit a malformed
-    # response on the very first invocation after the model is loaded —
-    # tool calls come back as raw "<function=name {...}>" text instead of
-    # being routed through the tool_calls field. Subsequent calls are fine.
-    # A throwaway invocation here guarantees the real benchmark loop starts
-    # from a warm, correctly-routed state. The trace is cleared after so
-    # it doesn't contaminate the first real incident's metrics.
     if diagnostic_backend in ("groq", "deepinfra", "openai"):
         try:
             print("  Warming up the orchestrator (one throwaway invocation)...")
@@ -555,7 +437,8 @@ def build_diagnostic_agent(
 
 
 # ============================================================================
-# DIAGNOSE
+# DIAGNOSE -- identical to Track A / PaaS except model_config has no sql_*
+# fields (there is no SQL sub-agent model for Track B).
 # ============================================================================
 
 def diagnose(
@@ -567,14 +450,6 @@ def diagnose(
 ):
     """
     Run a single incident scenario through a pre-built diagnostic agent.
-
-    Args:
-        incident_id : e.g. "INC-008" — label for evaluation
-        question    : operator-style symptom description
-        agent       : built by build_diagnostic_agent()
-        trace       : the trace list returned by build_diagnostic_agent();
-                      cleared and repopulated in-place on each call
-        verbose     : print progress to stdout
 
     Returns:
         dict with incident_id, question, diagnosis, status,
@@ -599,7 +474,6 @@ def diagnose(
     rate_limit_sleep = 0.0
     try:
         for attempt in range(MAX_MALFORMED_RETRIES + 1):
-            # Clear trace before each attempt so retry timing is clean
             if attempt > 0:
                 trace.clear()
 
@@ -613,11 +487,6 @@ def diagnose(
             messages  = result.get("messages", [])
             diagnosis = messages[-1].content if messages else str(result)
 
-            # Detect the malformed-tool-call failure: diagnosis text leaks the
-            # legacy Llama "<function=name {...}>" format AND no tool calls
-            # actually executed (trace empty). When that happens, the model's
-            # tool call wasn't routed through tool_calls and the agent gave up
-            # after one round-trip. Retry from scratch.
             is_malformed = (
                 len(trace) == 0
                 and diagnosis is not None
@@ -632,23 +501,16 @@ def diagnose(
                       f"attempt {attempt+1}/{MAX_MALFORMED_RETRIES+1}] retrying...")
 
         if malformed_tool_call_retries >= MAX_MALFORMED_RETRIES and is_malformed:
-            # Retries exhausted, still malformed — mark as a recorded failure
             status = "malformed_tool_call_unrecovered"
 
     except Exception as e:
         diagnosis = f"Agent error: {e}"
         status    = "error"
     total_seconds = time.perf_counter() - t_start
-    # Subtract rate-limit sleep so timing reflects actual reasoning, not waiting
     active_seconds = max(0.0, total_seconds - rate_limit_sleep)
 
-    # Timing breakdown: separate tool time (SQL + doc agents) from orchestrator
-    # time (the diagnostic LLM's own reasoning between tool calls). Tool time
-    # is the sum of per-call durations from the trace; orchestrator time is
-    # whatever wall-clock is left over after tools finish — using active_seconds
-    # so any rate-limit sleeps don't get charged to the orchestrator.
     tool_ms_total = sum(c.get("duration_ms", 0) for c in trace)
-    sql_ms        = sum(c.get("duration_ms", 0) for c in trace if c["tool"] == "query_logs")
+    trace_ms      = sum(c.get("duration_ms", 0) for c in trace if c["tool"] == "query_trace")
     doc_ms        = sum(c.get("duration_ms", 0) for c in trace if c["tool"] == "query_docs")
     orchestrator_ms = max(0.0, active_seconds * 1000 - tool_ms_total)
 
@@ -657,7 +519,7 @@ def diagnose(
         "active_seconds":       round(active_seconds, 3),
         "rate_limit_sleep_s":   round(rate_limit_sleep, 3),
         "tool_ms_total":        round(tool_ms_total, 1),
-        "sql_ms_total":         round(sql_ms, 1),
+        "trace_ms_total":       round(trace_ms, 1),
         "doc_ms_total":         round(doc_ms, 1),
         "orchestrator_ms":      round(orchestrator_ms, 1),
         "n_tool_calls":         len(trace),
@@ -670,9 +532,9 @@ def diagnose(
         retry_note = f"  RETRIES: {malformed_tool_call_retries}" if malformed_tool_call_retries else ""
         print(f"TOOL CALLS: {len(trace)}   TOTAL TIME: {total_seconds:.1f}s{retry_note}")
         for i, call in enumerate(trace, 1):
-            q  = call["inputs"].get("question", "")[:60]
+            arg = call["inputs"].get("trace_id") or call["inputs"].get("question", "")
             dt = call.get("duration_ms", 0)
-            print(f"  {i}. {call['tool']}({q!r})  [{dt/1000:.1f}s]")
+            print(f"  {i}. {call['tool']}({str(arg)[:60]!r})  [{dt/1000:.1f}s]")
         print("\nDIAGNOSIS:")
         print("-" * 70)
         print(diagnosis)
@@ -685,13 +547,10 @@ def diagnose(
         "status":          status,
         "tool_call_trace": list(trace),
         "timing":          timing,
-        # Model config recorded in each result for self-contained eval reports
-        # Read from module-level constants — diagnose() is config-agnostic
         "model_config": {
+            "track":              "B_native",
             "diagnostic_model":   DIAGNOSTIC_MODEL,
             "diagnostic_backend": DIAGNOSTIC_BACKEND,
-            "sql_model":          SQL_MODEL,
-            "sql_backend":        SQL_BACKEND,
             "doc_model":          DOC_MODEL,
             "doc_backend":        DOC_BACKEND,
         },
@@ -705,44 +564,43 @@ def save_results(results, output_file):
 
 
 # ============================================================================
-# SMOKE TEST  (NOT a benchmark — runs 2 incidents to verify the orchestrator
-# is wired up and that both sub-agents are reachable.)
-#
-# To run the actual 25-incident benchmark, use:  python run_benchmark.py
+# SMOKE TEST  (NOT a benchmark — runs 2 real cases to verify the orchestrator
+# is wired up and that both tools are reachable.)
 # ============================================================================
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("DIAGNOSTIC AGENT SMOKE TEST")
+    print("DIAGNOSTIC AGENT SMOKE TEST (Track B -- trace-native)")
     print("=" * 70)
-    print("This is NOT the benchmark. It runs 2 sample incidents to verify the")
-    print("orchestrator and both sub-agents are wired up correctly.")
-    print("To run the full 25-incident benchmark: python run_benchmark.py")
+    print("This is NOT the benchmark. It runs 2 sample cases to verify the")
+    print("orchestrator and both tools are wired up correctly.")
     print("=" * 70)
     print()
     print(f"Diagnostic model : {DIAGNOSTIC_MODEL} ({DIAGNOSTIC_BACKEND})")
-    print(f"SQL model        : {SQL_MODEL} ({SQL_BACKEND})")
     print(f"Doc model        : {DOC_MODEL} ({DOC_BACKEND})")
+    print(f"Doc collection   : {DOC_COLLECTION} @ {DOC_DB_PATH}")
     print()
 
     agent, tools, trace = build_diagnostic_agent()
 
     smoke_scenarios = [
         {
-            "incident_id": "SMOKE-001",
+            "incident_id": "TB-018",
             "question": (
-                "payments-api is returning sustained 503s. Metrics show the "
-                "database connection pool climbing. An autoscaler scale-out fired "
-                "but the 503s continued even after new instances started. "
-                "What is the root cause?"
+                "During a read HDFS workload (instance C4113E01C484F2EB), one "
+                "datanode is measurably slower than its peers across multiple "
+                "block-transfer operations, though every request still "
+                "eventually completes successfully. What is the root cause?"
             ),
         },
         {
-            "incident_id": "SMOKE-002",
+            "incident_id": "TB-011",
             "question": (
-                "All inter-service communication on the platform failed "
-                "simultaneously with TLS handshake errors. Six hours earlier "
-                "there were CERT WARNING messages in the logs. What happened?"
+                "During a read-only HDFS workload (instance 03FB08C229C2844D), "
+                "some requests are failing with 'connection refused' when "
+                "trying to reach a specific datanode, and the client "
+                "subsequently avoids that node for the rest of the request. "
+                "What is the root cause?"
             ),
         },
     ]
@@ -757,5 +615,5 @@ if __name__ == "__main__":
         )
 
     print()
-    print("Smoke test complete. If both incidents made tool calls and returned a")
+    print("Smoke test complete. If both cases made tool calls and returned a")
     print("non-empty diagnosis, the agent is wired up correctly.")

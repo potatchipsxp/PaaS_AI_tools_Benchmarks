@@ -15,8 +15,10 @@ the Cleanliness Contract still holds, do one phase, append below, stop.
 | Retry / recovery / rate-limit logic | FROZEN | |
 | Scoring philosophy (deterministic keyword/retrieval + LLM judge) | FROZEN | Specific keywords/signals change; structure does not |
 | Ground-truth isolation (separate DB, never shown to agent) | FROZEN | |
-| Everything except the data-access layer, identical between Track A and Track B | FROZEN | Same cases, questions, ground truth, docs, judge, models, temps. Only `query_logs`'s backend may differ between tracks. |
-| `query_logs` SQL backend (what table it queries) | SANCTIONED CHANGE | Phase 4 only |
+| Ground truth, the 27 cases/questions, doc corpus, LLM judge rubric — shared across Track A **and** Track B | FROZEN | Superseded the addendum's stricter "everything except data-access, identical between A and B" row below — see the Track B redesign session. This narrower set is what must still match exactly for the two tracks' judge scores to be comparable at all. |
+| ~~Everything except the data-access layer, identical between Track A and Track B~~ | **SUPERSEDED** | The addendum's original framing (A and B differ ONLY in `include_tables`/`schema_description`, same tool interface) was deliberately abandoned — see the Track B redesign session below. Track B now uses a different tool (`query_trace`, deterministic, no SQL sub-agent model) by design, trading a clean single-variable A-vs-B comparison for three independently-more-reliable tracks (PaaS / Track A / Track B) triangulated together. Phase 6's interpretation grid will need rewriting to match. |
+| `query_logs` SQL backend (what table it queries) | SANCTIONED CHANGE | Phase 4, Track A only |
+| Track B's tool interface (`query_trace`, not `query_logs`) | SANCTIONED CHANGE | The one exception to the tool-interface-frozen rule, scoped specifically to Track B — see redesign session |
 | Data source | SANCTIONED CHANGE | The whole point |
 | Doc corpus content | SANCTIONED CHANGE | Phase 3 |
 | Deterministic scoring keywords/signals | SANCTIONED CHANGE | Phase 5 |
@@ -363,3 +365,135 @@ whether a given model is smart enough to write the SQL):**
 (Track A) and the four native tables (Track B) over identical scope; both leakage-audited
 separately with 0 hits; both schema-level smoke-tested against real questions; Track A vs Track B
 config diff is exactly `include_tables` + `schema_description`, recorded above.
+
+### Track B redesign — deterministic query_trace, own subfolder (this session)
+
+**Why:** discussed and agreed with the user that the addendum's original Track B design (SQL
+sub-agent over native tables, differing from Track A only in `include_tables`/
+`schema_description`) optimized for the wrong thing. The actual research question is *model
+power and how it generalizes*, not narrowly "does one fixed SQL-only tool transfer across data
+shapes." Reframed as three complementary tests instead of one clean A-vs-B pair:
+- **PaaS** (done): native data, native tool. Highest face validity, weakest generalization signal
+  alone (single domain).
+- **Track A**: TraceBench forced into the PaaS tool/schema shape. Lower face validity (data
+  contorted to fit), but highest apples-to-apples reliability — literally nothing but the DB
+  changed.
+- **Track B** (redesigned here): TraceBench read the way it actually is, with tooling adapted to
+  fit the data rather than the other way around. Lower face validity for the PaaS use case
+  (different domain *and* different apparatus), but no risk that our own flattening/schema-forcing
+  introduced artifacts.
+
+If the model-tier ranking holds across all three, that's a stronger claim than any single clean
+pairwise comparison could give — trading the addendum's "isolate exactly one variable" guarantee
+for "three independently-trustworthy tests, triangulated." This is a deliberate, discussed
+departure from the addendum, not a discovery of a flaw in it — recorded in the Cleanliness
+Contract above (the old "identical except data-access layer" row is marked SUPERSEDED, not
+deleted, so the reasoning trail stays intact). Phase 6's interpretation grid (which read
+Flat↔Native as "the clean modality test") will need rewriting to match — not done yet, flagged for
+whoever picks up Phase 6.
+
+**Architecture decided (discussed, not assumed):**
+- `query_trace(trace_id)` replaces `query_logs` for Track B. Deterministic Python, not an LLM SQL
+  sub-agent — removes a confound the addendum's design had baked in (a weak SQL-sub-agent model
+  botching a join would have looked identical to "the orchestrator reasoned poorly"). Consequence:
+  there is no `SQL_MODEL`/`SQL_BACKEND` for Track B at all — only the orchestrator and doc-agent
+  models are in play, which changes what a "tier" means for this track vs. Track A/PaaS (a tier
+  there is diag+sql+doc together; here it's diag+doc). Recorded plainly rather than glossed over.
+- New subfolder `track_b/`, mirroring the Phase-0 convention of a sibling directory with its own
+  layout — but **not** its own `data/` copy of ground truth/docs/cases: those stay shared at
+  `tracebench_port/data/` (referenced via `../data/...`) specifically because the addendum's
+  concern about the two tracks silently drifting apart is still valid for THESE elements even
+  though the tool interface itself is now allowed to differ — see the updated Cleanliness Contract
+  row above.
+- `track_b/data/` holds only what's genuinely Track-B-specific: a scoped copy of the RAW tables
+  (see below) and `Results/` for Track B's own run output.
+
+**Data (`build_track_b_data.py`, new) — raw, not the Phase-4 SQL tables:**
+- Discussed directly with the user: Track B's data should be *closer to the raw TraceBench tables*
+  than Phase 4's `build_trace_native.py` output, which was curated specifically for an LLM writing
+  SQL against it (deduplicated `Operation`, no `Trace_Source`/`Operation_Source` at all). Since
+  `query_trace` is deterministic Python with no SQL access exposed to any model, that curation is
+  unnecessary — the leakage boundary only has to be enforced on the tool's *output text*, not on
+  what columns technically exist in the backing file.
+- Chose to **materialize a scoped copy** (`track_b/data/tracebench_raw_scoped.sqlite`) rather than
+  query the 2.9GB `tracebench_raw.sqlite` live at run time — discussed as a deliberate tradeoff:
+  a small one-time filtering cost now vs. a runtime dependency on the giant raw file (which would
+  also need new indexes to stay fast, same slowness Phase 4 already hit). Keeps `track_b/`
+  self-contained, matching why the subfolder was created in the first place.
+- Copies `Event`/`Edge`/`Trace`/`Trace_Source`/`Operation`/`Operation_Source` **raw** — real column
+  types preserved (`StartTime`/`EndTime` etc. stay `INTEGER`, not coerced to `TEXT`), no
+  deduplication, no relabeling — scoped to the same 27 cases' trace_sets Track A uses. Row counts
+  match Track A's flattening exactly (1,364,907 Event rows, 26,941 distinct `TaskID`), confirming
+  both tracks are working from identical underlying data.
+- `Trace_Source`/`Operation_Source` **are** included here (unlike Track A's/the old Track B's
+  agent-facing tables) — they carry the `trace_set` (= fault name) mapping `query_trace.py` needs
+  *internally* to group peer events for latency-outlier comparison. Safe specifically because no
+  model ever gets direct SQL access to this file; the leakage boundary is `query_trace`'s output
+  text, audited separately (see below).
+- **Parity fix caught before it became a bug**: Track A's WARN-derivation used
+  `build_nm_latency_baseline()` against the FULL, unscoped raw corpus (all 364 trace_sets). If
+  `query_trace` had computed that same baseline from only the 7 scoped NM trace_sets, its
+  cluster-deviation signal would have been measurably noisier than Track A's purely due to an
+  architecture choice, not a real track difference. Fixed by precomputing the baseline once from
+  the full corpus (matching Track A exactly) and caching it to `data/nm_latency_baseline.json`, so
+  `query_trace` never needs to touch the 2.9GB raw file at query time.
+- Leakage audit on the raw-copied columns Event/Trace/Operation that could end up in output text
+  (not `Trace_Source`/`Operation_Source`, which intentionally hold the trace_set mapping for
+  internal use only) — **PASS, 0 hits**.
+
+**`query_trace.py` (new) — the tool itself:**
+- Reconstructs a per-host timeline (grouped by host because cross-host `StartTime` isn't
+  comparable — see Phase 4's verified finding) plus a best-effort cross-host call-structure section
+  from `Edge`. Times shown are relative to each host's own first event in the trace, with an
+  explicit note that cross-host times aren't comparable — chosen over Track A's anchored-to-a-real-
+  date approach because free text has room to be transparent about this rather than needing to fit
+  a schema convention.
+- Annotates `[WARN]`/`[ERROR]` using the **same** `select_cases.py` outlier functions and same
+  `nm_latency_baseline.json` Track A used — deliberately, so neither track hands the model more
+  pre-digested evidence than the other; the comparison should be about model reasoning, not about
+  which track's tool does more work for it.
+- Smoke-tested against real cases: TB-018's WARN lands on `datanode046` exactly like Track A's flat
+  table (`+930.5ms verifiedByClient (1.0ms) [WARN]`, `+14.93s verifiedByClient (0.8ms) [WARN]`);
+  TB-011 surfaces the real `ConnectException: Connection refused...` text with `[ERROR]`. The
+  call-structure section only renders for traces that actually have `Edge` rows — confirmed only
+  3 of the 27 named cases' specific `TaskID`s do (consistent with Phase 4's already-documented
+  ~41% zero-edge-rate; not a new bug).
+- **Leakage audit on the actual output text** (`audit_query_trace_leakage.py`, new) — calls
+  `query_trace()` for all 27 real cases and greps the returned strings (not the DB) against all
+  750 fault/category/trace_set tokens — **PASS, 0 hits**.
+
+**`track_b/diagnostic_agent.py` (new, forked from Track A's) — orchestrator wiring:**
+- Rate-limit handling, LLM builder, tool-call tracing, `diagnose()`/`save_results()`, and the smoke
+  test harness are copied unchanged from Track A's `diagnostic_agent.py` — genuinely identical
+  logic, not reimplemented.
+- What's different, necessarily: no `SQL_MODEL`/`SQL_BACKEND`/etc. CONFIG block at all (see
+  architecture note above); `query_logs` replaced with a `query_trace` tool wrapping
+  `query_trace.py`'s deterministic function; `SYSTEM_PROMPT` rewritten to describe the new tool and
+  HDFS terminology instead of Cloud Foundry/PaaS — this is the one prompt deviation the redesign
+  requires, and it's scoped to Track B only (Track A's/PaaS's `SYSTEM_PROMPT` stays byte-identical
+  per the frozen contract).
+- Doc agent is mechanically unchanged (same `doc_agent.py`, imported directly rather than copied,
+  since it needed no Track-B-specific modification) but points at the shared trace doc corpus
+  (`../tracebench_doc_chroma_db`, collection `docs_trace_perfault`) via explicit
+  `DOC_DB_PATH`/`DOC_COLLECTION` — importing across the `track_b/` → `tracebench_port/` boundary
+  the same way `query_trace.py` already does for `select_cases.py`.
+- **Bug found and fixed in Track A's `diagnostic_agent.py` while building this**: it had no
+  `DOC_DB_PATH`/`DOC_COLLECTION` override at all — it silently imported `build_doc_index.py`'s own
+  PaaS defaults (`./doc_chroma_db`, collection `docs`) and would have queried the wrong doc index
+  on an actual run. Fixed the same way `SQL_INCLUDE_TABLES`/`SQL_SCHEMA_DESCRIPTION` already were:
+  explicit CONFIG constants defaulting to the PaaS values (imported, not duplicated) with a
+  commented block showing what to uncomment for the trace corpus.
+- Verified: both files import cleanly; `build_tools()` constructs the right tool set for each
+  (`[query_trace, query_docs]` for Track B, confirmed via `tools[i].name`); `query_trace` tool
+  invokes correctly end-to-end through the LangChain tool wrapper. Full live orchestrator runs
+  (actual LLM tool-calling) not tested — no API key available in this session, same limitation
+  noted in Phases 3–4.
+
+**Exit check (Track B redesign): MET** for the pieces buildable without a live LLM backend —
+scoped raw data built and leakage-audited (both at the DB-column and the tool-output-text layer),
+`query_trace` smoke-tested against real cases with parity-correct WARN/ERROR annotations, orchestrator
+forked and wired with the doc-agent/config gap fixed on both tracks. **Not yet done**: an actual
+live benchmark run of Track B (needs an API key); Phase 5's forked deterministic evidence-grounding
+signal now needs a Track-B-specific adapter keyed off `query_trace` calls instead of SQL query
+results (anticipated by the addendum, mechanics not yet written); Phase 6's interpretation grid
+needs rewriting for the three-test triangulation framing instead of clean pairwise isolation.
