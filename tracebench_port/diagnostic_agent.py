@@ -189,7 +189,7 @@ OUTPUT_FILE = (
     f"__diag-{_sanitize_model_name(DIAGNOSTIC_MODEL)}"
     f"__sql-{_sanitize_model_name(SQL_MODEL)}"
     f"__doc-{_sanitize_model_name(DOC_MODEL)}"
-    f".json"
+    f"__track-Aflat.json"
 )
 
 # ============================================================================
@@ -688,6 +688,7 @@ def diagnose(
         # Model config recorded in each result for self-contained eval reports
         # Read from module-level constants — diagnose() is config-agnostic
         "model_config": {
+            "track":              "A_flat",
             "diagnostic_model":   DIAGNOSTIC_MODEL,
             "diagnostic_backend": DIAGNOSTIC_BACKEND,
             "sql_model":          SQL_MODEL,

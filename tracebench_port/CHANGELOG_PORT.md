@@ -497,3 +497,94 @@ live benchmark run of Track B (needs an API key); Phase 5's forked deterministic
 signal now needs a Track-B-specific adapter keyed off `query_trace` calls instead of SQL query
 results (anticipated by the addendum, mechanics not yet written); Phase 6's interpretation grid
 needs rewriting for the three-test triangulation framing instead of clean pairwise isolation.
+
+### run_benchmark.py fixes + Phase 5 deterministic evaluator + judge prompt (this session)
+
+**Why now:** both `run_benchmark.py` (still importing PaaS's `benchmark_incidents.py`) and the
+deterministic evaluator (`Results/evaluate.py` sat as an untouched Phase-0 copy) were flagged as
+blockers in the last status review — nothing downstream is runnable without them.
+
+**`run_benchmark.py` fixes:**
+- Track A: swapped `benchmark_incidents.BENCHMARK_CASES` → `benchmark_cases_trace.BENCHMARK_CASES_TRACE`,
+  `case["incident_id"]` → `case["case_id"]`, and widened `--tier` from `{1,2,3}` to `{0,1,2,3}` — the
+  trace case set has a Tier 0 (7 normal controls) the PaaS incident set never had, so the old parser
+  couldn't even select them. Verified: `--help` output correct, case-count-by-tier matches the
+  documented 5/3/12/7 split exactly.
+- `track_b/run_benchmark.py` (new): forked from Track A's, importing `track_b/diagnostic_agent.py`
+  instead and dropping the `SQL_MODEL`/`SQL_BACKEND` print lines (no SQL sub-agent for this track).
+- Added `"track": "A_flat"` to Track A's `diagnose()`'s `model_config` dict, mirroring Track B's
+  existing `"track": "B_native"` — this is what lets `evaluate_trace.py` (below) auto-detect which
+  track a results file came from instead of needing a separate CLI flag.
+- Also fixed, per the addendum's explicit Phase 6.1 requirement ("output filenames must encode
+  model combo + dataset"): Track A's `OUTPUT_FILE` had no track suffix at all (Track B's already did,
+  `__track-Bnative.json`) — added `__track-Aflat` for symmetry and to prevent a same-model-combo PaaS
+  run and Track A run from ever looking identical from the filename alone.
+
+**`evaluate_trace.py`** (new, adapted from `Results/evaluate.py` — same three-layer structure and
+scoring philosophy, frozen per the Cleanliness Contract; only field names and one signal fork):
+- Ground truth source swapped to `benchmark_cases_trace.BENCHMARK_CASES_TRACE`, keyed by `case_id`.
+- `score_doc_retrieval`: renamed every `incident_ids` field read to `case_ids`, matching the fix
+  already made in `build_doc_index.py` back in Phase 3 (this evaluator hadn't existed yet to catch
+  the mismatch at the time).
+- `score_reasoning_trace`: the **one deterministic signal that forks by track**, exactly as the
+  addendum anticipated — reads `model_config["track"]` and checks for `query_logs` (Track A) or
+  `query_trace` (Track B) as "the evidence tool," instead of hardcoding `query_logs`.
+- **New**: `score_localization()` — spec 5.3's recommended signal, not present in the PaaS evaluator
+  at all. Checks whether the diagnosis names the real `affected_component` from the isolated
+  `data/ground_truth_trace.json` (read post-hoc, after the agent has already produced its diagnosis —
+  this does not violate the frozen ground-truth-isolation rule, which is about what the *agent* sees
+  during diagnosis). Reports `"n/a"` rather than a miss for Tier 0 cases, which structurally have no
+  `affected_component` to localize.
+- Report/filenames now carry the track explicitly (`report["tracks"]`, per-case `"track"` field,
+  output filename derived from the input results filename) so PaaS/Track A/Track B reports never
+  collide and can be sliced by track later in Phase 6.
+
+**Real bug found and fixed via testing, not just inspection**: built two synthetic
+`diagnostic_results`-shaped files (one per track, matching real `diagnose()` output exactly) to
+exercise `evaluate_trace.py` end-to-end before any live run exists. A synthetic *correct* "no fault"
+diagnosis for a Tier 0 case scored `miss` — traced it to `benchmark_cases_trace.py`: all 7 Tier 0
+cases had `answer_required = ["no fault", "no anomaly", "normal", "no issue", "healthy"]`, and
+`score_answer`'s `answer_required` check is conjunctive (`all(...)` — every keyword must appear).
+Those five phrases are alternative ways of saying the same one thing, not five independent facts —
+under the conjunctive rule, essentially no realistic diagnosis would ever earn `full_credit` on any
+of the 7 normal-control cases (26% of the benchmark), regardless of correctness. `benchmark_cases_trace.py`'s
+own docstring already flagged these signals as "provisional pending the Phase 5 rewrite the spec
+calls for" — fixed now: `answer_required = ["no fault"]` (the single canonical phrase, matching the
+question's own framing), the other four moved to `answer_partial`. Re-ran the synthetic test after
+the fix — same correct diagnosis now scores `full_credit` as it should. This is exactly the kind of
+thing that only surfaces by actually running the scorer against realistic input, not by reading the
+code — logged here as the reason the synthetic-test step was worth doing before a real (costly) live
+run.
+
+**`judge_prompt_gui_trace.md`** (new, adapted from `Results/judge_prompt_gui.md` at the PaaS root —
+discovered this session that the "LLM judge" is a paste-into-chat prompt, not a script, which changes
+what "Phase 5's judge adaptation" actually means: careful prompt editing, not code):
+- Domain rewrite (HDFS/TraceBench instead of Cloud Foundry/PaaS), tool references updated to name
+  both possible evidence tools (`query_logs` for Track A runs, `query_trace` for Track B runs —
+  judge is told to check `model_config.track` to know which applies to a given result).
+- **Real gap found and fixed**: the original rubric scores against a `root_cause` field in
+  `ground_truth.json`. `ground_truth_trace.json` has no such field — the canonical one is
+  `fault_name` (confirmed by inspection, not assumed). Rubric text updated to point at the field
+  that actually exists.
+- Added explicit Tier 0 (normal control) scoring guidance to Dimensions 1 and 3, which the PaaS
+  rubric never needed (PaaS's incident set had no "nothing is wrong" case type) — without this a
+  judge could plausibly misread a correct "no fault" diagnosis as "vacuous" under the existing 0-2
+  definitions.
+- Rubric dimensions themselves (root cause / evidence / fix, 0-2 each) and the red-herring concept
+  are left structurally unchanged, per the frozen-rubric rule — the red-herring field definition now
+  notes explicitly that TraceBench cases weren't authored with that property as a design goal (unlike
+  PaaS's incident set), so the judge should apply the existing definition per-case from what it
+  actually reads rather than assume most cases have it.
+- Output schema: kept the `incident_id` field name (matches what's literally in the results JSON —
+  diagnose()'s parameter name, holding the TraceBench `case_id` value), added a `track` field per
+  case so `cross_cutting_observations` can note cross-track patterns.
+- Not yet done: actually running this prompt against a real results file — needs live results to
+  exist first (blocked on an API key, same as everything else downstream).
+
+**Exit check (this session): MET** for everything buildable without a live LLM backend. Both
+`run_benchmark.py` entrypoints verified (help output, case-count-by-tier). `evaluate_trace.py`
+verified end-to-end against synthetic data for both tracks, including the track-fork logic actually
+switching evidence-tool names correctly. One real scoring bug found and fixed via that testing, not
+merely by code review. Judge prompt adapted and internally consistent with the current data shape.
+**Still not done**: a live benchmark run on either track (no API key available this session, per
+Phase 3/4's same limitation); running the judge prompt for real; Phase 6.

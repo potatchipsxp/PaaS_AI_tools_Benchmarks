@@ -340,8 +340,8 @@ BENCHMARK_CASES_TRACE = [
             "this request? If nothing appears wrong, say so explicitly and "
             "explain what you checked."
         ),
-        "answer_required": ["no fault", "no anomaly", "normal", "no issue", "healthy"],
-        "answer_partial": [],
+        "answer_required": ["no fault"],
+        "answer_partial": ["no anomaly", "normal", "no issue", "healthy"],
         "retrieval_signals": [],
     },
     {
@@ -354,8 +354,8 @@ BENCHMARK_CASES_TRACE = [
             "this request? If nothing appears wrong, say so explicitly and "
             "explain what you checked."
         ),
-        "answer_required": ["no fault", "no anomaly", "normal", "no issue", "healthy"],
-        "answer_partial": [],
+        "answer_required": ["no fault"],
+        "answer_partial": ["no anomaly", "normal", "no issue", "healthy"],
         "retrieval_signals": [],
     },
     {
@@ -368,8 +368,8 @@ BENCHMARK_CASES_TRACE = [
             "affecting this request? If nothing appears wrong, say so explicitly "
             "and explain what you checked."
         ),
-        "answer_required": ["no fault", "no anomaly", "normal", "no issue", "healthy"],
-        "answer_partial": [],
+        "answer_required": ["no fault"],
+        "answer_partial": ["no anomaly", "normal", "no issue", "healthy"],
         "retrieval_signals": [],
     },
     {
@@ -382,8 +382,8 @@ BENCHMARK_CASES_TRACE = [
             "affecting this request? If nothing appears wrong, say so explicitly "
             "and explain what you checked."
         ),
-        "answer_required": ["no fault", "no anomaly", "normal", "no issue", "healthy"],
-        "answer_partial": [],
+        "answer_required": ["no fault"],
+        "answer_partial": ["no anomaly", "normal", "no issue", "healthy"],
         "retrieval_signals": [],
     },
     {
@@ -396,8 +396,8 @@ BENCHMARK_CASES_TRACE = [
             "this request? If nothing appears wrong, say so explicitly and "
             "explain what you checked."
         ),
-        "answer_required": ["no fault", "no anomaly", "normal", "no issue", "healthy"],
-        "answer_partial": [],
+        "answer_required": ["no fault"],
+        "answer_partial": ["no anomaly", "normal", "no issue", "healthy"],
         "retrieval_signals": [],
     },
     {
@@ -410,8 +410,8 @@ BENCHMARK_CASES_TRACE = [
             "is there any fault or anomaly affecting this request? If nothing "
             "appears wrong, say so explicitly and explain what you checked."
         ),
-        "answer_required": ["no fault", "no anomaly", "normal", "no issue", "healthy"],
-        "answer_partial": [],
+        "answer_required": ["no fault"],
+        "answer_partial": ["no anomaly", "normal", "no issue", "healthy"],
         "retrieval_signals": [],
     },
     {
@@ -425,8 +425,8 @@ BENCHMARK_CASES_TRACE = [
             "nothing appears wrong, say so explicitly and explain what you "
             "checked."
         ),
-        "answer_required": ["no fault", "no anomaly", "normal", "no issue", "healthy"],
-        "answer_partial": [],
+        "answer_required": ["no fault"],
+        "answer_partial": ["no anomaly", "normal", "no issue", "healthy"],
         "retrieval_signals": [],
     },
 ]
