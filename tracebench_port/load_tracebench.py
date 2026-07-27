@@ -66,15 +66,34 @@ def split_sql_statements(text):
                 if i + 1 < n and text[i + 1] == "'":
                     buf.append("''"); i += 2; continue
                 # Grammar-aware lookahead: in this dump's tuple format, a
-                # string field ends only where ',' ')' or ';' follows (after
-                # optional whitespace). If not, this is a genuine unescaped
-                # apostrophe inside the content (e.g. "doesn't", "can't")
-                # left unescaped by the original 2014 mysqldump export —
-                # treat it as literal text, not a string terminator.
+                # string field ends only where ',' ')' ';' follows (after
+                # optional whitespace) -- OR, for the mysqldump preamble's
+                # own directive lines (e.g. "SET TIME_ZONE='+00:00' */;",
+                # "SET ... SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;"), a '*/'
+                # comment-closer. BUG FOUND (see CHANGELOG_PORT.md): the
+                # original version of this check only accepted ',', ')', ';'
+                # -- for a directive line, the closing quote is followed by
+                # '*/;' (space, then a literal asterisk), which matched
+                # neither, so the heuristic treated a perfectly valid closing
+                # quote as a mid-word apostrophe and never left in_single
+                # state. That corrupted quote-tracking for everything
+                # downstream until pure chance produced a quote that DID
+                # satisfy the old check, silently merging up to ~1MB of real
+                # statements (across every one of the 364 files -- this
+                # directive appears in the standard mysqldump header) into
+                # one blob starting with '/*', which the loader's
+                # directive-skip filter then silently discarded with no
+                # error logged. Confirmed via direct inspection of the raw
+                # .sql text, independent of this loader.
+                #
+                # If not one of these terminator contexts, this is a genuine
+                # unescaped apostrophe inside the content (e.g. "doesn't",
+                # "can't") left unescaped by the original 2014 mysqldump
+                # export -- treat it as literal text, not a string terminator.
                 j = i + 1
                 while j < n and text[j] in ' \t\r\n':
                     j += 1
-                if j >= n or text[j] in ',);':
+                if j >= n or text[j] in ',);' or text[j:j + 2] == '*/':
                     in_single = False
                     buf.append(ch); i += 1; continue
                 else:
@@ -229,9 +248,30 @@ if __name__ == "__main__":
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=OFF")
 
-    # The dump never includes a CREATE TABLE Edge statement (confirmed via
-    # find_table_names.py scan of all 364 files). Schema per spec + verified
-    # against a real sample row: ('2D955D...','41E97A...',2308781750653409,'79DDC6...')
+    # CORRECTION (see CHANGELOG_PORT.md): earlier sessions concluded "the
+    # dump never includes a CREATE TABLE Edge statement" via a
+    # find_table_names.py scan -- but that scan ran under the same
+    # split_sql_statements() quote-lookahead bug fixed above, which silently
+    # merged the real "CREATE TABLE Edge" statement (and the first real
+    # "INSERT INTO Edge" statement, losing ~3.7M rows -- 59% of all Edge
+    # data) into an unrecognizable ~1MB blob in every single one of the 364
+    # files. The dump DOES have a real CREATE TABLE Edge statement, now
+    # confirmed once the parser was fixed:
+    #   CREATE TABLE `Edge` (
+    #     `TaskID` varchar(40) NOT NULL,
+    #     `FatherTID` varchar(40) NOT NULL,
+    #     `FatherStartTime` bigint(20) NOT NULL,
+    #     `ChildTID` varchar(40) NOT NULL
+    #   )
+    # We keep our own column names below (TraceID/FatherNID/ChildNID) rather
+    # than renaming to match -- everything downstream (select_cases.py,
+    # query_trace.py, trace_sql_schemas.py, the audit scripts) already uses
+    # these consistently, and a rename would be purely cosmetic. But if
+    # you're cross-referencing the original TraceBench dump/paper, the real
+    # names are TaskID/FatherTID/ChildTID -- FatherTID/ChildTID being "the
+    # TID of the father/child Event row", which matches how we'd always
+    # understood and used these columns semantically; we just picked
+    # different labels for them.
     conn.execute("""
         CREATE TABLE IF NOT EXISTS `Edge` (
             `TraceID` TEXT NOT NULL,
@@ -342,6 +382,21 @@ if __name__ == "__main__":
     cur.execute("SELECT COUNT(DISTINCT `trace_set`) FROM `Operation_Source`")
     op_distinct_sets = cur.fetchone()[0]
     print(f"  Operation trace_set: {op_distinct_sets:,} distinct sets, {op_untagged:,} Operation rows untagged")
+
+    # Indexes on the join keys every downstream script (select_cases.py,
+    # build_trace_logs.py, build_track_b_data.py, query_trace.py, ad-hoc
+    # verification queries) filters/joins on. Without these, queries against
+    # the 14.7M-row Event table and 6.3M-row Edge table are slow enough to
+    # need backgrounding for routine work -- this hit us repeatedly.
+    print("\nBuilding indexes...")
+    for stmt in (
+        "CREATE INDEX IF NOT EXISTS idx_event_taskid ON `Event`(`TaskID`)",
+        "CREATE INDEX IF NOT EXISTS idx_edge_traceid ON `Edge`(`TraceID`)",
+        "CREATE INDEX IF NOT EXISTS idx_tracesource_traceset ON `Trace_Source`(`trace_set`)",
+    ):
+        conn.execute(stmt)
+    conn.commit()
+    print("  done")
 
     conn.close()
     print(f"\nDone. DB at {DB_PATH}")

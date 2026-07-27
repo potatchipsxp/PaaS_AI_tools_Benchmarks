@@ -273,13 +273,20 @@ any flattening code:**
     description points the agent at the `Edge` join instead of that heuristic for cross-host
     relationships.
 - **`Trace.NumReports`/`NumEdges` are unreliable** — spot-checked several `TaskID`s with
-  `NumEdges > 0` and found **zero** matching `Edge` rows for any of them (a real data-quality gap
-  in the dump itself: only ~59% of `TaskID`s have any `Edge` row at all despite `NumEdges` often
-  claiming otherwise). Confirmed this is not a join-key bug — 99.9995% of `Edge` rows *do* match
-  a real `TaskID` when one exists, and `FatherNID`/`ChildNID` correctly resolve to real `Event`
-  rows with sensible cross-host parent/child relationships (e.g. an RPC client's `newBlockReader`
-  as father of a DataNode's `verifiedByClient`). Both schema descriptions tell the agent not to
-  trust the count columns and to `COUNT(*)` the real rows instead.
+  `NumEdges > 0` and found **zero** matching `Edge` rows for any of them.
+  **⚠ CORRECTED in a later session (see "Edge data-loss bug found, fixed, and reloaded" below):**
+  this was attributed at the time to "a real data-quality gap in the dump itself: only ~59% of
+  `TaskID`s have any `Edge` row at all despite `NumEdges` often claiming otherwise" — that
+  attribution was wrong. It was a loader bug (a `split_sql_statements()` quote-parsing heuristic
+  silently dropping the first `Edge` INSERT statement in every one of the 364 files). After the
+  fix, 0.00% of traces have zero `Edge` rows. The join-key finding immediately below is still
+  accurate and was not affected: 99.9995% of the `Edge` rows that *did* load matched a real
+  `TaskID`, and `FatherNID`/`ChildNID` correctly resolved to real `Event` rows with sensible
+  cross-host parent/child relationships (e.g. an RPC client's `newBlockReader` as father of a
+  DataNode's `verifiedByClient`) — the rows that loaded were always trustworthy; there just used
+  to be far fewer of them than there should have been. Both schema descriptions still correctly
+  tell the agent not to trust the count columns and to `COUNT(*)` the real rows instead — that
+  guidance holds regardless of this correction.
 - One anomalous `Trace.Title` value (`'AA15130628A163E0'`, 1 row out of 26,943) turned out to
   equal its own `TaskID` — an isolated dump/parsing artifact, confirmed leak-free (doesn't contain
   any fault/category/trace_set token) and too small a fraction to chase further.
@@ -588,3 +595,94 @@ switching evidence-tool names correctly. One real scoring bug found and fixed vi
 merely by code review. Judge prompt adapted and internally consistent with the current data shape.
 **Still not done**: a live benchmark run on either track (no API key available this session, per
 Phase 3/4's same limitation); running the judge prompt for real; Phase 6.
+
+### Edge data-loss bug found, fixed, and reloaded (this session)
+
+**How this was found:** the user pushed back on Phase 4's "~41% of traces have zero `Edge` rows —
+a genuine data-quality gap in the source dump" claim, correctly pointing out it had only been
+checked against our *loaded* `tracebench_raw.sqlite`, never against the original raw `.sql` files
+directly. That check was the right call — the claim was wrong.
+
+**What was actually true:** picked the 5 specific `TaskID`s from Phase 4's own investigation that
+supposedly had zero `Edge` rows despite `Trace.NumEdges` claiming otherwise, and grepped the raw
+`.sql` file's `INSERT INTO Edge` statement text directly (independent of `load_tracebench.py`
+entirely). All 5 were present, with occurrence counts exactly matching their claimed `NumEdges`
+values (11/35/19/35/23). The data was never missing from the dump — it was being dropped during
+our own load.
+
+**Root cause, fully traced:** `split_sql_statements()`'s quote-tracking has a "grammar-aware
+lookahead" heuristic — when it hits a closing `'`, it checks whether the next non-whitespace
+character is `,`, `)`, or `;` (the only contexts a real data-tuple string ends in); if not, it
+assumes the quote is a mid-word apostrophe (e.g. "doesn't") and stays inside the string. This
+heuristic was never validated against the mysqldump preamble's own directive lines — e.g.
+`/*!40103 SET TIME_ZONE='+00:00' */;`, where the closing quote is followed by `*/;`, matching
+none of the three accepted characters. The parser incorrectly concluded this valid,
+properly-terminated string was still open, and stayed corrupted until a quote elsewhere happened
+to satisfy the old check — silently merging everything in between (including the real `CREATE
+TABLE Edge` and the first, larger `INSERT INTO Edge` statement) into one ~1MB blob starting with
+`/*`, which the loader's own directive-skip filter then discarded with **no error logged** (the
+reject log was empty — this is why "0 errors" across the whole original load didn't catch it).
+
+**Confirmed universal, not a one-off:** wrote a scope-check (structural signature: an anomalously
+large statement starting with `/*` or `SET`) and ran it across all 364 files. **364/364 (100%)**
+showed the pattern — this directive is standard mysqldump boilerplate present in every file, so
+this bug fired on every single load, every time, from the very first session. The near-identical
+swallowed-statement size across files (~1,033,6xx characters) indicates it was consistently
+losing the same thing each time — the first/larger `Edge` INSERT — while `Event`/`Trace`/
+`Operation` (which load later in each file, past the point where a later quote happens to resync
+the parser) were structurally protected from this specific bug.
+
+**Fix**: extended the lookahead check to also accept a quote followed by `*/` (after optional
+whitespace) as a valid terminator — a narrowly-scoped addition, since real `Event.Description`/
+`OpName` content wouldn't plausibly contain a literal `*/` sequence immediately after an
+apostrophe. Verified: the sample file that exposed the bug now splits the directive and the real
+`Edge` INSERT into separate, correctly-recognized statements. Re-ran the 364-file scope check —
+**0/364** show the pattern now.
+
+**Second discovery, a direct byproduct of the fix**: the now-correctly-isolated statements reveal
+the dump *does* contain a real `CREATE TABLE Edge` statement — Phase 1's conclusion that it didn't
+(via `find_table_names.py`, which ran under the same buggy parser) was itself wrong, for the same
+root cause. Its real column names are `TaskID`/`FatherTID`/`FatherStartTime`/`ChildTID` — not the
+`TraceID`/`FatherNID`/`ChildNID` names picked when we thought we had to invent the schema
+ourselves. Not a functional bug (we control our own SQLite column names, and everything downstream
+already uses ours consistently, verified via real sample-tuple joins back in Phase 4) — but worth
+recording for anyone cross-referencing the original dump. `FatherTID`/`ChildTID` confirms what we'd
+already inferred semantically ("the `TID` of the father/child `Event` row"); we just labeled it
+differently. Documented in `load_tracebench.py`'s comments; a full rename was considered and
+deferred as cosmetic-only, pending the user's call.
+
+**Full reload results** — `Event`/`Trace`/`Operation` byte-identical to before the fix (14,777,715
+/ 370,334 / 6,894, confirming these three were never touched by this bug, exactly as the
+per-file structural analysis predicted): `Edge` went from **2,560,426 → 6,303,153 rows (+146%)**.
+The zero-edge-rate claim this whole investigation started from: **0.00%** of traces now have zero
+`Edge` rows (was ~41%). It was entirely a loader artifact.
+
+**Re-verification, not just re-running:**
+- `verify_data_integrity.py --all`: **189/189** checks pass against the corrected data (up from
+  183 in Phase 1 — the check count itself grew slightly since then; all pass regardless).
+- Track B's scoped data (`build_track_b_data.py`) rebuilt: `Edge` in-scope rows 245,859 → 587,517.
+  **27/27 cases now have real `Edge` data for their specific named instance** (was 3/27) — this
+  materially improves `query_trace`'s call-structure section, which previously rendered for only
+  3 of the 27 cases and now renders for all of them. Re-smoke-tested (TB-018's call structure now
+  populated with real cross-host relationships) and both leakage audits re-run clean (DB columns:
+  0 hits; `query_trace()` output text across all 27 cases: 0 hits).
+- Track A's `logs` table needs no rebuild — it's built purely from `Event` rows, which are
+  byte-identical, so it's necessarily unchanged. Confirmed rather than assumed.
+- `ground_truth_trace.json`/`tracebench_manifest.csv` needed no regeneration — already
+  re-validated by the integrity check above (ground truth's evidence paths use `Event`
+  durations/text only, never `Edge`), and the manifest is pure filename parsing plus
+  `Trace_Source` row counts (unchanged).
+
+**Also added**: persistent indexes (`Event.TaskID`, `Edge.TraceID`, `Trace_Source.trace_set`) at
+the end of `load_tracebench.py`'s load, and applied retroactively to the already-loaded DB. This
+is unrelated to correctness — it's a response to repeatedly needing to background slow unindexed
+queries (Phase 4's flatten step, Track B's data build, and the diagnostic queries in this very
+investigation) — but worth doing now while touching this file.
+
+**Exit check (this session): MET.** Bug root-caused via direct raw-file inspection independent of
+the loader under test (same discipline `verify_data_integrity.py` already established), fix
+verified both narrowly (sample file) and broadly (364/364 → 0/364), full reload completed,
+independent integrity re-verification passed (189/189), both tracks' downstream data confirmed
+correct (Track B rebuilt + re-audited, Track A confirmed unaffected). The Phase 4 CHANGELOG entry's
+"~41% zero-edge-rate, genuine data-quality gap" claim above should be read as **superseded by this
+entry**, not as still-accurate background.
