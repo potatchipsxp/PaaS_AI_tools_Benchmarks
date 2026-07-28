@@ -43,14 +43,6 @@ from langgraph.prebuilt import create_react_agent
 
 from doc_agent import query as doc_query
 from sql_agent import build_agent as build_sql_agent
-from sql_agent import (
-    INCLUDE_TABLES as SQL_DEFAULT_INCLUDE_TABLES,
-    DEFAULT_SCHEMA_DESCRIPTION as SQL_DEFAULT_SCHEMA_DESCRIPTION,
-)
-from build_doc_index import (
-    DB_PATH as DOC_DEFAULT_DB_PATH,
-    COLLECTION_NAME as DOC_DEFAULT_COLLECTION,
-)
 
 
 # ============================================================================
@@ -133,44 +125,32 @@ SQL_BACKEND         = "openai"      # "qwen", "ollama", "groq", "deepinfra", or 
 SQL_TEMP            = 0.0
 SQL_BASE_URL        = "http://localhost:11434/v1"   # ignored for API backends
 SQL_API_KEY         = "ollama"                      # ignored for API backends
-SQL_DB_URI          = "sqlite:///./data/benchmark_db.sqlite"
+# This file is dedicated to the TraceBench port (the original, still-generic
+# PaaS diagnostic_agent.py lives at the repo root, untouched) -- so unlike
+# SQL_INCLUDE_TABLES/SQL_SCHEMA_DESCRIPTION below, there's no reason for
+# SQL_DB_URI to default to a PaaS path that doesn't even exist in this
+# directory (Phase 0 deliberately never copied benchmark_db.sqlite here).
+# Defaults to Track A (flat). For Track B, use track_b/diagnostic_agent.py
+# instead (a separate file, not a config flip -- see its module docstring).
+SQL_DB_URI          = "sqlite:///./data/benchmark_trace_db.sqlite"
 SQL_MAX_ITER        = 12
 SQL_MAX_ROWS        = 20
-# Which tables the SQL agent may see and how they're described. Defaults are
-# sql_agent.py's own PaaS-logs config (single source of truth — not
-# duplicated here) so behavior is unchanged unless a caller overrides these.
-# Track A (flat) vs Track B (trace-native) for the TraceBench port differ by
-# EXACTLY these two values — everything else in this file is untouched.
-#
-# To run TraceBench Track A (flat), uncomment:
-#   from trace_sql_schemas import TRACK_A_SCHEMA_DESCRIPTION
-#   SQL_DB_URI             = "sqlite:///./data/benchmark_trace_db.sqlite"
-#   SQL_INCLUDE_TABLES     = ["logs"]
-#   SQL_SCHEMA_DESCRIPTION = TRACK_A_SCHEMA_DESCRIPTION
-#
-# To run TraceBench Track B (trace-native), uncomment instead:
-#   from trace_sql_schemas import TRACK_B_SCHEMA_DESCRIPTION
-#   SQL_DB_URI             = "sqlite:///./data/benchmark_trace_db.sqlite"
-#   SQL_INCLUDE_TABLES     = ["Event", "Edge", "Trace", "Operation"]
-#   SQL_SCHEMA_DESCRIPTION = TRACK_B_SCHEMA_DESCRIPTION
-SQL_INCLUDE_TABLES      = SQL_DEFAULT_INCLUDE_TABLES
-SQL_SCHEMA_DESCRIPTION  = SQL_DEFAULT_SCHEMA_DESCRIPTION
+# Which tables the SQL agent may see and how they're described. Defaults to
+# Track A (flat) -- the only SQL-based track; Track B is a separate file.
+from trace_sql_schemas import TRACK_A_SCHEMA_DESCRIPTION
+SQL_INCLUDE_TABLES      = ["logs"]
+SQL_SCHEMA_DESCRIPTION  = TRACK_A_SCHEMA_DESCRIPTION
 
 # --- Documentation agent ---
 DOC_MODEL           = "gpt-5.4"
 DOC_BACKEND         = "openai"      # "ollama", "groq", "deepinfra", or "openai"
 DOC_BASE_URL        = "http://localhost:11434"
 DOC_N_RESULTS       = 5
-# Which doc index/collection to query. Defaults are build_doc_index.py's own
-# PaaS values (single source of truth — not duplicated here), same pattern
-# as SQL_INCLUDE_TABLES/SQL_SCHEMA_DESCRIPTION above.
-#
-# To run against the TraceBench doc corpus (Phase 3, shared with Track B),
-# uncomment:
-#   DOC_DB_PATH    = "./tracebench_doc_chroma_db"
-#   DOC_COLLECTION = "docs_trace_perfault"   # or "docs_trace_category"
-DOC_DB_PATH         = DOC_DEFAULT_DB_PATH
-DOC_COLLECTION      = DOC_DEFAULT_COLLECTION
+# Shared trace doc corpus (Phase 3, built once, used by BOTH tracks) --
+# same reasoning as SQL_DB_URI above: no reason to default to the PaaS
+# doc index this file will never point at again.
+DOC_DB_PATH         = "./tracebench_doc_chroma_db"
+DOC_COLLECTION      = "docs_trace_perfault"   # or "docs_trace_category" for the secondary leakage-comparison run
 
 # --- Orchestrator behaviour ---
 MAX_TURNS           = 6
