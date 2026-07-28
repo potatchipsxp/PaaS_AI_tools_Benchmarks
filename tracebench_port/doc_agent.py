@@ -163,7 +163,7 @@ def query(
         for i, doc in enumerate(docs, 1):
             dist = f"{doc['distance']:.4f}" if doc["distance"] is not None else "?"
             print(f"  {i:2}. [{doc['doc_type']:12}] {doc['title'][:50]}  "
-                  f"dist={dist}  incidents={doc['incident_ids']}")
+                  f"dist={dist}  case_ids={doc['case_ids']}")
         print("\nStep 2: Generating answer...")
 
     prompt = build_doc_prompt(question, docs)
@@ -186,7 +186,7 @@ def query(
                 "doc_id":          d["doc_id"],
                 "doc_type":        d["doc_type"],
                 "title":           d["title"],
-                "incident_ids":    d["incident_ids"],
+                "case_ids":        d["case_ids"],
                 "failure_pattern": d["failure_pattern"],
                 "tier":            d["tier"],
                 "distance":        d["distance"],

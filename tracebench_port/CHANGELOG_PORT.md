@@ -724,3 +724,69 @@ Between this and the Edge bug fix's own re-verification, the raw data layer (`tr
 now has: exact corpus-wide reconciliation, 189/189 independent per-case integrity checks, a
 confirmed-uncorrupted footer, and both directions of the parser fix's correctness (didn't break the
 original case, didn't introduce a new false-positive) explicitly checked rather than assumed.
+
+### First live run — small sanity check, Track A, 2 models (this session)
+
+**Setup:** 3 hand-picked cases (TB-018/slowDN, TB-011/deadDN, TB-021/normal control — chosen for
+signal diversity, not the first 3 in list order) through Track A, with `gpt-5.4`/`openai` and
+`meta-llama/Llama-3.3-70B-Instruct-Turbo`/`deepinfra` (the user specified Instruct Turbo over
+`llama-3.3-70b-versatile`/`groq`, which "didn't work last time" in the original PaaS run). Reused
+the existing API keys from `API_Keys.txt`. This is the first time any live model has touched any
+part of this port — everything before this was mechanics-level (direct function calls, hand-written
+queries) precisely because no API key was available in any prior session.
+
+**Two real bugs found, both fixed immediately, not worked around:**
+- A `UnicodeEncodeError` crashed the very first run — `diagnostic_agent.py`'s verbose output prints
+  a `─` (U+2500) divider, and the ad-hoc script's redirected stdout defaulted to Windows' `cp1252`
+  codepage, which can't encode it. Fixed at the invocation level (`PYTHONIOENCODING=utf-8`), not in
+  project code — this is an artifact of how output was captured for this sanity check, not a defect
+  in `diagnostic_agent.py` itself.
+- Every single case failed with `Agent error: 'incident_ids'` on the first real attempt, for BOTH
+  models. Root cause: `doc_agent.py` (unmodified since its Phase 0 copy from the PaaS original)
+  still read `doc['incident_ids']` in two places — the verbose retrieval log line and the
+  `retrieved_docs` dict `query_docs`'s tool wrapper returns — but `build_doc_index.py`'s
+  `retrieve_docs()` has returned `case_ids` since Phase 3's rename. This is exactly the kind of gap
+  that only a live run could catch: every prior test called `retrieve_docs()` directly or checked
+  schema/mechanics, never exercised `doc_agent.query()` (the wrapper `query_docs` actually calls)
+  end-to-end. Fixed both occurrences; confirmed no other live-code file has the same gap
+  (`generate_doc_corpus.py` and `Results/evaluate.py` correctly still say `incident_ids` — they're
+  the untouched PaaS baselines, not part of the trace pipeline).
+
+**Results, after both fixes, `evaluate_trace.py` run on both:**
+
+| | `gpt-5.4` | `Llama-3.3-70B-Instruct-Turbo` |
+|---|---|---|
+| Answer quality | 3/3 full_credit | 2/3 full_credit, 1 error |
+| Localization hit rate | 1/2 localizable cases | 0/2 localizable cases |
+| Avg trace score | 4.00/5 | 3.33/5 (dragged down by the 0/5 error case) |
+| Mean wall-clock/case | 24.8s | 167.8s |
+
+- **`gpt-5.4`**: all 3 correct, including an exact match on TB-018's fault type AND specific
+  datanode (`"datanode046 was a single slow DataNode (slowDN)"` — ground truth: `slowDN`,
+  `datanode046`), citing the real `verifiedByClient` WARN evidence with real timestamps. TB-021
+  (normal control) correctly said "no fault... I checked the full log set... none were present" —
+  the Tier 0 scoring fix from the Phase 5 session is doing its job on a real diagnosis, not just the
+  synthetic test case used to find the bug.
+- **`Llama-3.3-70B-Instruct-Turbo`**: failed TB-018 outright — emitted the tool call as literal text
+  (`<function=query_logs{"question": "..."}</function>`) instead of a real structured tool call,
+  exhausted the existing `malformed_tool_call` retry logic (already built into `diagnostic_agent.py`
+  specifically for this DeepInfra-model failure mode), and gave up with zero tool calls recorded.
+  Not a new bug — the known, already-mitigated-but-not-eliminated failure mode this model class
+  exhibits. Got the other 2 cases right. Also markedly slower (167.8s mean vs. 24.8s) — worth
+  factoring into cost/time expectations for a full sweep with this model.
+- **Localization scoring nuance found on real output, not anticipated in Phase 5**: both models
+  correctly diagnosed TB-011 (deadDN) but named the datanode by its **IP address**
+  (`10.107.100.58`, which really is in the raw evidence text) rather than the resolved hostname
+  `datanode001` that `score_localization()` checks for — both scored `loc=miss` despite being
+  factually correct about *which* node. This isn't a bug in the diagnosis or the scorer, but a real
+  gap in what the scorer currently checks for; worth deciding whether `score_localization()` should
+  also accept the IP as an alternate match before running a fuller sweep, since this pattern will
+  recur for every IP-only-observed case (the same 5 cases Phase 2's affected_component-resolution
+  fix already flagged as client-observed-by-IP).
+
+**Exit check: MET** for what a sanity check is meant to do — confirmed live tool-calling actually
+works end-to-end on real data with real models (not just mechanics), found and fixed one real
+project bug (`doc_agent.py`) and one environment artifact (encoding), and surfaced one real scoring
+design question (IP-vs-hostname localization) worth resolving before a fuller sweep. Track B, the
+full 27-case sweep, and the wider multi-model comparison are all still open — this was deliberately
+small and cheap by design.
