@@ -686,3 +686,41 @@ independent integrity re-verification passed (189/189), both tracks' downstream 
 correct (Track B rebuilt + re-audited, Track A confirmed unaffected). The Phase 4 CHANGELOG entry's
 "~41% zero-edge-rate, genuine data-quality gap" claim above should be read as **superseded by this
 entry**, not as still-accurate background.
+
+### Four further data checks, requested by the user before proceeding to a live run (this session)
+
+**Why:** having just found one bug the hard way, the user asked what else could be checked before
+spending real API money. Four checks, all independent of the loader/DB (same discipline that found
+the Edge bug):
+
+1. **Full-corpus reconciliation** (`reconcile_full_corpus.py`, new) — `verify_data_integrity.py`
+   only ever checked the 27 *selected* cases; the other 337 trace_sets had never been independently
+   verified at all, and both tracks' shared statistics (Track A's WARN baseline, Track B's cached
+   `nm_latency_baseline.json`) draw from the *entire* corpus, not just the 27 cases. Reused only
+   `split_sql_statements()`/`split_value_tuples()` (text-analysis utilities) — never the DB or the
+   loading path — to independently count every raw tuple in every one of the 364 files and compare
+   against the loaded DB's row counts. **Result: exact match on all four tables, corpus-wide** —
+   Event 14,777,715/14,777,715, Trace 370,334/370,334, Edge 6,303,153/6,303,153, Operation
+   6,894/6,894. Not one row anywhere in the whole corpus is unaccounted for.
+2. **File footers** — checked whether the closing `/*!...*/;` directive block (that restores what
+   the preamble changed) has the same vulnerability precondition (a quoted string literal). It
+   doesn't: every footer directive references a `@OLD_*`-style session variable, never a quoted
+   value — confirmed across all 364 files (0 contain a quote character in their footer block). The
+   bug's precondition structurally cannot occur there.
+3. **Regression check on the fix's own original purpose** — the heuristic exists to keep genuine
+   unescaped apostrophes in content (e.g. "doesn't") as literal text rather than false statement
+   terminators. Found this scenario actually occurring in real data (`"...length 67108864 don't
+   match block blk_-4458271377988461949_1332..."` in `Event.Description`) and confirmed it loads
+   fully intact post-fix, not truncated at the apostrophe — the fix didn't regress the case it was
+   originally protecting.
+4. **Negative check** — does the fix's new acceptance pattern (`'` followed by optional whitespace
+   then `*/`) ever occur outside the two known preamble directives, where it could cause a *new*
+   false-positive early termination? Counted every occurrence of `'\s*\*/` across all 364 files:
+   **728 total, exactly 364 × 2** — the two known directives per file, and nothing else, anywhere.
+   Closes the door on the fix introducing a new bug in the opposite direction.
+
+**Exit check: MET, unambiguously.** All four checks came back clean with no follow-up required.
+Between this and the Edge bug fix's own re-verification, the raw data layer (`tracebench_raw.sqlite`)
+now has: exact corpus-wide reconciliation, 189/189 independent per-case integrity checks, a
+confirmed-uncorrupted footer, and both directions of the parser fix's correctness (didn't break the
+original case, didn't introduce a new false-positive) explicitly checked rather than assumed.
