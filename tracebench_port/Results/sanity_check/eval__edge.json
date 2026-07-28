@@ -1,0 +1,210 @@
+{
+  "evaluated_at": "2026-07-28T18:08:07.402006Z",
+  "tracks": [
+    "A_flat"
+  ],
+  "n_cases": 3,
+  "summary": {
+    "answer": {
+      "full_credit": 3,
+      "partial": 0,
+      "miss": 0,
+      "error": 0
+    },
+    "localization": {
+      "hit": 0,
+      "miss": 2,
+      "n/a": 1,
+      "hit_rate_of_localizable": 0.0
+    },
+    "retrieval": {
+      "avg_recall": 0.0,
+      "avg_precision": 0
+    },
+    "trace": {
+      "avg_score": 2.67,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 3,
+        "total_seconds_mean": 677.92,
+        "total_seconds_med": 346.18,
+        "total_seconds_p95": 1361.35,
+        "total_seconds_min": 213.42,
+        "total_seconds_max": 1474.15,
+        "evidence_ms_mean": 225705.4,
+        "doc_ms_mean": 0.0,
+        "orchestrator_ms_mean": 452212.6,
+        "n_tool_calls_mean": 2.33,
+        "orchestrator_share": 0.667
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 1,
+          "total_seconds_mean": 1474.15,
+          "total_seconds_med": 1474.15,
+          "total_seconds_p95": 1474.15,
+          "total_seconds_min": 1474.15,
+          "total_seconds_max": 1474.15,
+          "evidence_ms_mean": 372719.5,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 1101432.3,
+          "n_tool_calls_mean": 4.0,
+          "orchestrator_share": 0.747
+        },
+        "tier_1": {
+          "n": 1,
+          "total_seconds_mean": 213.42,
+          "total_seconds_med": 213.42,
+          "total_seconds_p95": 213.42,
+          "total_seconds_min": 213.42,
+          "total_seconds_max": 213.42,
+          "evidence_ms_mean": 129402.1,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 84020.4,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.394
+        },
+        "tier_2": {
+          "n": 1,
+          "total_seconds_mean": 346.18,
+          "total_seconds_med": 346.18,
+          "total_seconds_p95": 346.18,
+          "total_seconds_min": 346.18,
+          "total_seconds_max": 346.18,
+          "evidence_ms_mean": 174994.7,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 171185.0,
+          "n_tool_calls_mean": 1.0,
+          "orchestrator_share": 0.494
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 346.18,
+        "active_seconds": 346.18,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 174994.7,
+        "sql_ms_total": 174994.7,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 171185.0,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 174994.7,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the log evidence provided, it appears that the root cause of the slowness is an `IOException: java.io.EOFException` encountered by Datanode C4113E01C484F2EB. This exception indicates that the datanode was unable to read a block from another node (datanode012) due to end-of-file conditions, ..."
+    },
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 0,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 213.422,
+        "active_seconds": 213.422,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 129402.1,
+        "sql_ms_total": 129402.1,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 84020.4,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 64701.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the log entries, we see multiple `ERROR` messages indicating `Connection refused` issues in the DATANODE component for instance `03FB08C229C284D`. This suggests that there is a network or service issue preventing connections to specific datanodes.\n\n### Root Cause Diagnosis\nThe root cause ap..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 4,
+        "n_doc_calls": 0,
+        "total_calls": 4,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 1474.152,
+        "active_seconds": 1474.152,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 372719.5,
+        "sql_ms_total": 372719.5,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 1101432.3,
+        "n_tool_calls": 4,
+        "mean_ms_per_tool_call": 93179.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "It appears there is an issue with executing the query directly. Let's try a different approach by breaking down the steps and ensuring we get the relevant logs.\n\nLet's first fetch any ERROR or WARN messages for instance `00481732284B6247`:\n\n```sql\nSELECT * FROM logs WHERE instance_id = '00481732284B..."
+    }
+  ]
+}

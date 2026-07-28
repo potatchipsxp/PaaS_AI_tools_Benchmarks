@@ -1,0 +1,327 @@
+{
+  "evaluated_at": "2026-07-28T17:15:26.584747Z",
+  "tracks": [
+    "A_flat"
+  ],
+  "n_cases": 3,
+  "summary": {
+    "answer": {
+      "full_credit": 3,
+      "partial": 0,
+      "miss": 0,
+      "error": 0
+    },
+    "localization": {
+      "hit": 1,
+      "miss": 1,
+      "n/a": 1,
+      "hit_rate_of_localizable": 0.5
+    },
+    "retrieval": {
+      "avg_recall": 0.667,
+      "avg_precision": 0.3
+    },
+    "trace": {
+      "avg_score": 4.0,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 3,
+        "total_seconds_mean": 24.84,
+        "total_seconds_med": 18.5,
+        "total_seconds_p95": 39.08,
+        "total_seconds_min": 14.67,
+        "total_seconds_max": 41.36,
+        "evidence_ms_mean": 16309.5,
+        "doc_ms_mean": 3983.0,
+        "orchestrator_ms_mean": 4553.6,
+        "n_tool_calls_mean": 2.0,
+        "orchestrator_share": 0.183
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 1,
+          "total_seconds_mean": 18.5,
+          "total_seconds_med": 18.5,
+          "total_seconds_p95": 18.5,
+          "total_seconds_min": 18.5,
+          "total_seconds_max": 18.5,
+          "evidence_ms_mean": 13659.0,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 4837.2,
+          "n_tool_calls_mean": 1.0,
+          "orchestrator_share": 0.262
+        },
+        "tier_1": {
+          "n": 1,
+          "total_seconds_mean": 14.67,
+          "total_seconds_med": 14.67,
+          "total_seconds_p95": 14.67,
+          "total_seconds_min": 14.67,
+          "total_seconds_max": 14.67,
+          "evidence_ms_mean": 9463.4,
+          "doc_ms_mean": 5216.1,
+          "orchestrator_ms_mean": 0.0,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.0
+        },
+        "tier_2": {
+          "n": 1,
+          "total_seconds_mean": 41.36,
+          "total_seconds_med": 41.36,
+          "total_seconds_p95": 41.36,
+          "total_seconds_min": 41.36,
+          "total_seconds_max": 41.36,
+          "evidence_ms_mean": 25806.0,
+          "doc_ms_mean": 6732.8,
+          "orchestrator_ms_mean": 8823.6,
+          "n_tool_calls_mean": 3.0,
+          "orchestrator_share": 0.213
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In HDFS datanode logs, what does a WARN from component 'verifiedByClient' saying a block was 'verified by client' indicate when blockSender/readBlock/sendBlock all return success and there are no errors? What root cause category explains one datanode being consistently slower than peers across multiple block transfer operations while requests still succeed?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.4759764075279236
+              },
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.6252702474594116
+              },
+              {
+                "doc_id": "error_ref_lossMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 0.6752732396125793
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.7425662279129028
+              },
+              {
+                "doc_id": "runbook_lossMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 0.7749155163764954
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 41.362,
+        "active_seconds": 41.362,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 32538.8,
+        "sql_ms_total": 25806.0,
+        "doc_ms_total": 6732.8,
+        "orchestrator_ms": 8823.6,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 10846.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: **datanode046 was a single slow DataNode (`slowDN`) causing higher latency in the post-transfer client verification path, not a transfer failure or metadata-loss event.**\n\n- Log evidence:\n  - `datanode046` is the only node with repeated `verifiedByClient` **WARN** events for this instanc..."
+    },
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In HDFS read-only workloads, what does a client log pattern of 'connection refused' to a specific datanode followed by avoiding that node for the rest of the request indicate? What are the common root causes and recommended fixes?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "config_readOnlyDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6296436786651611
+              },
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.6530548334121704
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.7000724077224731
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.7081106305122375
+              },
+              {
+                "doc_id": "runbook_killDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.7298191785812378
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 14.666,
+        "active_seconds": 14.666,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 14679.5,
+        "sql_ms_total": 9463.4,
+        "doc_ms_total": 5216.1,
+        "orchestrator_ms": 0.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 7339.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the HDFS DataNode on `10.107.100.58:50010` was not accepting connections during the read, i.e. the DataNode process on that host was down/killed/crashed rather than a general network path issue.\n\n- Log evidence: at `2013-11-11T17:49:42.143Z`, `DFSClient` for instance `03FB08C229C2844D` l..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 18.496,
+        "active_seconds": 18.496,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 13659.0,
+        "sql_ms_total": 13659.0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 4837.2,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 13659.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Nothing appears wrong with read-only HDFS request `00481732284B6247`; I found no fault or anomaly affecting it.\n\n- I checked the full log set for that instance for `ERROR`/`WARN` entries and common failure patterns like exceptions, timeouts, retries, permission denials, refusals, and resource/disk i..."
+    }
+  ]
+}

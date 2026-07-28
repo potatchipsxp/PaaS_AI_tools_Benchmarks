@@ -1,0 +1,264 @@
+[
+  {
+    "incident_id": "TB-018",
+    "question": "During a read HDFS workload (instance C4113E01C484F2EB), one datanode is measurably slower than its peers across multiple block-transfer operations, though every request still eventually completes successfully. What is the root cause?",
+    "diagnosis": "Root cause: **datanode046 was a single slow DataNode (`slowDN`) causing higher latency in the post-transfer client verification path, not a transfer failure or metadata-loss event.**\n\n- Log evidence:\n  - `datanode046` is the only node with repeated `verifiedByClient` **WARN** events for this instance: `2013-11-03T06:11:41.930Z` and `2013-11-03T06:11:55.929Z`, both saying the block was still **\u201cverified by client\u201d**.\n  - The underlying transfer operations on the same node all succeeded: `OP: new blockSender`, `readBlock`, and `sendBlock` each returned success for both affected blocks.\n  - There are **no ERRORs** and no messages indicating `.meta` loss, checksum reconstruction, disk I/O faults, or other upstream failures; peers log the same path mostly at `INFO`, making `datanode046` the clear latency outlier.\n\nRecommended fix: **Treat this as a single-node performance issue on `datanode046`\u2014investigate and remove the source of added latency (for example network shaping/congestion or node-local performance degradation), rather than debugging HDFS read correctness or block corruption.**",
+    "status": "ok",
+    "tool_call_trace": [
+      {
+        "tool": "query_logs",
+        "inputs": {
+          "question": "Investigate logs for instance C4113E01C484F2EB during a read HDFS workload. Find evidence of one datanode being slower than peers across multiple block-transfer operations while requests still complete successfully. What component/node is slower, what log messages show the latency, and what underlying error or condition explains it?"
+        },
+        "result": "For instance C4113E01C484F2EB, the slower peer is datanode046, in the verifiedByClient path.\n\nEvidence of repeated slowness while still succeeding:\n- 2013-11-03T06:11:41.930Z \u2014 component verifiedByClient, node datanode046, level WARN\n  - Success: blk_-1228109296026489903_36817 verified by client\n- 2013-11-03T06:11:55.929Z \u2014 component verifiedByClient, node datanode046, level WARN\n  - Success: blk_3375185895997193823_36817 verified by client\n\nThese are the only WARNs for the instance, and both are on datanode046:\n- datanode046 / verifiedByClient / warn_count = 2\n\nThe underlying block-transfer operations on that node still completed successfully:\n- 2013-11-03T06:11:41.000Z \u2014 datanode046 \u2014 OP: new blockSender \u2014 INFO\n  - Success: return(OP_STATUS_SUCCESS)\n- 2013-11-03T06:11:41.000Z \u2014 datanode046 \u2014 readBlock \u2014 INFO\n  - Success:\n- 2013-11-03T06:11:41.011Z \u2014 datanode046 \u2014 sendBlock \u2014 INFO\n  - Success: send blk_-1228109296026489903_36817\n\nand later again:\n- 2013-11-03T06:11:54.537Z \u2014 datanode046 \u2014 OP: new blockSender \u2014 INFO\n  - Success: return(OP_STATUS_SUCCESS)\n- 2013-11-03T06:11:54.537Z \u2014 datanode046 \u2014 readBlock \u2014 INFO\n  - Success:\n- 2013-11-03T06:11:54.538Z \u2014 datanode046 \u2014 sendBlock \u2014 INFO\n  - Success: send blk_3375185895997193823_36817\n\nExplanation from the logs:\n- There are no ERROR rows for this instance.\n- There are no exception-bearing messages returned for this instance.\n- So the logs support that this is a latency outlier condition, not a hard failure: datanode046 is slower than peers on multiple client verification/block-transfer completions, but requests still finish successfully.",
+        "duration_ms": 14654.8
+      },
+      {
+        "tool": "query_docs",
+        "inputs": {
+          "question": "In HDFS datanode logs, what does a WARN from component 'verifiedByClient' saying a block was 'verified by client' indicate when blockSender/readBlock/sendBlock all return success and there are no errors? What root cause category explains one datanode being consistently slower than peers across multiple block transfer operations while requests still succeed?"
+        },
+        "result": {
+          "answer": "A WARN from `verifiedByClient` in this situation indicates a **post-transfer verification delay**, not a transfer failure.\n\nFrom the architecture doc:\n\n- `verifiedByClient` happens **after a block is fully received**\n- it is where the block\u2019s checksum is verified against what the client computed\n- so if `blockSender` / `readBlock` / `sendBlock` all succeed and there are no errors, the write or transfer itself completed successfully, and the slowness is in this later verification stage\n\nFor the root cause category:\n\n- If **one specific DataNode is consistently slower than its peers across multiple block-transfer operations while requests still succeed**, the documented root cause category is **Single Slow DataNode (`slowDN`)**\n- The error reference says this means **\u201cAn artificial network delay has been injected on this DataNode's traffic (e.g. via a traffic-shaping rule), slowing every operation that touches it without causing any operation to actually fail.\u201d**\n\nThere is also a more specific alternative if the slowdown is specifically in `verifiedByClient`:\n\n- **Block Metadata Lost (`lossMeta`)** can also cause one node to be dramatically slower in `verifiedByClient` with no exception\n- Its meaning is: **\u201cThe block's metadata has been lost or is being reconstructed/regenerated \u2026 which manifests here as a dramatic slowdown in the post-transfer verification step rather than an outright failure.\u201d**\n\nSo, based only on the docs:\n\n1. The WARN means the block transfer succeeded and the delay is in the **post-transfer client verification/checksum verification** stage.\n2. The general root cause category for one node being slower while requests still succeed is **`slowDN`**.\n3. If the slowdown is specifically centered on `verifiedByClient`, **`lossMeta`** is also a documented explanation.",
+          "retrieved_docs": [
+            {
+              "doc_id": "arch_hdfs_write_pipeline",
+              "doc_type": "architecture",
+              "title": "HDFS Architecture: The Write Pipeline",
+              "case_ids": [
+                "TB-002",
+                "TB-005",
+                "TB-015",
+                "TB-017",
+                "TB-018",
+                "TB-019"
+              ],
+              "failure_pattern": "architectural_reference",
+              "tier": 1,
+              "distance": 0.4759764075279236
+            },
+            {
+              "doc_id": "error_ref_slowDN",
+              "doc_type": "error_ref",
+              "title": "Error Reference: Single Slow DataNode (slowDN)",
+              "case_ids": [
+                "TB-018"
+              ],
+              "failure_pattern": "slowDN",
+              "tier": 2,
+              "distance": 0.6252702474594116
+            },
+            {
+              "doc_id": "error_ref_lossMeta",
+              "doc_type": "error_ref",
+              "title": "Error Reference: Block Metadata Lost (lossMeta)",
+              "case_ids": [
+                "TB-015"
+              ],
+              "failure_pattern": "lossMeta",
+              "tier": 3,
+              "distance": 0.6752732396125793
+            },
+            {
+              "doc_id": "error_ref_readOnlyDN",
+              "doc_type": "error_ref",
+              "title": "Error Reference: DataNode Forced Read-Only (readOnlyDN)",
+              "case_ids": [
+                "TB-017"
+              ],
+              "failure_pattern": "readOnlyDN",
+              "tier": 1,
+              "distance": 0.7425662279129028
+            },
+            {
+              "doc_id": "runbook_lossMeta",
+              "doc_type": "runbook",
+              "title": "Runbook: Block Metadata Lost (lossMeta)",
+              "case_ids": [
+                "TB-015"
+              ],
+              "failure_pattern": "lossMeta",
+              "tier": 3,
+              "distance": 0.7749155163764954
+            }
+          ]
+        },
+        "duration_ms": 6732.8
+      },
+      {
+        "tool": "query_logs",
+        "inputs": {
+          "question": "For instance C4113E01C484F2EB, look for more specific evidence distinguishing a general slow datanode from missing/reconstructed block metadata on datanode046. Search for messages on datanode046 around the affected timestamps mentioning metadata, .meta files, checksum reconstruction, artificial delay, traffic shaping, packet responder, disk IO slowness, or any WARN/INFO patterns unique to datanode046 compared with peers."
+        },
+        "result": "I found no direct evidence on datanode046 of missing/reconstructed metadata.\n\nWhat the logs do show for instance C4113E01C484F2EB on datanode046:\n- Only 8 events total in the first 20 rows returned for that node:\n  - OP: new blockSender INFO\n  - readBlock INFO\n  - sendBlock INFO\n  - verifiedByClient WARN\n  - then the same 4-event pattern again for a second block\n- The two WARNs are:\n  - 2013-11-03T06:11:41.930Z \u2014 Success: blk_-1228109296026489903_36817 verified by client\n  - 2013-11-03T06:11:55.929Z \u2014 Success: blk_3375185895997193823_36817 verified by client\n\nI specifically searched datanode046 messages for:\n- metadata / .meta\n- checksum\n- reconstruct\n- artificial delay\n- traffic shaping\n- packet responder\n- disk IO / disk I/O\n- slow\n\nNo matching messages were returned.\n\nPeer comparison:\n- For verifiedByClient across the instance, most peers log INFO.\n- datanode046 is the only node in the returned sample showing verifiedByClient at WARN instead of INFO.\n- In the focused peer set (datanode045/046/047/048), the only WARN/ERROR events returned were the two datanode046 verifiedByClient WARNs.\n\nInterpretation from the available evidence:\n- This points more toward a general slowness/outlier classification on datanode046 during client verification of block sends.\n- I do not see log evidence supporting missing .meta files, checksum reconstruction, packet responder anomalies, artificial delay/traffic shaping, or disk-I/O-specific messaging on datanode046 for this instance.\n\nSo based strictly on query results, the evidence favors \u201cdatanode046 was a latency outlier\u201d rather than \u201cdatanode046 had missing/reconstructed block metadata.\u201d",
+        "duration_ms": 11151.2
+      }
+    ],
+    "timing": {
+      "total_seconds": 41.362,
+      "active_seconds": 41.362,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 32538.8,
+      "sql_ms_total": 25806.0,
+      "doc_ms_total": 6732.8,
+      "orchestrator_ms": 8823.6,
+      "n_tool_calls": 3,
+      "mean_ms_per_tool_call": 10846.3,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "A_flat",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "sql_model": "gpt-5.4",
+      "sql_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  },
+  {
+    "incident_id": "TB-011",
+    "question": "During a read-only HDFS workload (instance 03FB08C229C2844D), some requests are failing with 'connection refused' when trying to reach a specific datanode, and the client subsequently avoids that node for the rest of the request. What is the root cause?",
+    "diagnosis": "Root cause: the HDFS DataNode on `10.107.100.58:50010` was not accepting connections during the read, i.e. the DataNode process on that host was down/killed/crashed rather than a general network path issue.\n\n- Log evidence: at `2013-11-11T17:49:42.143Z`, `DFSClient` for instance `03FB08C229C2844D` logged `java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue`.\n- Log evidence: the same message shows the standard HDFS read-path behavior of adding that DataNode to `deadNodes`, which is why the client avoided it for the rest of the request.\n- Failure pattern: immediate `connection refused` to one specific DataNode indicates a per-node DataNode process failure/not listening state, not a timeout or no-route network failure.\n\nRecommended fix: restore the DataNode on `10.107.100.58` by checking/restarting the DataNode process and investigating why it died or was killed.",
+    "status": "ok",
+    "tool_call_trace": [
+      {
+        "tool": "query_docs",
+        "inputs": {
+          "question": "In HDFS read-only workloads, what does a client log pattern of 'connection refused' to a specific datanode followed by avoiding that node for the rest of the request indicate? What are the common root causes and recommended fixes?"
+        },
+        "result": {
+          "answer": "It indicates the client hit a DataNode that failed immediately on connect, then added that node to its per-operation **deadNodes** list and retried other replicas for the rest of that request.\n\nSpecifically, per the docs:\n\n- A client maintains a local **deadNodes** list for the duration of an operation.\n- When a DataNode fails to respond, the client marks it dead for that request and avoids it afterward.\n- **`java.net.ConnectException: Connection refused`** means an **immediate** failure to that DataNode.\n\n### What this pattern most likely means\nThis points to a DataNode on a reachable host where the DataNode process is not accepting connections.\n\n### Common root causes\nThe documentation says `Connection refused` commonly corresponds to either:\n\n1. **The DataNode process was killed outright**\n2. **The DataNode process is dead/unresponsive at the process level**\n\nThe docs are explicit that:\n\n- **the exception text alone does not distinguish \"process was killed\" from \"process died\"**\n- both present as **`java.net.ConnectException: Connection refused`**\n\n### What it does *not* indicate\nBased on the docs, this is **not** the signature of:\n\n- a network-layer unreachable host, which would be  \n  **`java.net.NoRouteToHostException: No route to host`**\n- a hung-but-alive DataNode process, which would wait for the socket timeout and show  \n  **`java.net.SocketTimeoutException: 60000 millis timeout while waiting for channel to be ready for read`**\n\n### Recommended fixes\nFrom the runbook:\n\n- **Restart the DataNode process on the affected host.**\n- In the meantime, **HDFS replication means in-flight requests succeed against other replicas**.\n\n### Important limitation\nThe documentation does **not** provide enough information to distinguish, from this client log pattern alone, whether the process was specifically **killed** versus simply **dead/crashed**. More corroborating context would be required.",
+          "retrieved_docs": [
+            {
+              "doc_id": "config_readOnlyDN",
+              "doc_type": "config",
+              "title": "Configuration Reference: DataNode Forced Read-Only (readOnlyDN)",
+              "case_ids": [
+                "TB-017"
+              ],
+              "failure_pattern": "readOnlyDN",
+              "tier": 1,
+              "distance": 0.6296436786651611
+            },
+            {
+              "doc_id": "arch_datanode_liveness",
+              "doc_type": "architecture",
+              "title": "HDFS Architecture: DataNode Liveness and the deadNodes List",
+              "case_ids": [
+                "TB-011",
+                "TB-012",
+                "TB-013",
+                "TB-016",
+                "TB-020"
+              ],
+              "failure_pattern": "architectural_reference",
+              "tier": 1,
+              "distance": 0.6530548334121704
+            },
+            {
+              "doc_id": "config_disconnectDN",
+              "doc_type": "config",
+              "title": "Configuration Reference: DataNode Disconnected from Network (disconnectDN)",
+              "case_ids": [
+                "TB-012"
+              ],
+              "failure_pattern": "disconnectDN",
+              "tier": 2,
+              "distance": 0.7000724077224731
+            },
+            {
+              "doc_id": "error_ref_readOnlyDN",
+              "doc_type": "error_ref",
+              "title": "Error Reference: DataNode Forced Read-Only (readOnlyDN)",
+              "case_ids": [
+                "TB-017"
+              ],
+              "failure_pattern": "readOnlyDN",
+              "tier": 1,
+              "distance": 0.7081106305122375
+            },
+            {
+              "doc_id": "runbook_killDN",
+              "doc_type": "runbook",
+              "title": "Runbook: DataNode Process Killed (killDN)",
+              "case_ids": [
+                "TB-013"
+              ],
+              "failure_pattern": "killDN",
+              "tier": 1,
+              "distance": 0.7298191785812378
+            }
+          ]
+        },
+        "duration_ms": 5216.1
+      },
+      {
+        "tool": "query_logs",
+        "inputs": {
+          "question": "For instance 03FB08C229C2844D during the read-only HDFS workload incident, find log entries mentioning 'connection refused', datanode failures, node avoidance, or HDFS client read errors. Include timestamps, component/app instance context, and the specific datanode address involved."
+        },
+        "result": "For instance 03FB08C229C2844D, I found one matching error entry tied to a client read/connect failure and node avoidance:\n\n| timestamp | component | execution context | host | app instance | severity | datanode address | message |\n|---|---|---|---|---|---|---|---|\n| 2013-11-11T17:49:42.143Z | OP: try new BlockReader | DFSClient | client002 | 03FB08C229C2844D | ERROR | 10.107.100.58:50010 | IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue |\n\nWhat this shows from the logs:\n- HDFS client context: DFSClient on client002\n- Read-path component: OP: try new BlockReader\n- Failure type: connection refused\n- Datanode failure handling: the client says to add the node to deadNodes and continue\n- Specific datanode involved: 10.107.100.58:50010\n\nI did not find additional matching entries in this instance for the requested patterns within the returned results.",
+        "duration_ms": 9463.4
+      }
+    ],
+    "timing": {
+      "total_seconds": 14.666,
+      "active_seconds": 14.666,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 14679.5,
+      "sql_ms_total": 9463.4,
+      "doc_ms_total": 5216.1,
+      "orchestrator_ms": 0.0,
+      "n_tool_calls": 2,
+      "mean_ms_per_tool_call": 7339.8,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "A_flat",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "sql_model": "gpt-5.4",
+      "sql_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  },
+  {
+    "incident_id": "TB-021",
+    "question": "For a read-only HDFS workload (instance 00481732284B6247), an operator wants a diagnostic check: is there any fault or anomaly affecting this request? If nothing appears wrong, say so explicitly and explain what you checked.",
+    "diagnosis": "Nothing appears wrong with read-only HDFS request `00481732284B6247`; I found no fault or anomaly affecting it.\n\n- I checked the full log set for that instance for `ERROR`/`WARN` entries and common failure patterns like exceptions, timeouts, retries, permission denials, refusals, and resource/disk issues; none were present.\n- The request flow was normal end-to-end: `fs -copyToLocal` started, `getFileInfo` and `getBlockLocations` succeeded, the client successfully chose datanodes and opened block readers, datanodes served blocks, and the client logged successful block receipt plus `checksumOk`.\n- The observed events were all INFO-level over `2013-11-06T19:22:15.000Z` to `2013-11-06T19:22:19.785Z`; the only \u201cwrite\u201d-category events were client-side block receipt during `copyToLocal`, which is expected and not an HDFS write fault.\n\nRecommended fix: No fix needed; this request completed normally, so if the operator still sees a user-facing issue, investigate outside HDFS for upstream/downstream causes.",
+    "status": "ok",
+    "tool_call_trace": [
+      {
+        "tool": "query_logs",
+        "inputs": {
+          "question": "Investigate logs related to HDFS workload instance 00481732284B6247. Determine whether there are any faults or anomalies affecting this read-only request. Look for ERROR/WARN messages, HDFS-related components, request lifecycle, failures, retries, timeouts, permission errors, and resource issues associated with instance 00481732284B6247. Summarize the sequence of relevant events and whether anything abnormal occurred."
+        },
+        "result": "I investigated instance 00481732284B6247 and found no evidence of faults or anomalous behavior.\n\nFindings\n- No ERROR or WARN records were returned for this instance.\n- No messages matched common failure indicators such as Exception, fail, timeout, retry, denied, refused, permission, resource, or disk-related problems.\n- All observed events were INFO-level successes.\n\nRequest profile\n- Instance: 00481732284B6247\n- Total events: 77\n- Time span: 2013-11-06T19:22:15.000Z to 2013-11-06T19:22:19.785Z\n- Hosts involved: 8\n- Threads involved: 25\n\nRelevant lifecycle summary\n1. Client request starts\n- client001 ran fs -copyToLocal\n- This indicates a read-only HDFS fetch to local storage.\n\n2. Metadata lookup succeeds\n- RPC:getFileInfo / getFileInfo completed successfully.\n- RPC:getBlockLocations / getBlockLocations also completed successfully.\n\n3. Client selects datanodes for block reads\n- DFSClient logged repeated successful steps:\n  - chooseDataNode\n  - bestNode\n  - blockSeekTo\n  - OP: try new BlockReader\n  - newBlockReader\n- These show normal block-location selection and reader setup.\n\n4. Datanodes serve blocks successfully\n- Multiple datanodes handled:\n  - OP: new blockSender\n  - readBlock\n  - sendBlock\n- All returned success.\n- Observed serving datanodes included datanode020, datanode018, datanode049, datanode003, datanode036, and datanode006.\n\n5. Client receives and verifies data\n- DFSClient logged:\n  - OP: receive block \u2014 Success: received a block\n  - checksumOk \u2014 Success\n- This indicates blocks were received and checksum validation passed.\n\nEvent distribution\n- read / INFO: 65\n- write / INFO: 6\n- rpc / INFO: 5\n- client_command / INFO: 1\n\nNote on \u201cwrite\u201d events\n- The write-category events are OP: receive block on the client side, which reflect the client receiving block data locally during copyToLocal, not an HDFS write request. They do not indicate an abnormal write operation.\n\nConclusion\nThis read-only workload appears healthy end-to-end. The request lifecycle shows successful metadata lookup, block location retrieval, datanode selection, block transmission, client receipt, and checksum verification. I found no failures, retries, timeouts, permission issues, or resource-related problems associated with instance 00481732284B6247.",
+        "duration_ms": 13659.0
+      }
+    ],
+    "timing": {
+      "total_seconds": 18.496,
+      "active_seconds": 18.496,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 13659.0,
+      "sql_ms_total": 13659.0,
+      "doc_ms_total": 0,
+      "orchestrator_ms": 4837.2,
+      "n_tool_calls": 1,
+      "mean_ms_per_tool_call": 13659.0,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "A_flat",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "sql_model": "gpt-5.4",
+      "sql_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  }
+]

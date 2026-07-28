@@ -1,0 +1,326 @@
+{
+  "evaluated_at": "2026-07-28T17:15:26.742654Z",
+  "tracks": [
+    "A_flat"
+  ],
+  "n_cases": 3,
+  "summary": {
+    "answer": {
+      "full_credit": 2,
+      "partial": 0,
+      "miss": 0,
+      "error": 1
+    },
+    "localization": {
+      "hit": 0,
+      "miss": 1,
+      "n/a": 1,
+      "hit_rate_of_localizable": 0.0
+    },
+    "retrieval": {
+      "avg_recall": 0.333,
+      "avg_precision": 0.1
+    },
+    "trace": {
+      "avg_score": 3.33,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 3,
+        "total_seconds_mean": 167.76,
+        "total_seconds_med": 187.8,
+        "total_seconds_p95": 291.21,
+        "total_seconds_min": 12.77,
+        "total_seconds_max": 302.7,
+        "evidence_ms_mean": 132391.1,
+        "doc_ms_mean": 12902.9,
+        "orchestrator_ms_mean": 22463.9,
+        "n_tool_calls_mean": 2.0,
+        "orchestrator_share": 0.134
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 1,
+          "total_seconds_mean": 187.8,
+          "total_seconds_med": 187.8,
+          "total_seconds_p95": 187.8,
+          "total_seconds_min": 187.8,
+          "total_seconds_max": 187.8,
+          "evidence_ms_mean": 148770.2,
+          "doc_ms_mean": 15552.1,
+          "orchestrator_ms_mean": 23477.6,
+          "n_tool_calls_mean": 3.0,
+          "orchestrator_share": 0.125
+        },
+        "tier_1": {
+          "n": 1,
+          "total_seconds_mean": 302.7,
+          "total_seconds_med": 302.7,
+          "total_seconds_p95": 302.7,
+          "total_seconds_min": 302.7,
+          "total_seconds_max": 302.7,
+          "evidence_ms_mean": 248403.2,
+          "doc_ms_mean": 23156.5,
+          "orchestrator_ms_mean": 31144.3,
+          "n_tool_calls_mean": 3.0,
+          "orchestrator_share": 0.103
+        },
+        "tier_2": {
+          "n": 1,
+          "total_seconds_mean": 12.77,
+          "total_seconds_med": 12.77,
+          "total_seconds_p95": 12.77,
+          "total_seconds_min": 12.77,
+          "total_seconds_max": 12.77,
+          "evidence_ms_mean": 0.0,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 12769.8,
+          "n_tool_calls_mean": 0.0,
+          "orchestrator_share": 1.0
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "A_flat",
+      "status": "malformed_tool_call_unrecovered",
+      "answer_grade": "error",
+      "localization": "error",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": false,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_evidence_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 12.77,
+        "active_seconds": 12.77,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "sql_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 12769.8,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 3
+      },
+      "diagnosis_excerpt": "<function=query_logs{\"question\": \"What are the ERROR-level events for the datanode associated with instance C4113E01C484F2EB?\"}</function>"
+    },
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does 'connection refused' mean in the context of HDFS datanode and what are the possible causes?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.6185949444770813
+              },
+              {
+                "doc_id": "config_readOnlyDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6650967001914978
+              },
+              {
+                "doc_id": "config_panicDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.7091442346572876
+              },
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.7507204413414001
+              },
+              {
+                "doc_id": "runbook_killDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.7666076421737671
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 302.704,
+        "active_seconds": 302.704,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 271559.7,
+        "sql_ms_total": 248403.2,
+        "doc_ms_total": 23156.5,
+        "orchestrator_ms": 31144.3,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 90519.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the 'connection refused' error in the HDFS datanode is that the datanode process on instance 03FB08C229C2844D is dead or unresponsive. \n* The log evidence shows a sequence of events where the client attempts to connect to the datanode, but the connection is immediately refused with..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "A_flat",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What are the normal baselines and alert values for the HDFS component?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "config_corruptBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.9228600263595581
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.9802335500717163
+              },
+              {
+                "doc_id": "config_Sin_Bug",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-002"
+                ],
+                "relevant": false,
+                "distance": 1.002054214477539
+              },
+              {
+                "doc_id": "config_Sin_Data",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-003"
+                ],
+                "relevant": false,
+                "distance": 1.0265417098999023
+              },
+              {
+                "doc_id": "config_cutBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-009"
+                ],
+                "relevant": false,
+                "distance": 1.0308518409729004
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_logs",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 187.8,
+        "active_seconds": 187.8,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 164322.3,
+        "sql_ms_total": 148770.2,
+        "doc_ms_total": 15552.1,
+        "orchestrator_ms": 23477.6,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 54774.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the log evidence and documentation, it appears that there are no faults or anomalies affecting the read-only HDFS workload for instance 00481732284B6247. The sequence of events shows a series of successful operations, and the documentation provides normal baselines and alert values that do ..."
+    }
+  ]
+}

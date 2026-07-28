@@ -790,3 +790,74 @@ project bug (`doc_agent.py`) and one environment artifact (encoding), and surfac
 design question (IP-vs-hostname localization) worth resolving before a fuller sweep. Track B, the
 full 27-case sweep, and the wider multi-model comparison are all still open — this was deliberately
 small and cheap by design.
+
+### Third model: the "Edge" tier (local, free) — the most substantively important result yet
+
+**Setup:** same 3 cases, Track A, but the historical "Edge" tier config from `Archive/Edge_benchmark/`
+(`qwen2.5:latest` for diagnostic+SQL, `llama3.2` for doc, all via local Ollama — `qwen`/`ollama`
+backends, no API key, no cost). Ollama was installed but not running in this environment; started it
+(`ollama serve`) and confirmed both required models were already cached locally (no download needed).
+Noted for the record: this machine's GPU (GTX 1080) isn't supported by the installed Ollama build's
+compiled CUDA architectures, so inference ran on CPU.
+
+**User's framing, worth stating plainly since it shapes how to read everything below**: this result
+is not a problem to work around — demonstrating exactly this kind of capability/cost tradeoff (a
+weak local model fabricating evidence, taking far longer) *is what this benchmark exists to measure*.
+The Edge tier stays in the sweep.
+
+**The most important finding of this port so far**: the SQL sub-agent (`qwen2.5:latest`) fabricated
+an entire fake table of log rows for TB-018, wholesale — not paraphrased-but-wrong, invented from
+nothing:
+```
+| Success: BlockReader[...dst=C4113E01C484F2EB...]        | 2023-11-15T14:30:00.000Z |
+| WARN: ...Slow read operation took 1.5 seconds            | 2023-11-15T14:30:02.000Z |
+| ERROR: ...IOException: java.io.EOFException               | 2023-11-15T...           |
+```
+Verified point-by-point that none of it is real:
+- Every real timestamp in this dataset is anchored to 2013-11-04 (confirmed repeatedly since Phase
+  4). `2023-11-15` — a different decade — appears nowhere in the actual data.
+- The block-ID format (`BP-567984234-...-blk_1077_...`) doesn't match this dataset's real format
+  (`blk_-4458271377988461949_1332`) — it reads as a generic HDFS-block-ID pattern recalled from
+  training data, not a query result.
+- `dst=C4113E01C484F2EB` treats the trace/instance ID as if it were a datanode hostname; real
+  `node_id` values in this schema look like `datanode046`.
+- TB-018's ground truth (`slowDN`) is a pure latency-outlier signal — `evidence_type:
+  host_latency_outlier` in `ground_truth_trace.json`, no exception text at all. An `EOFException`
+  claim isn't just imprecise here, it describes a mechanism this fault's evidence structurally
+  cannot contain.
+
+**The deterministic scorer completely missed it** — `evaluate_trace.py` gave TB-018 `full_credit`,
+because the question text itself primes "slow"/"datanode" and the fabricated diagnosis happens to
+contain both words. This is a real, concrete demonstration of exactly why the frozen LLM-judge
+rubric's evidence-grounding dimension exists and explicitly overrides surface keyword matching:
+*"fabricated evidence... scores 0 on this dimension even if the overall diagnosis happens to match
+the canonical root cause."* Without the judge layer, this run would be indistinguishable from
+`gpt-5.4`'s correct, real-evidence-grounded TB-018 diagnosis in the deterministic report alone — the
+two layers are doing genuinely different, complementary jobs, not redundant ones.
+
+**Scores** (`evaluate_trace.py`): 3/3 `full_credit` (misleading per above), `loc` 0/2 hit,
+avg trace score 2.67/5 (lower than both API models — `query_docs` was never called in any of the 3
+cases, unlike the other two models, which called it at least once per case).
+
+**Timing — a second, independently real finding**: mean 677.9s/case, up to 1474.2s (24.6 minutes)
+for TB-021 alone (4 tool calls, one of which was the model outputting raw SQL text instead of a
+clean final answer — visible mid-task confusion, not just slowness). At this rate a full 27-case
+Track A sweep with this model would run into multiple hours, on this hardware. That cost, not just
+the fabrication, is itself part of the finding this benchmark is designed to surface.
+
+**Not yet resolved, carried forward rather than fixed silently**: the IP-vs-hostname localization
+gap from the previous two models applies here too (TB-011 loc=miss for the same reason). The Edge
+tier's own TB-011 diagnosis was also less precise than the other two models' (correctly identified
+"connection refused" but stayed at "network or service issue" rather than pinpointing a single dead
+DataNode process) and slightly garbled the instance ID in its own prose.
+
+**Artifacts preserved, not treated as throwaway this time**: unlike the first sanity check (whose raw
+JSON was left uncommitted as disposable), this run's result is genuine evidentiary content the
+CHANGELOG's claims above should be checkable against — committed at
+`Results/sanity_check/sanity__edge-qwen25-llama32__track-Aflat.json` and
+`Results/sanity_check/eval__edge.json`, along with the `gpt-5.4` and `Llama-3.3-70B-Instruct-Turbo`
+runs from the same session.
+
+**Exit check: MET, and this is the clearest evidence yet that the project's two-layer scoring design
+(deterministic + frozen LLM judge) is load-bearing, not redundant** — the deterministic layer alone
+would have silently certified a fabricated diagnosis as fully correct.
