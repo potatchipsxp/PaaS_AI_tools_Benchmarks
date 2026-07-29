@@ -918,3 +918,55 @@ rewrite from the Track B redesign session, which still applies once Track B exis
 
 **Exit check: MET.** All 81 diagnose() calls (3 models × 27 cases) completed and scored; results and
 eval reports committed as real evidentiary artifacts, not throwaway output.
+
+### Track B's first live sanity check — a real bug, a real blocker, and a real finding
+
+**Setup:** same 3 cases, same 3 models, first-ever live test of Track B (`query_trace`/deterministic
+tool, no SQL sub-agent). First attempt used a throwaway test script with a broken `sys.path` order
+that imported Track A's `diagnostic_agent.py` instead of Track B's — a bug in the test script, not
+the project — fixed by inserting `"."` after `".."` so `track_b/` is searched first.
+
+**Real bug #1, found and fixed**: with the import fixed, every case after the *first* failed with
+`SQLite objects created in a thread can only be used in that same thread`. Root cause: `query_trace()`
+cached a single `sqlite3.Connection` at module level and reused it across every call. This is the
+first time `build_diagnostic_agent()` was called once and `diagnose()` called repeatedly against it
+for Track B — the actual real usage pattern `run_benchmark.py` uses — and it revealed that LangGraph
+invokes tools from a different thread per call; sqlite3 connections are thread-affined by default,
+so only the very first call (which created the connection) ever succeeded. Never surfaced before
+because every prior Track B test called `query_trace()` exactly once per process. Fixed by opening a
+fresh, short-lived connection per call (`contextlib.closing(sqlite3.connect(...))`) instead of
+caching one. Verified directly: forced three calls into three genuinely distinct
+`threading.Thread` objects (not an executor with `max_workers=1`, which would have silently reused
+one thread and not re-tested the failure) — all three succeeded. Leakage audit re-run clean (0 hits).
+
+**Real blocker, not a bug**: rerunning after the fix, `gpt-5.4` failed all 3 cases with
+`429 insufficient_quota` — the OpenAI key's quota is exhausted, almost certainly from the 27-case ×
+3-tool-call-ish-per-case Track A sweep run immediately before this. Needs the user's attention
+(billing/plan), not a code fix. `gpt-5.4` on Track B is untested pending this.
+
+**Real finding, not a bug**: Track B's weaker models struggle markedly more than they did on Track A,
+in a way that looks structural rather than incidental:
+- **Edge tier (`qwen2.5:latest`) made ZERO successful tool calls across all 3 cases** —
+  `avg trace score: 0.00/5`. Its responses show the model asking the operator to re-supply the
+  `instance_id`/`trace_id` that was already stated verbatim in the question ("Could you please
+  provide the `trace_id` for the instance `03FB08C229C2844D`?" — the ID is right there in its own
+  sentence). Compare: the *same model* successfully called `query_logs` on every one of the 27 Track
+  A cases in the full sweep run just before this.
+- `Llama-3.3-70B-Instruct-Turbo` fared better (2/3 completed with a real tool call) but TB-011
+  produced a non-answer that ignored the real `query_trace` data it had just received and asked a
+  generic clarifying question instead — one real tool call happened, but the model failed to use it.
+
+**Reading this honestly**: Track A's `query_logs` takes a free-text natural-language question — a
+forgiving interface a weaker model can phrase many ways and still succeed. Track B's `query_trace`
+requires the model to correctly extract and pass one exact structured string argument — a stricter
+calling convention. This 3-case sample is far too small to call this proven, but it's a directly
+relevant, first-evidence data point for exactly the kind of track-level (not just data-level)
+difference the redesigned Track B was meant to be able to surface — worth carrying into the eventual
+three-way interpretation rather than averaging away.
+
+**Not yet done**: `gpt-5.4` on Track B (blocked on quota); the full 27-case Track B sweep (holding off
+per the user's original direction to start with a sanity check, and now additionally worth deciding
+deliberately given the Edge tier's near-total tool-calling failure here — worth understanding before
+committing to a full expensive run, not necessarily worth avoiding, since a real failure rate is
+itself the kind of finding this benchmark exists to produce, same reasoning as Track A's Edge-tier
+timing finding).

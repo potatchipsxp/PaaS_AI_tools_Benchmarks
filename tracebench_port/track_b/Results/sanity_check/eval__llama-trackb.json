@@ -1,0 +1,268 @@
+{
+  "evaluated_at": "2026-07-29T22:49:53.436082Z",
+  "tracks": [
+    "B_native"
+  ],
+  "n_cases": 3,
+  "summary": {
+    "answer": {
+      "full_credit": 2,
+      "partial": 0,
+      "miss": 1,
+      "error": 0
+    },
+    "localization": {
+      "hit": 0,
+      "miss": 2,
+      "n/a": 1,
+      "hit_rate_of_localizable": 0.0
+    },
+    "retrieval": {
+      "avg_recall": 0.333,
+      "avg_precision": 0.6
+    },
+    "trace": {
+      "avg_score": 3.67,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 3,
+        "total_seconds_mean": 17.84,
+        "total_seconds_med": 23.59,
+        "total_seconds_p95": 24.25,
+        "total_seconds_min": 5.6,
+        "total_seconds_max": 24.33,
+        "evidence_ms_mean": 1177.5,
+        "doc_ms_mean": 2799.8,
+        "orchestrator_ms_mean": 13860.8,
+        "n_tool_calls_mean": 1.33,
+        "orchestrator_share": 0.777
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 1,
+          "total_seconds_mean": 24.33,
+          "total_seconds_med": 24.33,
+          "total_seconds_p95": 24.33,
+          "total_seconds_min": 24.33,
+          "total_seconds_max": 24.33,
+          "evidence_ms_mean": 1194.5,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 23132.9,
+          "n_tool_calls_mean": 1.0,
+          "orchestrator_share": 0.951
+        },
+        "tier_1": {
+          "n": 1,
+          "total_seconds_mean": 5.6,
+          "total_seconds_med": 5.6,
+          "total_seconds_p95": 5.6,
+          "total_seconds_min": 5.6,
+          "total_seconds_max": 5.6,
+          "evidence_ms_mean": 1178.7,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 4422.6,
+          "n_tool_calls_mean": 1.0,
+          "orchestrator_share": 0.79
+        },
+        "tier_2": {
+          "n": 1,
+          "total_seconds_mean": 23.59,
+          "total_seconds_med": 23.59,
+          "total_seconds_p95": 23.59,
+          "total_seconds_min": 23.59,
+          "total_seconds_max": 23.59,
+          "evidence_ms_mean": 1159.3,
+          "doc_ms_mean": 8399.5,
+          "orchestrator_ms_mean": 14026.8,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.595
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does high latency in block transfer operations from a single datanode indicate?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.64000004529953
+              },
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.6651884317398071
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6828129887580872
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.7004848122596741
+              },
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.712109386920929
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 23.586,
+        "active_seconds": 23.586,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 9558.8,
+        "trace_ms_total": 1159.3,
+        "doc_ms_total": 8399.5,
+        "orchestrator_ms": 14026.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 4779.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the high latency in block transfer operations from a single DataNode is likely due to a slow DataNode (slowDN) or a DataNode that has been forced read-only (readOnlyDN). \n* The key trace evidence that supports the diagnosis is the high latency in block transfer operations from a si..."
+    },
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 5.601,
+        "active_seconds": 5.601,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 1178.7,
+        "trace_ms_total": 1178.7,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 4422.6,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 1178.7,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "You have provided a detailed description of the problem you are trying to solve. To provide a more accurate solution, I will need more information about the specific error message or latency issue you are experiencing. Could you please provide more details about the problem you are trying to solve?"
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 24.327,
+        "active_seconds": 24.327,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 1194.5,
+        "trace_ms_total": 1194.5,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 23132.9,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 1194.5,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace data, there is no indication of any fault or anomaly affecting the request. The trace shows a normal read-only HDFS workload with the client reading blocks from multiple datanodes and verifying the checksums. The operation durations and the call structure appear to be within norma..."
+    }
+  ]
+}

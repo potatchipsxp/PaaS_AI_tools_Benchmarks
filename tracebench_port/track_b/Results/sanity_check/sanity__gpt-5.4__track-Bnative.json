@@ -1,0 +1,80 @@
+[
+  {
+    "incident_id": "TB-018",
+    "question": "During a read HDFS workload (instance C4113E01C484F2EB), one datanode is measurably slower than its peers across multiple block-transfer operations, though every request still eventually completes successfully. What is the root cause?",
+    "diagnosis": "Agent error: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}",
+    "status": "error",
+    "tool_call_trace": [],
+    "timing": {
+      "total_seconds": 37.999,
+      "active_seconds": 37.999,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 0,
+      "trace_ms_total": 0,
+      "doc_ms_total": 0,
+      "orchestrator_ms": 37999.0,
+      "n_tool_calls": 0,
+      "mean_ms_per_tool_call": 0.0,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "B_native",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  },
+  {
+    "incident_id": "TB-011",
+    "question": "During a read-only HDFS workload (instance 03FB08C229C2844D), some requests are failing with 'connection refused' when trying to reach a specific datanode, and the client subsequently avoids that node for the rest of the request. What is the root cause?",
+    "diagnosis": "Agent error: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}",
+    "status": "error",
+    "tool_call_trace": [],
+    "timing": {
+      "total_seconds": 37.336,
+      "active_seconds": 37.336,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 0,
+      "trace_ms_total": 0,
+      "doc_ms_total": 0,
+      "orchestrator_ms": 37335.8,
+      "n_tool_calls": 0,
+      "mean_ms_per_tool_call": 0.0,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "B_native",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  },
+  {
+    "incident_id": "TB-021",
+    "question": "For a read-only HDFS workload (instance 00481732284B6247), an operator wants a diagnostic check: is there any fault or anomaly affecting this request? If nothing appears wrong, say so explicitly and explain what you checked.",
+    "diagnosis": "Agent error: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}",
+    "status": "error",
+    "tool_call_trace": [],
+    "timing": {
+      "total_seconds": 36.815,
+      "active_seconds": 36.815,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 0,
+      "trace_ms_total": 0,
+      "doc_ms_total": 0,
+      "orchestrator_ms": 36815.1,
+      "n_tool_calls": 0,
+      "mean_ms_per_tool_call": 0.0,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "B_native",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  }
+]
