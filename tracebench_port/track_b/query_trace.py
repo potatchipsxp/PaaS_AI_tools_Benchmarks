@@ -25,6 +25,7 @@ Public API:
     query_trace(trace_id: str) -> str
 """
 
+import contextlib
 import json
 import os
 import sqlite3
@@ -42,15 +43,21 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(_HERE, "data", "tracebench_raw_scoped.sqlite")
 NM_BASELINE_PATH = os.path.join(_HERE, "data", "nm_latency_baseline.json")
 
-_conn_cache = None
 _nm_baseline_cache = None
 
-
-def _get_conn():
-    global _conn_cache
-    if _conn_cache is None:
-        _conn_cache = sqlite3.connect(DB_PATH)
-    return _conn_cache
+# BUG FOUND (see CHANGELOG_PORT.md, Track B sanity check): this used to cache
+# a single sqlite3.Connection at module level and reuse it across every call.
+# The first call to query_trace() within a diagnose() session succeeded (it
+# created the connection), but every call after that raised "SQLite objects
+# created in a thread can only be used in that same thread" -- LangGraph
+# invokes tools from a different thread per call, and sqlite3 connections are
+# thread-affined by default. Never surfaced before because every prior test
+# called query_trace() exactly once per process. Fixed by opening a fresh,
+# short-lived connection per call instead of caching one -- sqlite3.connect()
+# against a local file is fast enough that the caching was never a
+# meaningful optimization to begin with, and this removes the thread-safety
+# hazard entirely rather than papering over it with check_same_thread=False
+# (which would still not be safe under genuine concurrent access).
 
 
 def _get_nm_baseline():
@@ -97,89 +104,89 @@ def query_trace(trace_id):
     call-structure, with the same latency-outlier annotation Track A's
     `logs.level` provides.
     """
-    conn = _get_conn()
-    cur = conn.cursor()
+    with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
+        cur = conn.cursor()
 
-    cur.execute("SELECT trace_set FROM Trace_Source WHERE TraceID=?", (trace_id,))
-    row = cur.fetchone()
-    if row is None:
-        return f"No trace found for instance_id={trace_id}."
-    trace_set = row[0]  # internal use only -- never appears in the returned text
+        cur.execute("SELECT trace_set FROM Trace_Source WHERE TraceID=?", (trace_id,))
+        row = cur.fetchone()
+        if row is None:
+            return f"No trace found for instance_id={trace_id}."
+        trace_set = row[0]  # internal use only -- never appears in the returned text
 
-    cur.execute(
-        "SELECT TID, OpName, StartTime, EndTime, HostName, Description "
-        "FROM Event WHERE TaskID=? ORDER BY HostName, StartTime",
-        (trace_id,),
-    )
-    events = cur.fetchall()
-    if not events:
-        return f"No events found for instance_id={trace_id}."
+        cur.execute(
+            "SELECT TID, OpName, StartTime, EndTime, HostName, Description "
+            "FROM Event WHERE TaskID=? ORDER BY HostName, StartTime",
+            (trace_id,),
+        )
+        events = cur.fetchall()
+        if not events:
+            return f"No events found for instance_id={trace_id}."
 
-    warn_flags = _compute_warn_flags(cur, trace_set)
+        warn_flags = _compute_warn_flags(cur, trace_set)
 
-    by_host = defaultdict(list)
-    for tid, opname, start, end, host, desc in events:
-        by_host[host].append((tid, opname, start, end, desc))
-
-    lines = []
-    lines.append(f"=== Trace {trace_id} ===")
-    lines.append(f"{len(events)} events across {len(by_host)} hosts: {', '.join(sorted(by_host))}")
-    lines.append(
-        "(Times below are relative to each host's OWN first event in this "
-        "trace -- hosts use independent clocks, so times on different hosts "
-        "are NOT directly comparable to each other.)"
-    )
-
-    for host in sorted(by_host):
-        host_events = by_host[host]
-        t0 = min(e[2] for e in host_events)
-        lines.append(f"\n--- Host: {host} ---")
-        for tid, opname, start, end, desc in host_events:
-            dur = _fmt_duration(end - start)
-            rel = _fmt_duration(start - t0)
-            flag = _event_flag(host, opname, desc, warn_flags)
-            flag_str = f" [{flag}]" if flag else ""
-            if flag == "ERROR":
-                detail = f" -- {desc}"
-            else:
-                detail = ""
-            lines.append(f"  +{rel}  {opname} ({dur}){flag_str}{detail}")
-
-    cur.execute(
-        "SELECT FatherNID, FatherStartTime, ChildNID FROM Edge WHERE TraceID=?",
-        (trace_id,),
-    )
-    edges = cur.fetchall()
-    if edges:
-        event_by_tid_start = {(tid, start): (opname, host) for tid, opname, start, end, host, desc in events}
-        event_by_tid = defaultdict(list)
+        by_host = defaultdict(list)
         for tid, opname, start, end, host, desc in events:
-            event_by_tid[tid].append((start, opname, host))
+            by_host[host].append((tid, opname, start, end, desc))
 
-        seen = set()
-        rel_lines = []
-        for father_nid, father_start, child_nid in edges:
-            father = event_by_tid_start.get((father_nid, father_start))
-            candidates = event_by_tid.get(child_nid, [])
-            if not father or not candidates:
-                continue
-            # TID can repeat (see module docstring / schema description) --
-            # prefer a candidate that started at/after the father, else fall
-            # back to the earliest candidate overall. Best-effort, not exact.
-            after_father = [c for c in candidates if c[0] >= father_start]
-            pool = after_father if after_father else candidates
-            child_start, child_op, child_host = min(pool, key=lambda c: c[0])
-            key = (father[1], father[0], child_host, child_op)
-            if key in seen:
-                continue
-            seen.add(key)
-            rel_lines.append(f"  {father[1]}/{father[0]} -> {child_host}/{child_op}")
-        if rel_lines:
-            lines.append("\nCall structure (parent -> child, from Edge; some relationships may be")
-            lines.append("ambiguous where a thread id was reused -- best-effort match shown):")
-            lines.extend(rel_lines)
+        lines = []
+        lines.append(f"=== Trace {trace_id} ===")
+        lines.append(f"{len(events)} events across {len(by_host)} hosts: {', '.join(sorted(by_host))}")
+        lines.append(
+            "(Times below are relative to each host's OWN first event in this "
+            "trace -- hosts use independent clocks, so times on different hosts "
+            "are NOT directly comparable to each other.)"
+        )
 
-    return "\n".join(lines)
+        for host in sorted(by_host):
+            host_events = by_host[host]
+            t0 = min(e[2] for e in host_events)
+            lines.append(f"\n--- Host: {host} ---")
+            for tid, opname, start, end, desc in host_events:
+                dur = _fmt_duration(end - start)
+                rel = _fmt_duration(start - t0)
+                flag = _event_flag(host, opname, desc, warn_flags)
+                flag_str = f" [{flag}]" if flag else ""
+                if flag == "ERROR":
+                    detail = f" -- {desc}"
+                else:
+                    detail = ""
+                lines.append(f"  +{rel}  {opname} ({dur}){flag_str}{detail}")
+
+        cur.execute(
+            "SELECT FatherNID, FatherStartTime, ChildNID FROM Edge WHERE TraceID=?",
+            (trace_id,),
+        )
+        edges = cur.fetchall()
+        if edges:
+            event_by_tid_start = {(tid, start): (opname, host) for tid, opname, start, end, host, desc in events}
+            event_by_tid = defaultdict(list)
+            for tid, opname, start, end, host, desc in events:
+                event_by_tid[tid].append((start, opname, host))
+
+            seen = set()
+            rel_lines = []
+            for father_nid, father_start, child_nid in edges:
+                father = event_by_tid_start.get((father_nid, father_start))
+                candidates = event_by_tid.get(child_nid, [])
+                if not father or not candidates:
+                    continue
+                # TID can repeat (see module docstring / schema description) --
+                # prefer a candidate that started at/after the father, else fall
+                # back to the earliest candidate overall. Best-effort, not exact.
+                after_father = [c for c in candidates if c[0] >= father_start]
+                pool = after_father if after_father else candidates
+                child_start, child_op, child_host = min(pool, key=lambda c: c[0])
+                key = (father[1], father[0], child_host, child_op)
+                if key in seen:
+                    continue
+                seen.add(key)
+                rel_lines.append(f"  {father[1]}/{father[0]} -> {child_host}/{child_op}")
+            if rel_lines:
+                lines.append("\nCall structure (parent -> child, from Edge; some relationships may be")
+                lines.append("ambiguous where a thread id was reused -- best-effort match shown):")
+                lines.extend(rel_lines)
+
+        return "\n".join(lines)
 
 
 if __name__ == "__main__":
