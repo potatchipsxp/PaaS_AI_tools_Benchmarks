@@ -253,11 +253,16 @@ def build_tools(
           - See how operations on different hosts relate to each other
             (which RPC triggered which downstream operation)
 
-        Input: the instance_id (trace/request identifier) named in the
-        incident description -- always pass it exactly as given.
+        Input: the instance_id (trace/request identifier). It is ALREADY
+        present in the question you were asked -- look for text like
+        "instance C4113E01C484F2EB" or "(instance 03FB08C229C2844D)" and
+        copy that exact string as the argument. Never ask the operator to
+        provide it again; it has already been given to you.
         Output: a formatted per-host timeline and call-structure summary.
 
-        Example: query_trace("C4113E01C484F2EB")
+        Examples:
+          Question mentions "instance C4113E01C484F2EB" -> query_trace("C4113E01C484F2EB")
+          Question mentions "instance 03FB08C229C2844D" -> query_trace("03FB08C229C2844D")
         """
         t0 = time.perf_counter()
         answer = _query_trace_impl(trace_id)

@@ -1,0 +1,210 @@
+{
+  "evaluated_at": "2026-07-29T22:49:53.569732Z",
+  "tracks": [
+    "B_native"
+  ],
+  "n_cases": 3,
+  "summary": {
+    "answer": {
+      "full_credit": 1,
+      "partial": 0,
+      "miss": 2,
+      "error": 0
+    },
+    "localization": {
+      "hit": 0,
+      "miss": 2,
+      "n/a": 1,
+      "hit_rate_of_localizable": 0.0
+    },
+    "retrieval": {
+      "avg_recall": 0.0,
+      "avg_precision": 0
+    },
+    "trace": {
+      "avg_score": 0.0,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 3,
+        "total_seconds_mean": 85.93,
+        "total_seconds_med": 33.46,
+        "total_seconds_p95": 180.35,
+        "total_seconds_min": 27.68,
+        "total_seconds_max": 196.67,
+        "evidence_ms_mean": 0.0,
+        "doc_ms_mean": 0.0,
+        "orchestrator_ms_mean": 85933.7,
+        "n_tool_calls_mean": 0.0,
+        "orchestrator_share": 1.0
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 1,
+          "total_seconds_mean": 27.68,
+          "total_seconds_med": 27.68,
+          "total_seconds_p95": 27.68,
+          "total_seconds_min": 27.68,
+          "total_seconds_max": 27.68,
+          "evidence_ms_mean": 0.0,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 27675.5,
+          "n_tool_calls_mean": 0.0,
+          "orchestrator_share": 1.0
+        },
+        "tier_1": {
+          "n": 1,
+          "total_seconds_mean": 33.46,
+          "total_seconds_med": 33.46,
+          "total_seconds_p95": 33.46,
+          "total_seconds_min": 33.46,
+          "total_seconds_max": 33.46,
+          "evidence_ms_mean": 0.0,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 33457.8,
+          "n_tool_calls_mean": 0.0,
+          "orchestrator_share": 1.0
+        },
+        "tier_2": {
+          "n": 1,
+          "total_seconds_mean": 196.67,
+          "total_seconds_med": 196.67,
+          "total_seconds_p95": 196.67,
+          "total_seconds_min": 196.67,
+          "total_seconds_max": 196.67,
+          "evidence_ms_mean": 0.0,
+          "doc_ms_mean": 0.0,
+          "orchestrator_ms_mean": 196667.7,
+          "n_tool_calls_mean": 0.0,
+          "orchestrator_share": 1.0
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": false,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_evidence_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 196.668,
+        "active_seconds": 196.668,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "trace_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 196667.7,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Sorry, need more steps to process this request."
+    },
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": false,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_evidence_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 33.458,
+        "active_seconds": 33.458,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "trace_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 33457.8,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "It seems there was an issue with the `query_trace` function call due to a missing `trace_id`. Let's proceed by first obtaining the correct `trace_id` from the incident description, and then we will use it to gather more detailed information about the instance.\n\nCould you please provide the `trace_id..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": false,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": false,
+        "appropriate_depth": false,
+        "n_evidence_calls": 0,
+        "n_doc_calls": 0,
+        "total_calls": 0,
+        "trace_score": 0,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 27.676,
+        "active_seconds": 27.676,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 0,
+        "trace_ms_total": 0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 27675.5,
+        "n_tool_calls": 0,
+        "mean_ms_per_tool_call": 0.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "It seems there was an issue with the `instance_id` provided. Could you please ensure that the `instance_id` is correctly formatted and try again? If you have the correct `trace_id`, please provide it, or I can assist further by generating a hypothetical trace to illustrate the diagnostic process.\n \n..."
+    }
+  ]
+}

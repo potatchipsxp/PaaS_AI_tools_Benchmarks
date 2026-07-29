@@ -970,3 +970,45 @@ deliberately given the Edge tier's near-total tool-calling failure here — wort
 committing to a full expensive run, not necessarily worth avoiding, since a real failure rate is
 itself the kind of finding this benchmark exists to produce, same reasoning as Track A's Edge-tier
 timing finding).
+
+### Docstring-only fix for the Edge tier's `query_trace` failure — retested, did not resolve it (this session)
+
+**Context**: given the Edge tier's zero successful `query_trace` calls above, three options were
+weighed for whether/how to help it: leave as-is (treat the failure itself as the finding), a
+docstring-only tweak (add an explicit worked example showing the `instance_id` string embedded in a
+sample question, e.g. `query_trace("C4113E01C484F2EB")` for a question containing
+`"instance C4113E01C484F2EB"`), or a more substantive fix. Per explicit user choice, applied the
+docstring-only tweak to the tool wrapper in `track_b/diagnostic_agent.py` — no change to
+`SYSTEM_PROMPT`, `query_trace.py`'s logic, temperature, model, or backend.
+
+A follow-up question was raised about whether to go further and restore something like Track A's
+two-layer structure (orchestrator delegates precise work to a sub-step) by adding a deterministic
+regex-based `instance_id`-extraction shim in front of `query_trace`, so the orchestrator could pass
+free text instead of an exact ID. Concluded this would be a mistake: Track A's SQL sub-agent does
+real query synthesis, not just ID extraction, so a bare extraction shim wouldn't actually recreate
+that structure — it would just quietly narrow what Track B measures, from "can this model operate
+this tool" down to "can this model reason over trace text once someone else calls the tool for it."
+That's a different, easier question, and building a shim specifically to neutralize the one failure
+mode already observed is exactly the kind of engineering-away-a-finding the project has repeatedly
+rejected. Decision: docstring-only tweak stays as the ceiling; no extraction shim.
+
+**Retest result: the fix did not work.** Reran the same 3 cases (TB-018, TB-011, TB-021), Edge tier
+only (`Llama-3.3-70B-Instruct-Turbo` paused per explicit user request this session; `gpt-5.4` still
+quota-blocked). `query_trace` was attempted **zero times** in the new run's `tool_call_trace` — identical
+to the pre-fix baseline. The model's own text still narrates confusion about the ID
+(`"there was an issue with the query_trace function call"`, `"Could you please double-check and
+provide the exact instance_id..."`) without ever actually issuing the tool call, exactly as before.
+Pre-fix and post-fix baselines both preserved for comparison:
+`Results/sanity_check/*.PREDOCSTRINGFIX.json` (pre-fix) vs. the unsuffixed files (post-fix).
+
+Aggregate scores shifted slightly (avg trace score 0.00/5 → 1.00/5; answer quality miss=2 →
+miss=1/partial=1) only because the post-fix run happened to also call `query_docs` in 2/3 cases and,
+for TB-021 (a Tier 0 normal-control case), fabricated a confident "no fault" diagnosis
+("no elevated latencies or exceptions reported... operating within normal parameters") despite
+explicitly having no trace data — that fabricated answer happened to match the Tier 0 ground truth by
+coincidence, not because of genuine evidence-based reasoning. **This is not a real improvement**: the
+one thing the fix targeted (getting the model to call `query_trace` with the ID already in the
+question) still has a 0% success rate across both runs. Documenting this as a negative result rather
+than as progress — the honest reading is that this Edge-tier model, at minimum in this configuration,
+cannot reliably call a tool requiring one exact structured-string argument, and no dataset-agnostic
+prompt/docstring nudge tried so far changes that.
