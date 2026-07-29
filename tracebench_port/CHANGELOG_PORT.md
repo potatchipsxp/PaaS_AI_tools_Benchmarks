@@ -861,3 +861,60 @@ runs from the same session.
 **Exit check: MET, and this is the clearest evidence yet that the project's two-layer scoring design
 (deterministic + frozen LLM judge) is load-bearing, not redundant** — the deterministic layer alone
 would have silently certified a fabricated diagnosis as fully correct.
+
+### First full 27-case benchmark — Track A, all 3 models (this session)
+
+**Scope, per explicit user direction:** Track A only (Track B deliberately deferred — a sanity
+check was started, hit an import-path bug in the throwaway test script itself, not in Track B code,
+but was stopped mid-run once the user clarified scope rather than continuing). All 27 cases, all 3
+models already validated in the small sanity check: `gpt-5.4`/`openai`,
+`meta-llama/Llama-3.3-70B-Instruct-Turbo`/`deepinfra`, and the local "Edge" tier
+(`qwen2.5:latest`+`llama3.2` via Ollama, config taken from `Archive/Edge_benchmark/`). All three run
+concurrently as separate background processes, since they hit independent backends (OpenAI,
+DeepInfra, local Ollama) with no shared bottleneck to serialize around.
+
+**Results, all scored with `evaluate_trace.py`:**
+
+| | `gpt-5.4` | `Llama-3.3-70B-Instruct-Turbo` | Edge (`qwen2.5`+`llama3.2`) |
+|---|---|---|---|
+| full_credit / partial / miss / error | 27 / 0 / 0 / 0 (100%) | 16 / 2 / 2 / 7 (59%) | 13 / 6 / 8 / 0 (48%) |
+| Localization hit rate (of localizable) | 12/20 (60%) | 0/13 (0%) | 0/20 (0%) |
+| Avg trace score | 4.37/5 | 3.56/5 | 3.89/5 |
+| Avg retrieval recall / precision | 0.667 / 0.312 | 0.481 / 0.255 | 0.556 / 0.322 |
+| Mean time/case | 41.1s | 440.4s | 661.0s |
+| Max time/case | 104.7s | 2121.8s (35.4 min) | **9760.4s (2.7 hours)** |
+
+**`gpt-5.4`**: clean sweep on every axis — never errored, fastest by nearly an order of magnitude,
+best localization. The 40% localization miss rate despite 100% keyword `full_credit` is itself worth
+holding onto: the deterministic answer-quality metric alone would call this a flawless run, but the
+model still named the wrong (or no) specific datanode on 8 of 20 localizable cases.
+
+**`Llama-3.3-70B-Instruct-Turbo`**: the malformed-tool-call failure from the sanity check (1/3
+cases) recurred at almost the same rate at full scale — **7/27 (26%) hard failures**, not a small-
+sample fluke. Localization hit rate dropped to a flat 0%. Timing is both slower on average and far
+more erratic than `gpt-5.4` (two cases exceeded 35 minutes).
+
+**Edge tier**: zero hard failures (unlike Turbo, it never gave up outright) but the *weakest*
+keyword-match accuracy of the three (48%) and localization also flat 0%. The timing story is the
+most dramatic finding of the whole port so far: **TB-022 (a Tier 0 normal control) took 9,760
+seconds — 2 hours 43 minutes — for one case**, against a 296s median. Per the user's explicit
+framing when the fabrication finding first came up: this is not a defect to explain away — cleanly
+demonstrating this exact capability/cost tradeoff (a free, local, small model working but taking a
+wildly unpredictable and sometimes enormous amount of time) is what the benchmark is for.
+
+**Reading across all three**: this is not a clean monotonic frontier > mid > edge ordering on every
+axis at once — `Llama-3.3-70B-Instruct-Turbo` beats the Edge tier on keyword accuracy (59% vs. 48%)
+but loses to it on reliability (26% hard failures vs. 0%) and loses to it on typical-case speed
+variance-adjusted (though not on raw mean, which favors neither strongly given Turbo's own extreme
+outliers). `gpt-5.4` alone dominates every axis simultaneously. Worth stating plainly rather than
+smoothing over: the "tier ordering holds" question the top-level spec cares about is more nuanced
+than a single scalar ranking once reliability and localization are considered alongside keyword
+accuracy — exactly the kind of finding a multi-dimensional scoring design (deterministic + judge +
+localization + timing) is built to surface instead of hide.
+
+**Not yet done**: the LLM judge prompt has still never been run for real (needs a human/chat-UI
+session, not something this session can execute); Track B (any model); the interpretation-grid
+rewrite from the Track B redesign session, which still applies once Track B exists.
+
+**Exit check: MET.** All 81 diagnose() calls (3 models × 27 cases) completed and scored; results and
+eval reports committed as real evidentiary artifacts, not throwaway output.
