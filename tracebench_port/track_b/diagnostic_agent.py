@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-diagnostic_agent.py  (Track B -- trace-native, deterministic retrieval)
+diagnostic_agent.py  (Track B -- trace-native retrieval)
 
 Orchestrating diagnostic agent for the TraceBench Track B arm of the port.
 Forked from tracebench_port/diagnostic_agent.py (Track A / PaaS). The rate
@@ -8,15 +8,30 @@ limit handling, LLM builder, tool-call tracing, diagnose()/save_results(),
 and smoke-test harness below are UNCHANGED from that file -- copy, not
 rewrite. What's genuinely different, and why:
 
-  query_logs (an LLM SQL sub-agent) -> query_trace (deterministic Python,
-  see query_trace.py). This is the sanctioned, discussed-and-agreed
-  redesign: Track B trades "identical tool interface to Track A" for
-  "no second model's SQL competence confounding the result" -- retrieval
-  for this track has no LLM in the loop at all, so there is no SQL_MODEL /
-  SQL_BACKEND / SQL_DB_URI / SQL_INCLUDE_TABLES / SQL_SCHEMA_DESCRIPTION
-  config block here. Only the orchestrator model and the doc-agent model
-  are in play for Track B -- a real, documented difference in what a
-  "tier" means for this track vs. Track A/PaaS (see CHANGELOG_PORT.md).
+  query_logs (an LLM SQL sub-agent) -> query_trace (an LLM trace sub-agent,
+  see trace_agent.py). REVISED this session (see CHANGELOG_PORT.md,
+  "Track B: replacing the deterministic-only query_trace with a trace
+  sub-agent"): the original design here was fully deterministic Python,
+  no LLM in retrieval at all. That was a real, useful configuration, but
+  it was never actually the point of Track B -- the point is testing
+  models against the *native trace data format* instead of SQL, not
+  testing them with *zero retrieval assistance*. An empirical finding this
+  session (a forced-injection probe -- handing the Edge tier a real trace
+  directly, bypassing tool-calling) showed the all-deterministic design
+  was compounding two separate problems: the orchestrator couldn't call a
+  strict single-argument tool AND, separately, weak models struggled to
+  find the one decisive line in an undifferentiated full-trace dump with
+  no query-time filtering -- exactly the kind of scoping a SQL WHERE
+  clause gives Track A's orchestrator for free. trace_agent.py restores
+  that scoping step (natural-language question in, targeted evidence out)
+  while keeping the underlying retrieval 100% within native trace data --
+  no SQL, no cross-trace queries, query_trace.py's deterministic
+  reconstruction logic itself is completely unchanged. So Track B now has
+  a TRACE_MODEL / TRACE_BACKEND config block, structurally parallel to
+  Track A's SQL_MODEL / SQL_BACKEND -- restoring the same three-role
+  shape (orchestrator / evidence sub-agent / doc sub-agent) both tracks
+  now share, with "native trace format vs. flattened SQL" as the one
+  clean variable that actually differs between them.
 
 The doc agent is UNCHANGED in mechanism (same doc_agent.py, same
 build_doc_index retrieve_docs), but points at the shared trace doc corpus
@@ -46,7 +61,14 @@ import sys
 sys.path.insert(0, "..")
 from doc_agent import query as doc_query  # noqa: E402
 
-from query_trace import query_trace as _query_trace_impl
+from trace_agent import build_agent as build_trace_agent
+from trace_agent import query as trace_query
+
+
+def _trace_extract(result):
+    """Pull the final text answer out of a trace agent invocation result."""
+    messages = result.get("messages", [])
+    return messages[-1].content if messages else str(result)
 
 
 # ============================================================================
@@ -118,8 +140,13 @@ DIAGNOSTIC_TEMP     = 0.0
 DIAGNOSTIC_BASE_URL = "http://localhost:11434/v1"   # ignored for API backends
 DIAGNOSTIC_API_KEY  = "ollama"                      # ignored for API backends
 
-# --- Retrieval: query_trace is deterministic Python, not an LLM sub-agent ---
-# (No SQL_MODEL/SQL_BACKEND/etc block here -- see module docstring.)
+# --- Trace agent (evidence sub-agent, parallels Track A's SQL_MODEL block) ---
+TRACE_MODEL         = "gpt-5.4"
+TRACE_BACKEND       = "openai"      # "qwen", "ollama", "groq", "deepinfra", or "openai"
+TRACE_TEMP          = 0.0
+TRACE_BASE_URL      = "http://localhost:11434/v1"   # ignored for API backends
+TRACE_API_KEY       = "ollama"                      # ignored for API backends
+TRACE_MAX_ITER      = 8
 
 # --- Documentation agent ---
 DOC_MODEL           = "gpt-5.4"
@@ -146,6 +173,7 @@ def _sanitize_model_name(name):
 OUTPUT_FILE = (
     f"diagnostic_results"
     f"__diag-{_sanitize_model_name(DIAGNOSTIC_MODEL)}"
+    f"__trace-{_sanitize_model_name(TRACE_MODEL)}"
     f"__doc-{_sanitize_model_name(DOC_MODEL)}"
     f"__track-Bnative.json"
 )
@@ -225,6 +253,12 @@ def _make_trace():
 # ============================================================================
 
 def build_tools(
+    trace_model=TRACE_MODEL,
+    trace_backend=TRACE_BACKEND,
+    trace_temp=TRACE_TEMP,
+    trace_base_url=TRACE_BASE_URL,
+    trace_api_key=TRACE_API_KEY,
+    trace_max_iter=TRACE_MAX_ITER,
     doc_model=DOC_MODEL,
     doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
@@ -239,13 +273,24 @@ def build_tools(
     """
     trace, record = _make_trace()
 
+    # Build the trace sub-agent -- trace_agent.build_agent, imported above as
+    # build_trace_agent. Mirrors Track A's SQL sub-agent construction exactly
+    # (build once per config, reused across every query_trace call).
+    trace_agent_instance, _ = build_trace_agent(
+        llm_model=trace_model,
+        backend=trace_backend,
+        llm_temp=trace_temp,
+        llm_base_url=trace_base_url,
+        max_iterations=trace_max_iter,
+        verbose=False,
+    )
+    trace_extract = _trace_extract
+
     @tool
-    def query_trace(trace_id: str) -> str:
+    def query_trace(question: str) -> str:
         """
-        Reconstruct the full HDFS request trace for a specific instance:
-        a per-host timeline of operations (with durations and any real
-        exception text) plus the cross-host call structure. Use this tool
-        when you need to:
+        Query the trace sub-agent to find evidence about a specific
+        instance's HDFS request. Use this tool when you need to:
           - See the sequence and timing of operations for a specific instance
           - Find exception/error text for a specific instance
           - Identify which host(s) show unusually high latency relative to
@@ -253,21 +298,24 @@ def build_tools(
           - See how operations on different hosts relate to each other
             (which RPC triggered which downstream operation)
 
-        Input: the instance_id (trace/request identifier). It is ALREADY
-        present in the question you were asked -- look for text like
-        "instance C4113E01C484F2EB" or "(instance 03FB08C229C2844D)" and
-        copy that exact string as the argument. Never ask the operator to
-        provide it again; it has already been given to you.
-        Output: a formatted per-host timeline and call-structure summary.
+        Input: a natural language question about a specific instance
+        (include the instance_id from the incident description).
+        Output: a text answer grounded in that instance's actual trace data.
 
         Examples:
-          Question mentions "instance C4113E01C484F2EB" -> query_trace("C4113E01C484F2EB")
-          Question mentions "instance 03FB08C229C2844D" -> query_trace("03FB08C229C2844D")
+          "What does the trace for instance C4113E01C484F2EB show about datanode latency?"
+          "Is there an exception in the trace for instance 03FB08C229C2844D?"
         """
         t0 = time.perf_counter()
-        answer = _query_trace_impl(trace_id)
+        result = trace_query(
+            question=question,
+            agent=trace_agent_instance,
+            error_threshold=2,
+            verbose=False,
+        )
+        answer = result["answer"]
         duration_ms = (time.perf_counter() - t0) * 1000
-        record("query_trace", {"trace_id": trace_id}, answer, duration_ms)
+        record("query_trace", {"question": question}, answer, duration_ms)
         return answer
 
     @tool
@@ -312,33 +360,37 @@ def build_tools(
 # ============================================================================
 # SYSTEM PROMPT
 #
-# Necessarily different from Track A/PaaS's prompt -- it describes a
-# genuinely different tool (query_trace, not query_logs). Structure/rules
-# mirror the original closely; only the tool description and terminology
-# (HDFS platform, not Cloud Foundry) change. This is the ONE prompt
-# deviation the Track B redesign requires -- see CHANGELOG_PORT.md.
+# Necessarily different from Track A/PaaS's prompt in terminology (HDFS
+# platform, not Cloud Foundry). As of this session's redesign, query_trace's
+# calling convention now mirrors query_logs's exactly -- a natural language
+# question in, not an exact instance_id -- so the "look for text like
+# 'instance X' and copy it" instructions that used to live here (when
+# query_trace took a raw instance_id) have moved into trace_agent.py's own
+# system prompt, the same way SQL-writing instructions live in sql_agent.py,
+# not here. This is the ONE prompt deviation the Track B redesign requires
+# -- see CHANGELOG_PORT.md.
 # ============================================================================
 
 SYSTEM_PROMPT = """You are an expert distributed-systems reliability engineer
 diagnosing incidents on an HDFS (Hadoop Distributed File System) cluster.
 
 You have two tools:
-  query_trace — reconstruct the full timeline and call structure for a
-                specific instance (request/trace)
+  query_trace — search for trace evidence about a specific instance
+                (request/trace): timeline, timing, exceptions, call structure
   query_docs  — search HDFS fault documentation for operational knowledge
 
 ## Diagnostic approach
 
 1. Read the incident description carefully. Identify the symptoms and the
    instance_id named.
-2. Use query_trace with that instance_id to see the actual timeline: which
-   host(s) are involved, any exception text, and any latency-outlier
-   annotation.
+2. Use query_trace with a question about that instance to see the actual
+   evidence: which host(s) are involved, any exception text, and any
+   latency-outlier annotation.
 3. Use query_docs to understand what the observed pattern means and what
    the root cause category is.
 4. If the first round of evidence is ambiguous, do a second round:
-   query_trace again if there's a related instance to check, then query_docs
-   for confirmation.
+   query_trace again with a more specific question, then query_docs for
+   confirmation.
 5. Synthesise a final diagnosis that states:
    - The root cause (specific and technical, not vague)
    - The key trace evidence that supports the diagnosis (host, operation,
@@ -371,6 +423,12 @@ def build_diagnostic_agent(
     diagnostic_temp=DIAGNOSTIC_TEMP,
     diagnostic_base_url=DIAGNOSTIC_BASE_URL,
     diagnostic_api_key=DIAGNOSTIC_API_KEY,
+    trace_model=TRACE_MODEL,
+    trace_backend=TRACE_BACKEND,
+    trace_temp=TRACE_TEMP,
+    trace_base_url=TRACE_BASE_URL,
+    trace_api_key=TRACE_API_KEY,
+    trace_max_iter=TRACE_MAX_ITER,
     doc_model=DOC_MODEL,
     doc_backend=DOC_BACKEND,
     doc_n_results=DOC_N_RESULTS,
@@ -395,6 +453,12 @@ def build_diagnostic_agent(
     )
 
     tools, trace = build_tools(
+        trace_model=trace_model,
+        trace_backend=trace_backend,
+        trace_temp=trace_temp,
+        trace_base_url=trace_base_url,
+        trace_api_key=trace_api_key,
+        trace_max_iter=trace_max_iter,
         doc_model=doc_model,
         doc_backend=doc_backend,
         doc_n_results=doc_n_results,
@@ -442,8 +506,9 @@ def build_diagnostic_agent(
 
 
 # ============================================================================
-# DIAGNOSE -- identical to Track A / PaaS except model_config has no sql_*
-# fields (there is no SQL sub-agent model for Track B).
+# DIAGNOSE -- identical to Track A / PaaS; model_config now has trace_*
+# fields in place of sql_* (the trace sub-agent is Track B's evidence
+# sub-agent, parallel to Track A's SQL sub-agent -- see module docstring).
 # ============================================================================
 
 def diagnose(
@@ -556,6 +621,8 @@ def diagnose(
             "track":              "B_native",
             "diagnostic_model":   DIAGNOSTIC_MODEL,
             "diagnostic_backend": DIAGNOSTIC_BACKEND,
+            "trace_model":        TRACE_MODEL,
+            "trace_backend":      TRACE_BACKEND,
             "doc_model":          DOC_MODEL,
             "doc_backend":        DOC_BACKEND,
         },
@@ -582,6 +649,7 @@ if __name__ == "__main__":
     print("=" * 70)
     print()
     print(f"Diagnostic model : {DIAGNOSTIC_MODEL} ({DIAGNOSTIC_BACKEND})")
+    print(f"Trace model      : {TRACE_MODEL} ({TRACE_BACKEND})")
     print(f"Doc model        : {DOC_MODEL} ({DOC_BACKEND})")
     print(f"Doc collection   : {DOC_COLLECTION} @ {DOC_DB_PATH}")
     print()

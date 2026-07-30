@@ -1012,3 +1012,94 @@ question) still has a 0% success rate across both runs. Documenting this as a ne
 than as progress — the honest reading is that this Edge-tier model, at minimum in this configuration,
 cannot reliably call a tool requiring one exact structured-string argument, and no dataset-agnostic
 prompt/docstring nudge tried so far changes that.
+
+### Diagnostic probe: forced trace injection, isolating tool-calling failure from comprehension (this session)
+
+**Question**: the Edge tier has never once successfully called `query_trace` (0/3 across two runs). We
+have zero evidence about whether it can reason over trace data well, because it's never actually
+received any. Is the total failure purely a tool-calling-convention problem, or does the model also
+fail to understand trace-shaped data once it has it?
+
+**Method**: a one-off diagnostic script (NOT part of the harness, evaluator, or official results) that
+directly calls `query_trace()` for each of the 3 sanity cases (bypassing the LLM's tool-calling step
+entirely), then injects a synthetic `AIMessage` (tool call) + `ToolMessage` (real trace result) pair
+into the conversation before invoking the same Edge-tier agent — i.e. simulates a *successful*
+`query_trace` call and lets the model take over from exactly that point, same model/prompt/tools/temp
+as the real harness.
+
+**Result**: the total failure was mostly a tool-calling problem, not a comprehension problem. Handed
+real trace data directly, the model engaged substantively in all 3 cases: TB-021 (Tier 0) correctly
+concluded "no fault," citing real checksum/latency evidence; TB-018 (slow DataNode) named the correct
+host (`datanode046`) but diffusely, without explicitly making the peer-comparison that makes it the
+answer; TB-011 (dead DataNode / connection-refused) missed entirely — the trace contains a literal
+`[ERROR]`-flagged line with the exact exception text, and the model ignored it in favor of an unrelated
+large duration number, building an entire "network latency" narrative around that instead. This
+revealed a third, distinct finding on top of the tool-calling failure: **needle-in-haystack weakness**
+-- the model can reason over trace-shaped text in the aggregate, but struggles to find the single
+decisive line in a long (4,400-11,300 char), undifferentiated per-host dump when nothing pre-filters
+it for relevance -- exactly the scoping work a SQL `WHERE` clause does for Track A's orchestrator for
+free. Full probe output: `track_b/Results/sanity_check/probe_forced_trace_edge.json`.
+
+### Track B: replacing the deterministic-only `query_trace` with a trace sub-agent (this session)
+
+**Context and correction**: the original Track B redesign (see above, "Track B redesign — deterministic
+query_trace, own subfolder") built `query_trace` as fully deterministic Python with zero LLM involved in
+retrieval, on the stated principle "no second model's competence confounding the result." Following
+the forced-injection probe above, the user corrected the framing of what Track B is actually for: **the
+point was never to test a purely deterministic solution — it's to test how well this task can be
+handled by models when the data is in its native trace format instead of flattened into SQL.**
+An appropriately-scoped LLM agent operating purely on native trace data (no SQL, no cross-trace
+queries, no fault labels) is squarely within that scope. The all-deterministic design was one
+implementation choice, not the defining constraint, and it was compounding two separate problems
+(tool-calling-convention failure + needle-in-haystack retrieval) into one result with no way to tell
+them apart.
+
+**Change**: new `track_b/trace_agent.py`, structurally parallel to `sql_agent.py` — a `create_react_agent`
+ReAct loop with ONE tool (`get_trace(instance_id)`, wrapping `query_trace.py`'s unmodified deterministic
+reconstruction), a system prompt instructing it to extract the instance_id from a natural-language
+question and answer using only trace evidence, and the same tiered recovery-instruction escalation
+pattern `sql_agent.py` uses on repeated failures. `track_b/diagnostic_agent.py`'s orchestrator-facing
+`query_trace` tool now takes a free-text `question` (matching `query_logs`'s signature in Track A)
+instead of an exact `trace_id` — the ID-extraction and evidence-filtering work that used to be nobody's
+job (Track B) or a second LLM's job (Track A's SQL agent) is now symmetrically a second LLM's job on
+both tracks. Track B gained a `TRACE_MODEL`/`TRACE_BACKEND`/etc CONFIG block, structurally parallel to
+Track A's `SQL_MODEL`/`SQL_BACKEND` block, restoring the same three-role shape (orchestrator / evidence
+sub-agent / doc sub-agent) on both tracks. `evaluate_trace.py` needed no changes — it identifies the
+Track B evidence tool by name (`"query_trace"`), not by argument signature.
+
+**Retest result — Edge tier, same 3 sanity cases, diagnostic AND trace roles both `qwen2.5:latest`:**
+
+- **Tool-calling failure (Finding #1): fully resolved.** `query_trace` succeeded 3/3, up from 0/3
+  across every prior run (original deterministic design, and the docstring-fix retest). The
+  free-text calling convention removes the exact-string-extraction burden from the orchestrator
+  entirely, exactly as intended.
+- **Diagnostic quality: did not clearly improve, and revealed a new failure mode.** Automated scoring:
+  trace score 5.00/5 (up from 0.00–1.00/5), answer-quality full_credit 2/3 (up from 0-1/3) — but these
+  aggregate numbers overstate the improvement, because the keyword-based answer scorer matches on fault
+  *category* words ("slow", "datanode", "connection refused"), not on which specific host was named.
+  Looking at the actual diagnoses: **localization hit rate was 0/2 on the real-fault cases** — TB-018
+  named `datanode028` (ground truth: `datanode046`); TB-011 correctly surfaced the real
+  `ConnectException: Connection refused` exception text (a genuine win — the forced-injection probe's
+  raw-text version missed this entirely) but attributed it to `datanode040` (ground truth:
+  `datanode001`). Worse: **TB-021 (Tier 0, no-fault control) fabricated a specific fault** — "a forced
+  read-only state on `datanode027`" — built from ordinary within-normal-range latency figures, where
+  the correct answer is "no fault." This is a regression from the forced-injection probe, which
+  correctly concluded "no fault" on this same case when handed the raw trace directly.
+- **Cost: roughly 3x slower.** Mean wall-clock per case rose from ~101s (pre-redesign, docstring-fix
+  version) to ~298s (median 340s, up to 362s) — unsurprising, since there are now two independent
+  `qwen2.5:latest` ReAct loops running per case (orchestrator + trace sub-agent) instead of one.
+
+**Reading this honestly**: routing retrieval through a second same-capability-tier LLM sub-agent fixed
+the problem it targeted (tool-calling reliability) but did not fix, and may have partially relocated,
+the needle-in-haystack problem the forced-injection probe surfaced — the trace sub-agent is itself
+qwen2.5:latest, so it is just as capable of misattributing evidence to the wrong host, or manufacturing
+a plausible-sounding fault narrative on a clean trace, as the orchestrator would have been. Compounding
+two qwen2.5:latest calls in sequence, each with room to introduce its own error, appears to trade one
+visible failure mode (won't call the tool) for a less visible one (calls the tool, gets a
+confidently-wrong or fabricated answer from the sub-agent, and the orchestrator has no way to check it
+independently since it never sees the raw trace at all anymore). This is a genuinely useful, honest
+result for the triangulation — not a clean win, and worth carrying forward as-is rather than declaring
+victory on the strength of the aggregate scores alone. n=3 is too small to treat any of this as
+established; worth revisiting at the full 27-case scale before drawing firm conclusions.
+
+Pre-redesign baseline preserved for comparison: `Results/sanity_check/*.PRETRACEAGENT.json`.

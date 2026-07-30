@@ -2,12 +2,22 @@
 """
 query_trace.py
 
-The Track B tool: query_trace(trace_id) -> str. Deterministic, no LLM
-involved -- reconstructs one trace's per-host timeline plus its Edge
-call-structure, annotated with the SAME peer-latency-outlier signal Track A
-gets "for free" via its `level=WARN` column (reusing select_cases.py's own
-outlier-detection functions, not a new heuristic), so neither track is
-handed more pre-digested evidence than the other.
+The deterministic core of Track B's evidence retrieval: query_trace(trace_id)
+-> str. No LLM involved in THIS function -- reconstructs one trace's
+per-host timeline plus its Edge call-structure, annotated with the SAME
+peer-latency-outlier signal Track A gets "for free" via its `level=WARN`
+column (reusing select_cases.py's own outlier-detection functions, not a
+new heuristic), so neither track is handed more pre-digested evidence than
+the other.
+
+REVISED (this session, see CHANGELOG_PORT.md): this function is no longer
+bound directly to the orchestrator as a tool. It's now called internally by
+trace_agent.py's get_trace tool, which adds an LLM layer around this
+unchanged deterministic core -- extracting the instance_id from a natural-
+language question and filtering this function's full output down to what's
+actually relevant, mirroring how sql_agent.py sits between the orchestrator
+and raw SQL execution in Track A. The reconstruction logic below (what
+"the tool" mechanically computes) has not changed at all.
 
 Reads track_b/data/tracebench_raw_scoped.sqlite (raw, unmodified, scoped to
 the 27 cases' trace_sets -- see build_track_b_data.py) plus the precomputed
