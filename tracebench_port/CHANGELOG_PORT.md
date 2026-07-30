@@ -1103,3 +1103,71 @@ victory on the strength of the aggregate scores alone. n=3 is too small to treat
 established; worth revisiting at the full 27-case scale before drawing firm conclusions.
 
 Pre-redesign baseline preserved for comparison: `Results/sanity_check/*.PRETRACEAGENT.json`.
+
+### Full 27-case comparison, both retrieval modes, Edge tier (this session)
+
+The n=3 sample above was explicitly flagged as too small to trust. Ran the full 27-case sweep for both
+`RETRIEVAL_MODE` values (`deterministic` and `agent`) added to `track_b/diagnostic_agent.py` this
+session, same Edge tier (`qwen2.5:latest` diagnostic + trace roles, `llama3.2` doc role), sequentially
+(not concurrent, same local Ollama server). Also found and fixed, along the way, a real pre-existing
+bug: `diagnose()` in both Track A's and Track B's `diagnostic_agent.py` was writing the *module-level*
+CONFIG constants into each result's `model_config` field instead of the config actually passed to
+`build_diagnostic_agent()` — every non-default run in this project so far (every Edge-tier and Turbo-tier
+result file in both tracks, including the completed Track A 27-case sweep) has a `model_config` field
+that silently claims `gpt-5.4`/`openai` regardless of which model actually ran. The `diagnosis` /
+`tool_call_trace` / `timing` fields are unaffected (real runtime data); only this provenance field was
+wrong, and only recoverable via filename. Fixed by stashing the real runtime config on the `agent`
+object (same pattern already used for `_max_iterations`), which `diagnose()` now reads instead.
+
+Results: `track_b/Results/full_sweep/full__edge-qwen25-llama32__mode-{deterministic,agent}__track-Bnative.json`,
+scored to `eval__edge-{deterministic,agent}.json`.
+
+| Metric | Deterministic (n=27) | Agent (n=27) |
+|---|---|---|
+| `query_trace` ever succeeded | 0/27 (0%) | 27/27 cases (36 total successful calls) |
+| Localization hit rate (of 20 localizable cases) | 0/20 (0%) | 7/20 (35%) |
+| Answer quality: full_credit / partial / miss | 52% / 11% / 37% | 56% / 22% / 22% |
+| Reasoning trace score (avg/5) | 0.96 | 3.37 |
+| Tier 0 (no-fault control) full_credit | 0/7 | 0/7 |
+| Wall-clock: mean / median | 106.5s / 119.3s | 363.1s / 262.3s |
+
+**Correction to the n=3 read above**: at full scale, the trace-agent redesign shows a real,
+substantial localization improvement (0% → 35% hit rate) — the n=3 sample's "no clear win" conclusion
+does not hold up. All 7 localization hits landed in Tier 3 (12 cases); Tier 1 (5 cases) and Tier 2
+(3 cases) still show zero hits even in agent mode — the improvement is real but concentrated in the
+apparently-easier tier, not evenly distributed. This is exactly the kind of thing a 3-case sample
+cannot detect and a 27-case sweep can — worth remembering next time a small sanity sample seems to
+show a clean or muddy result either way.
+
+**The keyword-scoring insufficiency the user flagged is confirmed by this data.** Answer-quality
+full_credit rates look nearly identical between modes (52% vs 56%) — if that were the only metric
+reported, the two modes would look roughly equivalent. Localization tells a completely different story
+(0% vs 35%). The keyword scorer credits *fault-category* language ("slow", "datanode", "connection
+refused") without checking *which* datanode — deterministic mode can and does earn full_credit while
+being systematically wrong about the actual affected host, every single time (0/20 correct
+localizations, 52% full_credit). This is direct, quantified evidence that keyword-based answer scoring
+alone overstates diagnostic quality and that localization scoring (or, pending validation, LLM-judge
+scoring) is necessary to see the real picture. Worth explicitly checking, when the LLM judge is
+eventually run for real, whether it independently reaches "agent mode meaningfully better" or gets
+fooled by the same category-level surface similarity the keyword scorer does — if the judge also misses
+this, that's a real, reportable weakness in the judge rubric itself, not just in keyword scoring.
+
+**Shared weakness, not fixed by the redesign**: both modes score 0/7 full_credit on Tier 0 (no-fault
+control) cases. This contradicts the earlier n=3-based read that agent mode uniquely fabricated a fault
+on the one no-fault case sampled (TB-021) — at full scale, deterministic mode does equally poorly on
+all 7 no-fault cases (6 miss + 1 partial), just via a different mechanism (non-answers from failed tool
+calls, rather than confident fabrication). Neither design handles "confirm nothing is wrong" well;
+this is a real, shared Edge-tier limitation independent of the retrieval-mode change.
+
+**New reliability finding, agent mode only**: TB-025 took 3091 seconds (51.5 minutes) — the orchestrator
+called `query_trace` with the *exact same question* 8 times in a row, each individual sub-agent
+invocation taking 285–420 seconds, with no loop detection or self-awareness that it had already asked.
+One other case (TB-023) showed a milder version (2 calls, same question). Rare (2/27) but real -- worth
+tracking if it recurs on Turbo/gpt-5.4, since it represents a genuinely new failure mode the
+deterministic design structurally cannot exhibit (it has no sub-agent loop to get stuck in).
+
+**Overall reading**: the trace-agent redesign is a genuine, scale-validated improvement over the
+deterministic-only design on the dimension it targeted (retrieval succeeding at all, and downstream
+localization accuracy), at a real and now-quantified cost (roughly 2-3x wall-clock time, plus a new
+rare-but-severe stuck-loop failure mode). Not a clean, unambiguous win -- but a clearly positive
+tradeoff on the evidence gathered so far, which the n=3 sample was not able to establish either way.

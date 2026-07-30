@@ -1,0 +1,1927 @@
+{
+  "evaluated_at": "2026-07-30T23:34:54.640000Z",
+  "tracks": [
+    "B_native"
+  ],
+  "n_cases": 27,
+  "summary": {
+    "answer": {
+      "full_credit": 15,
+      "partial": 6,
+      "miss": 6,
+      "error": 0
+    },
+    "localization": {
+      "hit": 7,
+      "miss": 13,
+      "n/a": 7,
+      "hit_rate_of_localizable": 0.35
+    },
+    "retrieval": {
+      "avg_recall": 0.333,
+      "avg_precision": 0.217
+    },
+    "trace": {
+      "avg_score": 3.37,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 27,
+        "total_seconds_mean": 363.09,
+        "total_seconds_med": 262.3,
+        "total_seconds_p95": 482.44,
+        "total_seconds_min": 89.99,
+        "total_seconds_max": 3090.96,
+        "evidence_ms_mean": 261017.4,
+        "doc_ms_mean": 10188.2,
+        "orchestrator_ms_mean": 91881.8,
+        "n_tool_calls_mean": 1.78,
+        "orchestrator_share": 0.253
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 7,
+          "total_seconds_mean": 624.06,
+          "total_seconds_med": 178.55,
+          "total_seconds_p95": 2308.33,
+          "total_seconds_min": 89.99,
+          "total_seconds_max": 3090.96,
+          "evidence_ms_mean": 537224.5,
+          "doc_ms_mean": 5331.4,
+          "orchestrator_ms_mean": 81505.8,
+          "n_tool_calls_mean": 2.43,
+          "orchestrator_share": 0.131
+        },
+        "tier_1": {
+          "n": 5,
+          "total_seconds_mean": 254.49,
+          "total_seconds_med": 269.64,
+          "total_seconds_p95": 314.53,
+          "total_seconds_min": 154.75,
+          "total_seconds_max": 316.49,
+          "evidence_ms_mean": 153340.8,
+          "doc_ms_mean": 12706.5,
+          "orchestrator_ms_mean": 88439.3,
+          "n_tool_calls_mean": 1.6,
+          "orchestrator_share": 0.348
+        },
+        "tier_2": {
+          "n": 3,
+          "total_seconds_mean": 345.69,
+          "total_seconds_med": 277.27,
+          "total_seconds_p95": 462.02,
+          "total_seconds_min": 277.25,
+          "total_seconds_max": 482.54,
+          "evidence_ms_mean": 209419.4,
+          "doc_ms_mean": 18845.0,
+          "orchestrator_ms_mean": 117423.9,
+          "n_tool_calls_mean": 1.67,
+          "orchestrator_share": 0.34
+        },
+        "tier_3": {
+          "n": 12,
+          "total_seconds_mean": 260.45,
+          "total_seconds_med": 259.56,
+          "total_seconds_p95": 316.51,
+          "total_seconds_min": 192.7,
+          "total_seconds_max": 346.93,
+          "evidence_ms_mean": 157661.3,
+          "doc_ms_mean": 9807.9,
+          "orchestrator_ms_mean": 92983.4,
+          "n_tool_calls_mean": 1.5,
+          "orchestrator_share": 0.357
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a 'connection refused' error in HDFS indicate? How should it be investigated?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.9096637964248657
+              },
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.9380678534507751
+              },
+              {
+                "doc_id": "error_ref_corruptBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.9869693517684937
+              },
+              {
+                "doc_id": "config_slowHDFS",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 1.0116397142410278
+              },
+              {
+                "doc_id": "config_Sin_Net",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-004"
+                ],
+                "relevant": false,
+                "distance": 1.0165073871612549
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 316.492,
+        "active_seconds": 316.492,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 231962.2,
+        "trace_ms_total": 200066.6,
+        "doc_ms_total": 31895.6,
+        "orchestrator_ms": 84529.9,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 115981.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation:\n\n### Root Cause Diagnosis:\nThe root cause is likely due to a DataNode (`datanode049`) being dead or unresponsive at the process level, which results in 'connection refused' errors when clients attempt to read blocks from it.\n\n### Key Trace Evidence:\n- *..."
+    },
+    {
+      "case_id": "TB-013",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a 'connection refused' error mean in HDFS data node interactions?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.8023350834846497
+              },
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.858538031578064
+              },
+              {
+                "doc_id": "config_readOnlyDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.9342930912971497
+              },
+              {
+                "doc_id": "config_panicDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.9456625580787659
+              },
+              {
+                "doc_id": "runbook_killDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": true,
+                "distance": 0.9580180644989014
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 306.698,
+        "active_seconds": 306.698,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 210151.1,
+        "trace_ms_total": 185990.7,
+        "doc_ms_total": 24160.4,
+        "orchestrator_ms": 96547.1,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 105075.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation:\n\n### Root Cause:\nThe root cause of the \"connection refused\" errors is that the DataNode process on one of the datanodes (likely `datanode036` based on latency issues) has crashed or is not responding, but its host is still reachable. This results in imm..."
+    },
+    {
+      "case_id": "TB-016",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a NoRouteToHostException indicate in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.8184324502944946
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.85560142993927
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.8701441287994385
+              },
+              {
+                "doc_id": "config_Sin_Sys",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-006"
+                ],
+                "relevant": false,
+                "distance": 0.8714441061019897
+              },
+              {
+                "doc_id": "config_Sin_Bug",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-002"
+                ],
+                "relevant": false,
+                "distance": 0.8798801898956299
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 224.853,
+        "active_seconds": 224.853,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 99606.4,
+        "trace_ms_total": 92129.9,
+        "doc_ms_total": 7476.5,
+        "orchestrator_ms": 125246.3,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 49803.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The documentation suggests that a `NoRouteToHostException` can indicate either a misconfiguration, a disconnected node, or a broader network-layer fault such as a routing issue or a network partition.\n\nGiven the immediate failure and the fact that both connection attempts to different datanodes (`10..."
+    },
+    {
+      "case_id": "TB-017",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 269.639,
+        "active_seconds": 269.639,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 205039.9,
+        "trace_ms_total": 205039.9,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 64599.3,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 205039.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace data and analysis:\n\n### Root Cause:\nThe root cause is that DN047 encountered an error during the block placement process, specifically failing to forward a block to another DN due to potential network issues or resource constraints.\n\n### Key Trace Evidence:\n- **Host**: DN047\n- **O..."
+    },
+    {
+      "case_id": "TB-020",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 154.751,
+        "active_seconds": 154.751,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 83477.1,
+        "trace_ms_total": 83477.1,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 71274.1,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 83477.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence:\n\n1. The `SocketTimeoutException` occurred at +119.9ms into the timeline on client012 with the message:\n   ```\n   IOException: java.net.SocketTimeoutException: 60000 millis timeout while waiting for channel to be ready for read.\n   ```\n\n2. Both datanodes (datanode038 and ..."
+    },
+    {
+      "case_id": "TB-012",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 0,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 482.543,
+        "active_seconds": 482.543,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 365316.6,
+        "trace_ms_total": 365316.6,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 117226.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 182658.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation, let's synthesize the final diagnosis:\n\n### Root Cause:\nThe root cause is network connectivity issues or unavailability of specific DataNodes (`datanode029` and `datanode041`) during the read operation.\n\n### Key Trace Evidence:\n- **Network Unreachability..."
+    },
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 277.252,
+        "active_seconds": 277.252,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 196363.7,
+        "trace_ms_total": 196363.7,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 80888.0,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 196363.7,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence provided:\n\n1. **Latency Outliers**: The datanode `datanode028` is consistently slower than its peers, taking 13.2 seconds to read a block and an additional 975.4 milliseconds to send it.\n2. **Checksum Validation Delays**: Warnings during checksum validation on `datanode02..."
+    },
+    {
+      "case_id": "TB-019",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a warning during BlockReceiver creation (e.g., 'OP: new BlockReceiver (135.1ms) [WARN]') or connection to the next Datanode mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.7767999172210693
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.8477665781974792
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.854316234588623
+              },
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.9124894142150879
+              },
+              {
+                "doc_id": "config_cutBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-009"
+                ],
+                "relevant": false,
+                "distance": 0.9285776019096375
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 277.27,
+        "active_seconds": 277.27,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 123113.0,
+        "trace_ms_total": 66577.9,
+        "doc_ms_total": 56535.1,
+        "orchestrator_ms": 154156.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 61556.5,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation:\n\n- The warnings during BlockReceiver creation (`OP: new BlockReceiver (135.1ms) [WARN]`) and connection to the next Datanode (`OP: connect next Datanode (252.7ms) [WARN]`) suggest that there are delays or issues with network or processing during these s..."
+    },
+    {
+      "case_id": "TB-001",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 249.363,
+        "active_seconds": 249.363,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 167469.8,
+        "trace_ms_total": 167469.8,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 81893.7,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 167469.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence for instance 99B14FE25B6D490, the root cause of the intermittent slow block transfers is network latency and disk I/O performance issues. Specifically:\n\n- **Key Trace Evidence:**\n  - `datanode046`: 1.31s delay in `sendBlock` step.\n  - `datanode029`: 732.2ms (initial read)..."
+    },
+    {
+      "case_id": "TB-002",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a [WARN] annotation on the verifiedByClient operation mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.7784438133239746
+              },
+              {
+                "doc_id": "error_ref_Sin_Bug",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-002"
+                ],
+                "relevant": true,
+                "distance": 0.9191372990608215
+              },
+              {
+                "doc_id": "error_ref_lossMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 0.996700644493103
+              },
+              {
+                "doc_id": "runbook_Sin_Bug",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-002"
+                ],
+                "relevant": true,
+                "distance": 1.0369303226470947
+              },
+              {
+                "doc_id": "config_corruptBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 1.0734273195266724
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 192.696,
+        "active_seconds": 192.696,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 76429.6,
+        "trace_ms_total": 62218.1,
+        "doc_ms_total": 14211.5,
+        "orchestrator_ms": 116266.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 38214.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and the documentation:\n\n1. The `verifiedByClient` operation was marked with a [WARN] annotation on datanode050, indicating an unexpected delay in the block verification process.\n2. The latency for this operation ranged from 0.1ms to 6.3ms across different data nodes, with..."
+    },
+    {
+      "case_id": "TB-003",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a `java.io.IOException: Could not create DataChecksum` error indicate in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "error_ref_cutMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.5473170280456543
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": true,
+                "distance": 0.581053614616394
+              },
+              {
+                "doc_id": "error_ref_corruptBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.5999245047569275
+              },
+              {
+                "doc_id": "error_ref_corruptMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-008"
+                ],
+                "relevant": false,
+                "distance": 0.6703400611877441
+              },
+              {
+                "doc_id": "runbook_cutMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.7158524990081787
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 269.235,
+        "active_seconds": 269.235,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 192718.6,
+        "trace_ms_total": 184952.2,
+        "doc_ms_total": 7766.4,
+        "orchestrator_ms": 76516.1,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 96359.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation, here is the diagnosis:\n\n### Root Cause:\nThe root cause of the issue is a corrupted block's metadata file, specifically due to an error in creating `DataChecksum` (instance 0166FE80C78C3CF7).\n\n### Key Trace Evidence:\n- **Exception Text:** \n  ```plaintext..."
+    },
+    {
+      "case_id": "TB-004",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a SocketException: Connection reset by peer mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.7819914817810059
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.9122962355613708
+              },
+              {
+                "doc_id": "config_suspendDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.973121702671051
+              },
+              {
+                "doc_id": "runbook_killDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 1.0165859460830688
+              },
+              {
+                "doc_id": "config_Sin_Net",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-004"
+                ],
+                "relevant": true,
+                "distance": 1.0404995679855347
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 291.613,
+        "active_seconds": 291.613,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 204341.3,
+        "trace_ms_total": 180282.2,
+        "doc_ms_total": 24059.1,
+        "orchestrator_ms": 87271.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 102170.7,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation review:\n\n### Root Cause Diagnosis:\nThe root cause of the slow response from `datanode007` is likely due to a `SocketException: Connection reset by peer`, indicating that the connection between `datanode007` and `client026` was abruptly terminated, possib..."
+    },
+    {
+      "case_id": "TB-005",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 235.622,
+        "active_seconds": 235.622,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 133980.0,
+        "trace_ms_total": 133980.0,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 101641.5,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 133980.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the provided trace evidence and observations:\n\n1. The client operation involves multiple read and send operations across several data nodes before block verification.\n2. There are varying durations for reads and sends, with `datanode014` showing a significantly longer read time of 942.8ms.\n..."
+    },
+    {
+      "case_id": "TB-006",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a 'connection refused' error in HDFS typically indicate? How should it be diagnosed and fixed?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.8775268793106079
+              },
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.9252938032150269
+              },
+              {
+                "doc_id": "config_Sin_Net",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-004"
+                ],
+                "relevant": false,
+                "distance": 0.9510986804962158
+              },
+              {
+                "doc_id": "config_Sin_Sys",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-006"
+                ],
+                "relevant": true,
+                "distance": 0.9563602805137634
+              },
+              {
+                "doc_id": "config_slowHDFS",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.9641647934913635
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 278.436,
+        "active_seconds": 278.436,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 169846.4,
+        "trace_ms_total": 153338.1,
+        "doc_ms_total": 16508.3,
+        "orchestrator_ms": 108589.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 84923.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation, here is the diagnosis for the incident involving instance 010AD72099CF744E:\n\n### Root Cause:\nThe root cause of the 'connection refused' errors is that specific DataNodes are either killed outright or dead/unresponsive at the process level. This results ..."
+    },
+    {
+      "case_id": "TB-007",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 204.92,
+        "active_seconds": 204.92,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 135497.4,
+        "trace_ms_total": 135497.4,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 69422.6,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 135497.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence:\n\n1. The `OP: receive block` operation encountered a `ChecksumException` on the client node at `+110.2ms`, indicating that the data read was interrupted, leading to checksum validation failures.\n2. The `readBlock` operations on datanodes `datanode002` and `datanode008` fa..."
+    },
+    {
+      "case_id": "TB-008",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does an 'invalid checksum-configuration' error mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": true,
+                "distance": 0.4630095064640045
+              },
+              {
+                "doc_id": "error_ref_corruptBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.4798277020454407
+              },
+              {
+                "doc_id": "config_corruptBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.511242687702179
+              },
+              {
+                "doc_id": "runbook_corruptMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-008"
+                ],
+                "relevant": true,
+                "distance": 0.5887120962142944
+              },
+              {
+                "doc_id": "runbook_cutMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.5928868651390076
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 346.932,
+        "active_seconds": 346.932,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 220980.6,
+        "trace_ms_total": 198432.1,
+        "doc_ms_total": 22548.5,
+        "orchestrator_ms": 125951.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 110490.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation, we can diagnose the root cause as follows:\n\n### Root Cause:\nThe invalid checksum-configuration error indicates that the metadata (.meta) file has been corrupted. Specifically, the `bytesPerChecksum` value in the metadata is either too large or outside o..."
+    },
+    {
+      "case_id": "TB-009",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 282.472,
+        "active_seconds": 282.472,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 189426.4,
+        "trace_ms_total": 189426.4,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 93045.2,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 189426.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation review:\n\n### Root Cause:\nThe root cause of the issue is that the block in question is not present on any of the DataNodes responsible for serving it, leading to a `java.io.IOException: Block <blockid> could not be obtained from any node: No such file or ..."
+    },
+    {
+      "case_id": "TB-010",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 255.023,
+        "active_seconds": 255.023,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 160935.3,
+        "trace_ms_total": 160935.3,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 94087.2,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 160935.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence, it appears that the root cause of the issue is related to DataNode failures during the read operation. Specifically, `datanode002` and `datanode005` encountered problems when processing requests, as indicated by the \"OP: new blockSender\" operation failing.\n\n### Key Trace..."
+    },
+    {
+      "case_id": "TB-014",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 256.825,
+        "active_seconds": 256.825,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 192258.8,
+        "trace_ms_total": 192258.8,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 64566.6,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 192258.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation review:\n\n### Root Cause:\nThe root cause is that the block requested by the client from Datanode 004 is either corrupted or missing, leading to a \"checksumOk\" failure.\n\n### Key Trace Evidence:\n- **Datanode Read Block Attempts**: The client attempted to re..."
+    },
+    {
+      "case_id": "TB-015",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a warning during DataNode block read operation indicate in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "config_readOnlyDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.5836823582649231
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6682003140449524
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.678979754447937
+              },
+              {
+                "doc_id": "runbook_lossBlk",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.6950879096984863
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.7455660104751587
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 262.295,
+        "active_seconds": 262.295,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 165746.2,
+        "trace_ms_total": 133145.6,
+        "doc_ms_total": 32600.6,
+        "orchestrator_ms": 96548.4,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 82873.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation:\n\n### Root Cause:\nThe root cause of the prolonged block verification process is a \"DataNode Forced Read-Only\" condition, specifically observed in `datanode048`. This condition causes significant delays in receiving and processing data blocks, leading to ..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a series of slightly longer-than-normal `OP: receive block` and `sendBlock` operations indicate in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.6785047054290771
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7748003005981445
+              },
+              {
+                "doc_id": "config_cutBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-009"
+                ],
+                "relevant": false,
+                "distance": 0.8973588347434998
+              },
+              {
+                "doc_id": "config_cutMeta",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 1.0053666830062866
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 1.0199249982833862
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 163.727,
+        "active_seconds": 163.727,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 90518.5,
+        "trace_ms_total": 77511.1,
+        "doc_ms_total": 13007.4,
+        "orchestrator_ms": 73208.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 45259.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the evidence from the trace and documentation:\n\n- **Root Cause**: A DataNode (likely one of datanodes003, 006, 018, 020, 036, or 049) is in a forced read-only state.\n- **Key Trace Evidence**:\n  - The `OP: receive block` operation on client001 took significantly longer (652.1ms, 723.8ms, and..."
+    },
+    {
+      "case_id": "TB-022",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 89.994,
+        "active_seconds": 89.994,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 37094.4,
+        "trace_ms_total": 37094.4,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 52900.1,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 37094.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence:\n\n- There are no exceptions reported in the instance `000074229CD915F7`.\n- However, there are latency-outliers for the `RPC:getFileInfo` operation:\n  - On `client005`, it took 8.2ms and 18.1ms.\n  - On `namenode`, it took 9.8ms and 12.0ms.\n\nThese latency outliers could ind..."
+    },
+    {
+      "case_id": "TB-023",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 0,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 482.204,
+        "active_seconds": 482.204,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 405726.6,
+        "trace_ms_total": 405726.6,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 76477.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 202863.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence for instance 000016D5CDEDD7D9:\n\n- The total time for the `fs -copyToLocal` operation was approximately 13.56 seconds.\n- Some datanodes, particularly `datanode043`, had significantly longer block reads (up to 1.93 seconds), which contributed to the overall latency.\n\n### Di..."
+    },
+    {
+      "case_id": "TB-024",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does the latency-outlier warning for 'OP: receive block' on HDFS indicate, and what are the typical causes?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7420937418937683
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7707388401031494
+              },
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.8297267556190491
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.8803514242172241
+              },
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.9006717205047607
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 178.548,
+        "active_seconds": 178.548,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 84899.2,
+        "trace_ms_total": 60586.9,
+        "doc_ms_total": 24312.3,
+        "orchestrator_ms": 93648.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 42449.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence and documentation:\n\n- **Root Cause**: There is a latency-outlier warning for the `OP: receive block` operation on datanode027, with an extended duration of 1.22 seconds. This indicates potential network-level delays at shared network segments or switches.\n\n- **Key Trace E..."
+    },
+    {
+      "case_id": "TB-025",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 8,
+        "n_doc_calls": 0,
+        "total_calls": 8,
+        "trace_score": 2,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 3090.958,
+        "active_seconds": 3090.958,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 2952872.4,
+        "trace_ms_total": 2952872.4,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 138085.4,
+        "n_tool_calls": 8,
+        "mean_ms_per_tool_call": 369109.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Sorry, need more steps to process this request."
+    },
+    {
+      "case_id": "TB-026",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 116.966,
+        "active_seconds": 116.966,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 60030.9,
+        "trace_ms_total": 60030.9,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 56935.0,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 60030.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence for instance `0011036D9F8D905C`, no explicit faults were found. However, there are latency-outlier annotations indicating potential performance issues:\n\n- The operation `OP: receive block` on the client (`client015`) took 1.24 seconds and another 879.4 milliseconds.\n- The..."
+    },
+    {
+      "case_id": "TB-027",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 0,
+        "total_calls": 1,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 246.035,
+        "active_seconds": 246.035,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 166749.3,
+        "trace_ms_total": 166749.3,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 79285.6,
+        "n_tool_calls": 1,
+        "mean_ms_per_tool_call": 166749.3,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Based on the trace evidence provided:\n\n1. **High Latency in Block Location Query**: The `getBlockLocations` operation took 15.35 seconds, which is significantly higher than expected. This suggests a network or processing bottleneck that could be affecting the overall performance of the mixed read/wr..."
+    }
+  ]
+}

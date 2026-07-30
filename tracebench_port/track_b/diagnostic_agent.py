@@ -33,6 +33,14 @@ rewrite. What's genuinely different, and why:
   now share, with "native trace format vs. flattened SQL" as the one
   clean variable that actually differs between them.
 
+  RETRIEVAL_MODE ("agent" | "deterministic") lets both configurations run
+  side by side rather than one replacing the other in practice: "agent" is
+  the redesigned default above; "deterministic" reconstructs the exact
+  pre-redesign tool (docstring-fixed version, see CHANGELOG_PORT.md) that
+  takes a raw trace_id with zero LLM in retrieval. Kept intentionally for
+  full-scale (27-case) side-by-side comparison of the two designs' actual
+  diagnostic quality, not just the 3-case sanity samples compared so far.
+
 The doc agent is UNCHANGED in mechanism (same doc_agent.py, same
 build_doc_index retrieve_docs), but points at the shared trace doc corpus
 (tracebench_port/tracebench_doc_chroma_db, collection docs_trace_perfault)
@@ -63,6 +71,7 @@ from doc_agent import query as doc_query  # noqa: E402
 
 from trace_agent import build_agent as build_trace_agent
 from trace_agent import query as trace_query
+from query_trace import query_trace as _query_trace_impl
 
 
 def _trace_extract(result):
@@ -140,7 +149,14 @@ DIAGNOSTIC_TEMP     = 0.0
 DIAGNOSTIC_BASE_URL = "http://localhost:11434/v1"   # ignored for API backends
 DIAGNOSTIC_API_KEY  = "ollama"                      # ignored for API backends
 
+# --- Retrieval mode: "agent" (default, see module docstring) or
+# "deterministic" (pre-redesign: raw trace_id argument, zero LLM in
+# retrieval). Both are real, runnable configurations -- not one superseding
+# the other -- to allow full-scale side-by-side comparison.
+RETRIEVAL_MODE      = "agent"        # "agent" or "deterministic"
+
 # --- Trace agent (evidence sub-agent, parallels Track A's SQL_MODEL block) ---
+# Only used when RETRIEVAL_MODE == "agent".
 TRACE_MODEL         = "gpt-5.4"
 TRACE_BACKEND       = "openai"      # "qwen", "ollama", "groq", "deepinfra", or "openai"
 TRACE_TEMP          = 0.0
@@ -170,10 +186,14 @@ def _sanitize_model_name(name):
         name = name.replace(ch, "-")
     return name
 
+_TRACE_TAG = (
+    f"trace-{_sanitize_model_name(TRACE_MODEL)}"
+    if RETRIEVAL_MODE == "agent" else "trace-deterministic"
+)
 OUTPUT_FILE = (
     f"diagnostic_results"
     f"__diag-{_sanitize_model_name(DIAGNOSTIC_MODEL)}"
-    f"__trace-{_sanitize_model_name(TRACE_MODEL)}"
+    f"__{_TRACE_TAG}"
     f"__doc-{_sanitize_model_name(DOC_MODEL)}"
     f"__track-Bnative.json"
 )
@@ -253,6 +273,7 @@ def _make_trace():
 # ============================================================================
 
 def build_tools(
+    retrieval_mode=RETRIEVAL_MODE,
     trace_model=TRACE_MODEL,
     trace_backend=TRACE_BACKEND,
     trace_temp=TRACE_TEMP,
@@ -270,53 +291,103 @@ def build_tools(
 
     The trace_list is populated in-place as the tools are called.
     Pass it to diagnose() so it ends up in the result dict.
+
+    retrieval_mode:
+      "agent"         -- query_trace(question: str) routes through
+                          trace_agent.py's LLM sub-agent (default).
+      "deterministic" -- query_trace(trace_id: str) calls query_trace.py
+                          directly, zero LLM in retrieval (pre-redesign
+                          behaviour, kept for side-by-side comparison).
     """
     trace, record = _make_trace()
 
-    # Build the trace sub-agent -- trace_agent.build_agent, imported above as
-    # build_trace_agent. Mirrors Track A's SQL sub-agent construction exactly
-    # (build once per config, reused across every query_trace call).
-    trace_agent_instance, _ = build_trace_agent(
-        llm_model=trace_model,
-        backend=trace_backend,
-        llm_temp=trace_temp,
-        llm_base_url=trace_base_url,
-        max_iterations=trace_max_iter,
-        verbose=False,
-    )
-    trace_extract = _trace_extract
-
-    @tool
-    def query_trace(question: str) -> str:
-        """
-        Query the trace sub-agent to find evidence about a specific
-        instance's HDFS request. Use this tool when you need to:
-          - See the sequence and timing of operations for a specific instance
-          - Find exception/error text for a specific instance
-          - Identify which host(s) show unusually high latency relative to
-            their peers for this workload
-          - See how operations on different hosts relate to each other
-            (which RPC triggered which downstream operation)
-
-        Input: a natural language question about a specific instance
-        (include the instance_id from the incident description).
-        Output: a text answer grounded in that instance's actual trace data.
-
-        Examples:
-          "What does the trace for instance C4113E01C484F2EB show about datanode latency?"
-          "Is there an exception in the trace for instance 03FB08C229C2844D?"
-        """
-        t0 = time.perf_counter()
-        result = trace_query(
-            question=question,
-            agent=trace_agent_instance,
-            error_threshold=2,
+    if retrieval_mode == "agent":
+        # Build the trace sub-agent -- trace_agent.build_agent, imported
+        # above as build_trace_agent. Mirrors Track A's SQL sub-agent
+        # construction exactly (build once per config, reused across every
+        # query_trace call).
+        trace_agent_instance, _ = build_trace_agent(
+            llm_model=trace_model,
+            backend=trace_backend,
+            llm_temp=trace_temp,
+            llm_base_url=trace_base_url,
+            max_iterations=trace_max_iter,
             verbose=False,
         )
-        answer = result["answer"]
-        duration_ms = (time.perf_counter() - t0) * 1000
-        record("query_trace", {"question": question}, answer, duration_ms)
-        return answer
+        trace_extract = _trace_extract
+
+        @tool
+        def query_trace(question: str) -> str:
+            """
+            Query the trace sub-agent to find evidence about a specific
+            instance's HDFS request. Use this tool when you need to:
+              - See the sequence and timing of operations for a specific instance
+              - Find exception/error text for a specific instance
+              - Identify which host(s) show unusually high latency relative to
+                their peers for this workload
+              - See how operations on different hosts relate to each other
+                (which RPC triggered which downstream operation)
+
+            Input: a natural language question about a specific instance
+            (include the instance_id from the incident description).
+            Output: a text answer grounded in that instance's actual trace data.
+
+            Examples:
+              "What does the trace for instance C4113E01C484F2EB show about datanode latency?"
+              "Is there an exception in the trace for instance 03FB08C229C2844D?"
+            """
+            t0 = time.perf_counter()
+            result = trace_query(
+                question=question,
+                agent=trace_agent_instance,
+                error_threshold=2,
+                verbose=False,
+            )
+            answer = result["answer"]
+            duration_ms = (time.perf_counter() - t0) * 1000
+            record("query_trace", {"question": question}, answer, duration_ms)
+            return answer
+
+    elif retrieval_mode == "deterministic":
+        # Pre-redesign path: exact docstring-fixed version from before the
+        # trace_agent.py redesign (see CHANGELOG_PORT.md), reconstructed
+        # verbatim for a true apples-to-apples comparison. Zero LLM in
+        # retrieval -- calls query_trace.py directly.
+        @tool
+        def query_trace(trace_id: str) -> str:
+            """
+            Reconstruct the full HDFS request trace for a specific instance:
+            a per-host timeline of operations (with durations and any real
+            exception text) plus the cross-host call structure. Use this tool
+            when you need to:
+              - See the sequence and timing of operations for a specific instance
+              - Find exception/error text for a specific instance
+              - Identify which host(s) show unusually high latency relative to
+                their peers for this workload
+              - See how operations on different hosts relate to each other
+                (which RPC triggered which downstream operation)
+
+            Input: the instance_id (trace/request identifier). It is ALREADY
+            present in the question you were asked -- look for text like
+            "instance C4113E01C484F2EB" or "(instance 03FB08C229C2844D)" and
+            copy that exact string as the argument. Never ask the operator to
+            provide it again; it has already been given to you.
+            Output: a formatted per-host timeline and call-structure summary.
+
+            Examples:
+              Question mentions "instance C4113E01C484F2EB" -> query_trace("C4113E01C484F2EB")
+              Question mentions "instance 03FB08C229C2844D" -> query_trace("03FB08C229C2844D")
+            """
+            t0 = time.perf_counter()
+            answer = _query_trace_impl(trace_id)
+            duration_ms = (time.perf_counter() - t0) * 1000
+            record("query_trace", {"trace_id": trace_id}, answer, duration_ms)
+            return answer
+
+    else:
+        raise ValueError(
+            f"Unknown retrieval_mode: {retrieval_mode!r}. Use 'agent' or 'deterministic'."
+        )
 
     @tool
     def query_docs(question: str) -> str:
@@ -423,6 +494,7 @@ def build_diagnostic_agent(
     diagnostic_temp=DIAGNOSTIC_TEMP,
     diagnostic_base_url=DIAGNOSTIC_BASE_URL,
     diagnostic_api_key=DIAGNOSTIC_API_KEY,
+    retrieval_mode=RETRIEVAL_MODE,
     trace_model=TRACE_MODEL,
     trace_backend=TRACE_BACKEND,
     trace_temp=TRACE_TEMP,
@@ -453,6 +525,7 @@ def build_diagnostic_agent(
     )
 
     tools, trace = build_tools(
+        retrieval_mode=retrieval_mode,
         trace_model=trace_model,
         trace_backend=trace_backend,
         trace_temp=trace_temp,
@@ -476,6 +549,30 @@ def build_diagnostic_agent(
 
     agent = create_react_agent(llm, tools, prompt=_state_mod)
     agent._max_iterations = max_turns
+    # BUG FOUND AND FIXED (this session, see CHANGELOG_PORT.md): diagnose()
+    # used to write the module-level CONFIG constants (DIAGNOSTIC_MODEL,
+    # TRACE_MODEL, DOC_MODEL...) into every result's model_config field,
+    # regardless of what was actually passed to build_diagnostic_agent().
+    # Every non-default run (every Edge-tier and Turbo-tier result file in
+    # both Track A and Track B, going back to the first sanity checks) has
+    # a model_config field that silently claims "gpt-5.4"/"openai" even
+    # though the actual diagnosis was produced by a different model
+    # entirely. The diagnosis/tool_call_trace/timing fields are unaffected
+    # (they come from the real runtime call flow) -- only this provenance
+    # metadata was wrong, and only recoverable via each file's filename.
+    # Fixed by stashing the ACTUAL runtime config on the agent object
+    # itself (same pattern already used for _max_iterations above), which
+    # diagnose() now reads instead of the module constants.
+    agent._model_config = {
+        "track":              "B_native",
+        "diagnostic_model":   diagnostic_model,
+        "diagnostic_backend": diagnostic_backend,
+        "retrieval_mode":     retrieval_mode,
+        "trace_model":        trace_model if retrieval_mode == "agent" else None,
+        "trace_backend":      trace_backend if retrieval_mode == "agent" else None,
+        "doc_model":          doc_model,
+        "doc_backend":        doc_backend,
+    }
 
     try:
         bound_tools = getattr(llm.bind_tools(tools), "kwargs", {}).get("tools")
@@ -617,15 +714,19 @@ def diagnose(
         "status":          status,
         "tool_call_trace": list(trace),
         "timing":          timing,
-        "model_config": {
+        "model_config": getattr(agent, "_model_config", {
+            # Fallback only used if diagnose() is ever called with an agent
+            # not built via build_diagnostic_agent() above (shouldn't happen
+            # in practice) -- module defaults, same as the pre-fix behaviour.
             "track":              "B_native",
             "diagnostic_model":   DIAGNOSTIC_MODEL,
             "diagnostic_backend": DIAGNOSTIC_BACKEND,
+            "retrieval_mode":     RETRIEVAL_MODE,
             "trace_model":        TRACE_MODEL,
             "trace_backend":      TRACE_BACKEND,
             "doc_model":          DOC_MODEL,
             "doc_backend":        DOC_BACKEND,
-        },
+        }),
     }
 
 

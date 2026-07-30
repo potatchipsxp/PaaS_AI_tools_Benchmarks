@@ -497,6 +497,27 @@ def build_diagnostic_agent(
 
     agent = create_react_agent(llm, tools, prompt=_state_mod)
     agent._max_iterations = max_turns
+    # BUG FOUND AND FIXED (see CHANGELOG_PORT.md, Track B session entry --
+    # the identical bug was found there first): diagnose() used to write
+    # the module-level CONFIG constants into every result's model_config
+    # field, regardless of what was actually passed to
+    # build_diagnostic_agent(). Every non-default run (every Edge-tier and
+    # Turbo-tier result file, including the completed full 27-case sweep)
+    # has a model_config field that silently claims "gpt-5.4"/"openai" even
+    # though the actual diagnosis came from a different model. The
+    # diagnosis/tool_call_trace/timing fields are unaffected; only this
+    # provenance metadata was wrong, and only recoverable via filename.
+    # Fixed the same way as Track B: stash the ACTUAL runtime config on the
+    # agent object, which diagnose() now reads instead of the constants.
+    agent._model_config = {
+        "track":              "A_flat",
+        "diagnostic_model":   diagnostic_model,
+        "diagnostic_backend": diagnostic_backend,
+        "sql_model":          sql_model,
+        "sql_backend":        sql_backend,
+        "doc_model":          doc_model,
+        "doc_backend":        doc_backend,
+    }
 
     # Sanity check tool binding on the orchestrator LLM.
     try:
@@ -665,9 +686,11 @@ def diagnose(
         "status":          status,
         "tool_call_trace": list(trace),
         "timing":          timing,
-        # Model config recorded in each result for self-contained eval reports
-        # Read from module-level constants — diagnose() is config-agnostic
-        "model_config": {
+        # Model config recorded in each result for self-contained eval reports.
+        # Read from the agent object's actual runtime config (see the bug
+        # note in build_diagnostic_agent() above) -- module constants are
+        # only a fallback for an agent not built through that function.
+        "model_config": getattr(agent, "_model_config", {
             "track":              "A_flat",
             "diagnostic_model":   DIAGNOSTIC_MODEL,
             "diagnostic_backend": DIAGNOSTIC_BACKEND,
@@ -675,7 +698,7 @@ def diagnose(
             "sql_backend":        SQL_BACKEND,
             "doc_model":          DOC_MODEL,
             "doc_backend":        DOC_BACKEND,
-        },
+        }),
     }
 
 
