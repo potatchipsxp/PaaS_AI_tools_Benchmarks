@@ -1,0 +1,2640 @@
+{
+  "evaluated_at": "2026-07-31T18:41:34.045691Z",
+  "tracks": [
+    "B_native"
+  ],
+  "n_cases": 27,
+  "summary": {
+    "answer": {
+      "full_credit": 22,
+      "partial": 1,
+      "miss": 4,
+      "error": 0
+    },
+    "localization": {
+      "hit": 8,
+      "miss": 12,
+      "n/a": 7,
+      "hit_rate_of_localizable": 0.4
+    },
+    "retrieval": {
+      "avg_recall": 0.63,
+      "avg_precision": 0.208
+    },
+    "trace": {
+      "avg_score": 4.41,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 27,
+        "total_seconds_mean": 118.42,
+        "total_seconds_med": 49.68,
+        "total_seconds_p95": 97.25,
+        "total_seconds_min": 24.3,
+        "total_seconds_max": 1843.67,
+        "evidence_ms_mean": 86520.3,
+        "doc_ms_mean": 14076.6,
+        "orchestrator_ms_mean": 17822.6,
+        "n_tool_calls_mean": 2.11,
+        "orchestrator_share": 0.151
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 7,
+          "total_seconds_mean": 32.36,
+          "total_seconds_med": 34.13,
+          "total_seconds_p95": 36.07,
+          "total_seconds_min": 24.3,
+          "total_seconds_max": 36.37,
+          "evidence_ms_mean": 13469.0,
+          "doc_ms_mean": 8053.7,
+          "orchestrator_ms_mean": 10834.8,
+          "n_tool_calls_mean": 2.14,
+          "orchestrator_share": 0.335
+        },
+        "tier_1": {
+          "n": 5,
+          "total_seconds_mean": 70.48,
+          "total_seconds_med": 66.64,
+          "total_seconds_p95": 90.17,
+          "total_seconds_min": 50.25,
+          "total_seconds_max": 91.0,
+          "evidence_ms_mean": 23727.2,
+          "doc_ms_mean": 23513.9,
+          "orchestrator_ms_mean": 23236.7,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.33
+        },
+        "tier_2": {
+          "n": 3,
+          "total_seconds_mean": 68.05,
+          "total_seconds_med": 55.19,
+          "total_seconds_p95": 94.73,
+          "total_seconds_min": 49.84,
+          "total_seconds_max": 99.12,
+          "evidence_ms_mean": 30898.1,
+          "doc_ms_mean": 11423.1,
+          "orchestrator_ms_mean": 25729.6,
+          "n_tool_calls_mean": 2.67,
+          "orchestrator_share": 0.378
+        },
+        "tier_3": {
+          "n": 12,
+          "total_seconds_mean": 201.19,
+          "total_seconds_med": 42.54,
+          "total_seconds_p95": 880.72,
+          "total_seconds_min": 32.59,
+          "total_seconds_max": 1843.67,
+          "evidence_ms_mean": 169202.9,
+          "doc_ms_mean": 14321.2,
+          "orchestrator_ms_mean": 17666.2,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.088
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a connection refused error to a datanode during a read operation mean?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "error_ref_panicDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.5350853204727173
+              },
+              {
+                "doc_id": "error_ref_deadDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-011"
+                ],
+                "relevant": true,
+                "distance": 0.5943470001220703
+              },
+              {
+                "doc_id": "error_ref_killDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.6083644032478333
+              },
+              {
+                "doc_id": "runbook_panicDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.6145306825637817
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.655127763748169
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 66.639,
+        "active_seconds": 66.639,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 29491.7,
+        "trace_ms_total": 8720.5,
+        "doc_ms_total": 20771.2,
+        "orchestrator_ms": 37147.2,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 14745.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the 'connection refused' error is that the DataNode at 10.107.100.58:50010 is dead or its process has been terminated. \n* The trace evidence shows a connection refused error to datanode 10.107.100.58:50010 at time 4.14s on host client002.\n* The error message indicates that the Data..."
+    },
+    {
+      "case_id": "TB-013",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a connection refused error on a DataNode mean?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "error_ref_panicDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.5348517894744873
+              },
+              {
+                "doc_id": "error_ref_deadDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-011"
+                ],
+                "relevant": false,
+                "distance": 0.6268912553787231
+              },
+              {
+                "doc_id": "error_ref_killDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": true,
+                "distance": 0.6290711164474487
+              },
+              {
+                "doc_id": "runbook_panicDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.6395552158355713
+              },
+              {
+                "doc_id": "config_panicDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.6777485609054565
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 50.246,
+        "active_seconds": 50.246,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 35017.4,
+        "trace_ms_total": 16821.5,
+        "doc_ms_total": 18195.9,
+        "orchestrator_ms": 15228.4,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 17508.7,
+        "malformed_tool_call_retries": 1
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the DataNode process on host `10.107.100.58` is dead, causing connection attempts to be refused outright. The key evidence supporting this diagnosis includes:\n* The connection refusal error message `java.net.ConnectException: Connection refused` in the trace for i..."
+    },
+    {
+      "case_id": "TB-016",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a NoRouteToHostException mean in the context of an HDFS client connecting to a datanode?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.5918734669685364
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.6073493361473083
+              },
+              {
+                "doc_id": "error_ref_panicDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": true,
+                "distance": 0.7107247710227966
+              },
+              {
+                "doc_id": "runbook_killDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.7520123720169067
+              },
+              {
+                "doc_id": "config_readOnlyDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.757301390171051
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 86.875,
+        "active_seconds": 86.875,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 75249.8,
+        "trace_ms_total": 68031.9,
+        "doc_ms_total": 7217.9,
+        "orchestrator_ms": 11625.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 37624.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause is that the datanode's host is unreachable at the network layer. \n* The trace for instance 04737D2A819A255A shows a NoRouteToHostException when trying to connect to datanode060 and datanode058.\n* The NoRouteToHostException indicates that the host itself is unreachable at the network l..."
+    },
+    {
+      "case_id": "TB-017",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What is the runbook for a DataNode that is slower than its peers?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.6527609825134277
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7418298721313477
+              },
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.7463549375534058
+              },
+              {
+                "doc_id": "runbook_readOnlyDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": true,
+                "distance": 0.785331130027771
+              },
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7901076078414917
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 90.998,
+        "active_seconds": 90.998,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 62069.1,
+        "trace_ms_total": 2647.0,
+        "doc_ms_total": 59422.1,
+        "orchestrator_ms": 28928.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 31034.5,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the slow datanode is likely due to network path issues, such as interface errors, congestion, or misconfigured QoS/shaping rules. \n* The trace evidence shows that the datanode is measurably slower than its peers in accepting a new block for write, with no errors thrown.\n* The avera..."
+    },
+    {
+      "case_id": "TB-020",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a SocketTimeoutException on a DataNode read mean?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "error_ref_suspendDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.4500879943370819
+              },
+              {
+                "doc_id": "config_suspendDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.6300523281097412
+              },
+              {
+                "doc_id": "error_ref_disconnectDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.6429494023323059
+              },
+              {
+                "doc_id": "error_ref_deadDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-011"
+                ],
+                "relevant": false,
+                "distance": 0.6590101718902588
+              },
+              {
+                "doc_id": "error_ref_killDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.665779709815979
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 57.631,
+        "active_seconds": 57.631,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 34377.1,
+        "trace_ms_total": 22414.9,
+        "doc_ms_total": 11962.2,
+        "orchestrator_ms": 23253.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 17188.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause is that the DataNode process on host /10.107.100.62 is alive but not responding to read requests. \n* The evidence from the trace for instance 02C8C76629FB0876 shows a connection attempt timeout on host client012 when trying to connect to datanode /10.107.100.62:50010.\n* The error mess..."
+    },
+    {
+      "case_id": "TB-012",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a 'no route to host' network error mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "config_Sin_Net",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-004"
+                ],
+                "relevant": false,
+                "distance": 0.8298588991165161
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": true,
+                "distance": 0.9517384767532349
+              },
+              {
+                "doc_id": "config_Sin_Sys",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-006"
+                ],
+                "relevant": false,
+                "distance": 1.0302091836929321
+              },
+              {
+                "doc_id": "config_slowHDFS",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 1.042465329170227
+              },
+              {
+                "doc_id": "config_Sin_Bug",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-002"
+                ],
+                "relevant": false,
+                "distance": 1.0672310590744019
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 99.124,
+        "active_seconds": 99.124,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 72154.9,
+        "trace_ms_total": 67143.8,
+        "doc_ms_total": 5011.1,
+        "orchestrator_ms": 26969.5,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 24051.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the 'no route to host' network error is a network connectivity issue between the client and the specific datanodes. \n* The key trace evidence that supports the diagnosis is the 'no route to host' network error messages at 7.03s and 14.65s on host client010, which indicate that the ..."
+    },
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What is the runbook for a DataNode that is slower than its peers?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.6527609825134277
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7418298721313477
+              },
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.7463549375534058
+              },
+              {
+                "doc_id": "runbook_readOnlyDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.785331130027771
+              },
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7901076078414917
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 55.187,
+        "active_seconds": 55.187,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 24486.1,
+        "trace_ms_total": 13235.1,
+        "doc_ms_total": 11251.0,
+        "orchestrator_ms": 30700.6,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 12243.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that one of the DataNodes is experiencing high latency due to network issues, specifically interface errors, congestion, or misconfigured QoS/shaping rules. \n* The trace evidence shows that datanode005 and datanode039 have the highest latency, with 35.54s and 35.30s re..."
+    },
+    {
+      "case_id": "TB-019",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a latency increase in block-receive operations across the cluster without any single datanode standing out as dramatically worse than the rest mean?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.5523048043251038
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.678852379322052
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.6989549398422241
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.7130182385444641
+              },
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.721306562423706
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 49.841,
+        "active_seconds": 49.841,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 30322.6,
+        "trace_ms_total": 12315.5,
+        "doc_ms_total": 18007.1,
+        "orchestrator_ms": 19518.8,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 10107.5,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is a cluster-wide slowdown due to a systemic issue, likely related to shared network infrastructure. The key trace evidence that supports this diagnosis includes:\n* The block-receive operation latency on multiple datanodes (datanode019, datanode022, and datanode026) was h..."
+    },
+    {
+      "case_id": "TB-001",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a variable block transfer latency in an HDFS cluster mean?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.749590277671814
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.7496004104614258
+              },
+              {
+                "doc_id": "config_slowHDFS",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.8452526926994324
+              },
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.886054277420044
+              },
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.9630637168884277
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 32.585,
+        "active_seconds": 32.585,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 21685.9,
+        "trace_ms_total": 15849.6,
+        "doc_ms_total": 5836.3,
+        "orchestrator_ms": 10899.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 10843.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the intermittent slow block transfers in the HDFS cluster is likely due to a single DataNode (datanode003) having a higher average duration for operations compared to its peers, causing variable block transfer latency. \nEvidence:\n* The trace for instance 99B14FE25B6D4910 shows that..."
+    },
+    {
+      "case_id": "TB-002",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a block verification latency issue on a DataNode mean?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.5029770731925964
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6421958208084106
+              },
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.6772879958152771
+              },
+              {
+                "doc_id": "runbook_lossMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 0.6813291311264038
+              },
+              {
+                "doc_id": "error_ref_lossMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 0.6889418363571167
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 33.507,
+        "active_seconds": 33.507,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 25313.5,
+        "trace_ms_total": 10201.5,
+        "doc_ms_total": 15112.0,
+        "orchestrator_ms": 8194.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 12656.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is a block metadata loss on the affected DataNodes. \n* The trace evidence shows that the `verifiedByClient` step is taking drastically longer to complete on the affected DataNodes, with durations of 0.1ms, 0.4ms, 0.1ms, and 6.3ms.\n* The failure pattern is characterized by..."
+    },
+    {
+      "case_id": "TB-003",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a checksum-configuration error on a DataNode read mean?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "error_ref_corruptMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-008"
+                ],
+                "relevant": false,
+                "distance": 0.5646305084228516
+              },
+              {
+                "doc_id": "error_ref_Sin_Data",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-003"
+                ],
+                "relevant": true,
+                "distance": 0.6754928827285767
+              },
+              {
+                "doc_id": "error_ref_cutMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.6988391876220703
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": true,
+                "distance": 0.7606252431869507
+              },
+              {
+                "doc_id": "runbook_corruptBlk",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.7669798135757446
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 33.316,
+        "active_seconds": 33.316,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 18647.9,
+        "trace_ms_total": 8684.5,
+        "doc_ms_total": 9963.4,
+        "orchestrator_ms": 14668.2,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 9324.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is corruption of the block's metadata (`.meta` file) on hosts datanode045, datanode047, and datanode050, which prevents the DataNode from constructing a valid checksum object to verify the block. \n* The error message \"java.io.IOException: Could not create DataChecksum of ..."
+    },
+    {
+      "case_id": "TB-004",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a SocketTimeoutException on a DataNode read mean?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_suspendDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.4500879943370819
+              },
+              {
+                "doc_id": "config_suspendDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.6300523281097412
+              },
+              {
+                "doc_id": "error_ref_disconnectDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.6429494023323059
+              },
+              {
+                "doc_id": "error_ref_deadDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-011"
+                ],
+                "relevant": false,
+                "distance": 0.6590101718902588
+              },
+              {
+                "doc_id": "error_ref_killDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.665779709815979
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 35.407,
+        "active_seconds": 35.407,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 13873.3,
+        "trace_ms_total": 10352.5,
+        "doc_ms_total": 3520.8,
+        "orchestrator_ms": 21533.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 6936.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the slow response from one specific datanode in the HDFS cluster is a SocketTimeoutException on the DataNode read, which means that the DataNode process is alive and its port is open, but the process never responds to the request. \n* The trace for instance DAB15CFA9D91F989 shows se..."
+    },
+    {
+      "case_id": "TB-005",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a latency outlier in block verification mean?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.8518779277801514
+              },
+              {
+                "doc_id": "runbook_lossMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 0.9068018794059753
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.9143716096878052
+              },
+              {
+                "doc_id": "error_ref_lossMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 0.9546709060668945
+              },
+              {
+                "doc_id": "error_ref_Mul_AA",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-001"
+                ],
+                "relevant": false,
+                "distance": 0.9820762276649475
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 1843.669,
+        "active_seconds": 1843.669,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 1823247.3,
+        "trace_ms_total": 1814627.1,
+        "doc_ms_total": 8620.2,
+        "orchestrator_ms": 20422.2,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 911623.7,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the intermittent slow block-verification step following writes in instance A051712AA7AE25A9 is the loss of block metadata, resulting in a dramatic slowdown in the post-transfer verification step. \n* The trace for instance A051712AA7AE25A9 shows that block-verification latency varie..."
+    },
+    {
+      "case_id": "TB-006",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a connection refused error on a DataNode mean?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_panicDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.5348517894744873
+              },
+              {
+                "doc_id": "error_ref_deadDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-011"
+                ],
+                "relevant": false,
+                "distance": 0.6268912553787231
+              },
+              {
+                "doc_id": "error_ref_killDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.6290711164474487
+              },
+              {
+                "doc_id": "runbook_panicDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.6395552158355713
+              },
+              {
+                "doc_id": "config_panicDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.6777485609054565
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 35.321,
+        "active_seconds": 35.321,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 25433.8,
+        "trace_ms_total": 16239.4,
+        "doc_ms_total": 9194.4,
+        "orchestrator_ms": 9886.9,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 12716.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the DataNode process on datanode043 is dead or was force-stopped, causing connection refused errors when trying to reach it. \n* The trace evidence shows a connection refused error to datanode043 with the error message \"java.net.ConnectException: Connection refused..."
+    },
+    {
+      "case_id": "TB-007",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a ChecksumException on an HDFS read mean?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": true,
+                "distance": 0.5663442015647888
+              },
+              {
+                "doc_id": "error_ref_corruptBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": true,
+                "distance": 0.5852075815200806
+              },
+              {
+                "doc_id": "runbook_cutMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.6574845910072327
+              },
+              {
+                "doc_id": "runbook_corruptMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-008"
+                ],
+                "relevant": false,
+                "distance": 0.7123321890830994
+              },
+              {
+                "doc_id": "error_ref_cutMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.7349307537078857
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 92.861,
+        "active_seconds": 92.861,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 75801.7,
+        "trace_ms_total": 38394.8,
+        "doc_ms_total": 37406.9,
+        "orchestrator_ms": 17058.9,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 37900.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the checksum mismatch error during file reads in the HDFS cluster is data corruption on one of the DataNodes. \n* The trace evidence from instance 0207F6FDA149694E shows a ChecksumException occurred on the client021 host during a file read operation, indicating that the data being r..."
+    },
+    {
+      "case_id": "TB-008",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a checksum configuration error on a DataNode read mean?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "error_ref_corruptMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-008"
+                ],
+                "relevant": true,
+                "distance": 0.5689443349838257
+              },
+              {
+                "doc_id": "error_ref_Sin_Data",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-003"
+                ],
+                "relevant": false,
+                "distance": 0.682921290397644
+              },
+              {
+                "doc_id": "error_ref_cutMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.7030337452888489
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": true,
+                "distance": 0.7693631649017334
+              },
+              {
+                "doc_id": "runbook_corruptBlk",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.7712773084640503
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 33.901,
+        "active_seconds": 33.901,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 25189.5,
+        "trace_ms_total": 8966.8,
+        "doc_ms_total": 16222.7,
+        "orchestrator_ms": 8711.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 12594.8,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause is a corrupted block metadata file on datanode001 and datanode003, which prevents the DataNode from constructing a valid checksum object to verify the block. \n* The trace for instance 017819C0E34B6EFF shows checksum configuration errors on hosts datanode001 and datanode003 with error ..."
+    },
+    {
+      "case_id": "TB-009",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a block length mismatch error mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "config_cutBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-009"
+                ],
+                "relevant": true,
+                "distance": 0.6285994648933411
+              },
+              {
+                "doc_id": "config_cutMeta",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.6614606976509094
+              },
+              {
+                "doc_id": "error_ref_cutBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-009"
+                ],
+                "relevant": true,
+                "distance": 0.6997490525245667
+              },
+              {
+                "doc_id": "runbook_cutMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": false,
+                "distance": 0.7041764259338379
+              },
+              {
+                "doc_id": "error_ref_corruptBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.7118654847145081
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 49.676,
+        "active_seconds": 49.676,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 40945.9,
+        "trace_ms_total": 35824.6,
+        "doc_ms_total": 5121.3,
+        "orchestrator_ms": 8730.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 20473.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the read failures in the HDFS workload is that part of the block's data file has been removed from disk (truncation), while the DataNode's in-memory/metadata record of the block's expected length is unchanged. \n* The trace evidence shows that on host datanode004, there was an error..."
+    },
+    {
+      "case_id": "TB-010",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a DataChecksum exception on a DataNode read mean?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "error_ref_corruptMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-008"
+                ],
+                "relevant": false,
+                "distance": 0.6438387632369995
+              },
+              {
+                "doc_id": "error_ref_cutMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-010"
+                ],
+                "relevant": true,
+                "distance": 0.7194828987121582
+              },
+              {
+                "doc_id": "error_ref_Sin_Data",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-003"
+                ],
+                "relevant": false,
+                "distance": 0.7438125610351562
+              },
+              {
+                "doc_id": "error_ref_lossBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.7672113180160522
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.7690359950065613
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 58.498,
+        "active_seconds": 58.498,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 34391.2,
+        "trace_ms_total": 24163.3,
+        "doc_ms_total": 10227.9,
+        "orchestrator_ms": 24106.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 17195.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the read requests failing immediately with implausible checksum-configuration values is that the block's metadata file itself is truncated or partially missing. \n* The trace for instance 002CE32105569C3C shows that there were several errors related to checksum validation and block ..."
+    },
+    {
+      "case_id": "TB-014",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a java.io.IOException: Block is not valid error on a DataNode mean?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "error_ref_lossBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-014"
+                ],
+                "relevant": true,
+                "distance": 0.6474081873893738
+              },
+              {
+                "doc_id": "error_ref_panicDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.7847379446029663
+              },
+              {
+                "doc_id": "error_ref_corruptMeta",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-008"
+                ],
+                "relevant": false,
+                "distance": 0.804128110408783
+              },
+              {
+                "doc_id": "error_ref_cutBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-009"
+                ],
+                "relevant": false,
+                "distance": 0.8046224117279053
+              },
+              {
+                "doc_id": "error_ref_disconnectDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.8063325881958008
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 88.647,
+        "active_seconds": 88.647,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 47454.8,
+        "trace_ms_total": 13080.0,
+        "doc_ms_total": 34374.8,
+        "orchestrator_ms": 41191.8,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 23727.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the block's data has been removed entirely from the DataNode, or the DataNode's block scanner has already invalidated it. \n* The trace for instance 0308449B3F12B0A3 shows that there was an error during datanode block validation on host datanode004, with the error ..."
+    },
+    {
+      "case_id": "TB-015",
+      "tier": 3,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a high block data verification latency mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.5865392684936523
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7733113765716553
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.8731932640075684
+              },
+              {
+                "doc_id": "runbook_Sin_Bug",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-002"
+                ],
+                "relevant": false,
+                "distance": 0.9284958839416504
+              },
+              {
+                "doc_id": "config_corruptBlk",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-007"
+                ],
+                "relevant": false,
+                "distance": 0.9327394366264343
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": false,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 76.894,
+        "active_seconds": 76.894,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 50304.0,
+        "trace_ms_total": 34050.3,
+        "doc_ms_total": 16253.7,
+        "orchestrator_ms": 26590.3,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 25152.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the high block data verification latency in HDFS for instance 44C66D6F37A41CF3 is likely related to a known bug affecting the `verifiedByClient` step after writes, as indicated by the high latency figures and the [WARN] annotation on the verifiedByClient event on datanode048. \n* Th..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a long duration for readBlock on a DataNode mean?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6099532246589661
+              },
+              {
+                "doc_id": "runbook_readOnlyDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.7928872108459473
+              },
+              {
+                "doc_id": "config_suspendDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.8148782849311829
+              },
+              {
+                "doc_id": "error_ref_cutBlk",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-009"
+                ],
+                "relevant": false,
+                "distance": 0.8166614174842834
+              },
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.8412982225418091
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 36.37,
+        "active_seconds": 36.37,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 23896.2,
+        "trace_ms_total": 7618.9,
+        "doc_ms_total": 16277.3,
+        "orchestrator_ms": 12474.0,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 11948.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is likely related to a Single Slow DataNode (slowDN) issue, where one or more DataNodes are experiencing slower-than-expected performance. \n* The key trace evidence that supports this diagnosis includes the long durations for `readBlock` operations on datanodes such as da..."
+    },
+    {
+      "case_id": "TB-022",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a latency outlier on the fs -chmod operation mean?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 1.1326124668121338
+              },
+              {
+                "doc_id": "runbook_lossMeta",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-015"
+                ],
+                "relevant": false,
+                "distance": 1.1856321096420288
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 1.1892231702804565
+              },
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 1.196083426475525
+              },
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 1.2682865858078003
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 1,
+        "total_calls": 3,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 30.984,
+        "active_seconds": 30.984,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 21560.7,
+        "trace_ms_total": 14644.8,
+        "doc_ms_total": 6915.9,
+        "orchestrator_ms": 9423.5,
+        "n_tool_calls": 3,
+        "mean_ms_per_tool_call": 7186.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that there is no fault or anomaly affecting the request for instance 000074229CD915F7. \n* The trace for this instance does not show any exceptions.\n* The sequence and timing of operations for this instance on host client005 show some latency, but it is not clear if thi..."
+    },
+    {
+      "case_id": "TB-023",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a long duration for the receive block operation mean?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 1.1568197011947632
+              },
+              {
+                "doc_id": "config_killDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 1.2275679111480713
+              },
+              {
+                "doc_id": "config_suspendDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 1.2317053079605103
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 1.2377309799194336
+              },
+              {
+                "doc_id": "error_ref_Mul_AA",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-001"
+                ],
+                "relevant": false,
+                "distance": 1.2480971813201904
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 30.443,
+        "active_seconds": 30.443,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 19268.2,
+        "trace_ms_total": 10226.7,
+        "doc_ms_total": 9041.5,
+        "orchestrator_ms": 11174.7,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 9634.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is likely related to the long duration of the \"receive block\" operation on client002 and the \"readBlock\" operation on datanode043. \n* The \"receive block\" operation on client002 took 1.93s, 932.0ms, 1.51s, 464.9ms, 880.3ms, 402.1ms, 1.24s, 698.3ms, and 901.9ms.\n* The \"read..."
+    },
+    {
+      "case_id": "TB-024",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 0,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 35.363,
+        "active_seconds": 35.363,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 28038.8,
+        "trace_ms_total": 28038.8,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 7324.1,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 14019.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The diagnostic check for instance 0072C2801761B9A3 did not reveal any explicit faults or anomalies affecting the request. The evidence from the trace includes:\n* No exceptions or latency anomalies explicitly annotated with [WARN] or [ERROR] flags.\n* Various operation durations, such as readBlock and..."
+    },
+    {
+      "case_id": "TB-025",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a successful write-only HDFS workload indicate?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.8339971899986267
+              },
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.839286208152771
+              },
+              {
+                "doc_id": "config_slowHDFS",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.9638991951942444
+              },
+              {
+                "doc_id": "runbook_readOnlyDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.9701800346374512
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.9881054162979126
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 34.129,
+        "active_seconds": 34.129,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 16378.7,
+        "trace_ms_total": 8022.6,
+        "doc_ms_total": 8356.1,
+        "orchestrator_ms": 17750.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 8189.4,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause is that there is no fault or anomaly affecting the write-only HDFS workload for instance 01E6916E4960ABDD. \n* The trace evidence shows a successful write operation with no [WARN] or [ERROR] annotations, indicating that the client013 host and multiple datanodes, including datanode004, ..."
+    },
+    {
+      "case_id": "TB-026",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 0,
+        "calls": [],
+        "precision": null,
+        "recall": 0.0,
+        "note": "no query_docs calls made"
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": false,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 2,
+        "n_doc_calls": 0,
+        "total_calls": 2,
+        "trace_score": 3,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 24.304,
+        "active_seconds": 24.304,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 15869.9,
+        "trace_ms_total": 15869.9,
+        "doc_ms_total": 0,
+        "orchestrator_ms": 8434.6,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 7934.9,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause is that there is no fault or anomaly affecting this request. The key evidence that supports this diagnosis is:\n* There is no exception in the trace for instance 0011036D9F8D905C.\n* There are no latency anomalies annotated with [WARN] in the trace.\n* The trace shows normal block read a..."
+    },
+    {
+      "case_id": "TB-027",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "miss",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does high latency on readBlock and sendBlock operations mean?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.8554155230522156
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.9118922352790833
+              },
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.9273258447647095
+              },
+              {
+                "doc_id": "runbook_readOnlyDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.9368468523025513
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.9554735422134399
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 34.909,
+        "active_seconds": 34.909,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 25646.4,
+        "trace_ms_total": 9861.3,
+        "doc_ms_total": 15785.1,
+        "orchestrator_ms": 9262.3,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 12823.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is high latency on readBlock and sendBlock operations. The key evidence supporting this diagnosis includes:\n* Unusual latency on host datanode029 for the operation \"readBlock\" taking 3.47s to complete\n* Unusual latency on host datanode019 for the operation \"readBlock\" tak..."
+    }
+  ]
+}

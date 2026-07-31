@@ -1244,3 +1244,38 @@ matching one. Per the user's explicit direction, this was kept to the two concre
 fixes above rather than chasing an ever-more-elaborate heuristic — the LLM-judge step exists specifically
 to cover what deterministic scoring structurally cannot, and this TB-018 case is now a good concrete
 check for whether the judge actually does that job when it's run for real.
+
+### Full 27-case sweep, all three tiers, new trace-agent design (this session)
+
+Sanity checks for gpt-5.4 and Turbo (above) both ran cleanly under the new design, so ran the full
+27-case sweep for both (`Results/full_sweep/full__{gpt-5.4,llama-3.3-70b-instruct-turbo}__mode-agent__track-Bnative.json`),
+in parallel as background processes (API-backed, don't share a local bottleneck the way the Edge-tier
+runs did). Both completed 27/27 with no build or agent errors. Scored with the corrected localization
+scorer above. Edge-tier numbers below are the already-corrected figures from the previous entry.
+
+| Metric | Edge (qwen2.5) | Turbo | gpt-5.4 |
+|---|---|---|---|
+| Answer full_credit / partial / miss | 56% / 22% / 22% | 81% / 4% / 15% | 93% / 7% / 0% |
+| Localization hit rate (of 20) | 4/20 (20%) | 8/20 (40%) | 9/20 (45%) |
+| Trace score (avg/5) | 3.37 | 4.41 | 4.48 |
+| Tier 0 no-fault: full_credit / partial / miss | 0/7, 1/7, 6/7 | 3/7, 0/7, 4/7 | 5/7, 2/7, 0/7 |
+| Wall-clock: mean / median | 363.1s / 262.3s | 118.4s / 49.7s | 18.1s / 17.9s |
+| Severe timing outliers (>100s at gpt-5.4's scale, or notably >p95 for that tier) | 1 (TB-025, 3091s -- repeated identical query_trace question 8x, see earlier entry) | 1 (TB-005, 1844s) | 0 |
+
+**Clean, monotonic result**: every metric moves the same direction with capability tier, no crossovers --
+gpt-5.4 > Turbo > Edge on answer quality, localization, no-fault handling, speed, and reliability alike.
+This is a coherent, confirmatory finding: model capability meaningfully predicts diagnostic quality on
+Track B's native-trace-format task, which is what the whole three-way triangulation (PaaS / Track A /
+Track B) is ultimately trying to establish evidence for.
+
+**Two findings worth flagging as tier-dependent, not universal**:
+- The "shared weakness on Tier 0 no-fault cases" finding from the Edge-only comparison does NOT hold at
+  the gpt-5.4 tier -- gpt-5.4 has zero misses on all 7 no-fault controls (5 full_credit + 2 partial).
+  Edge (0/7 full_credit) and Turbo (3/7) both still struggle with it, to different degrees. "Confirming
+  nothing is wrong" is a real, tier-correlated capability gap, not a universal Track B limitation.
+- Turbo's severe timing outlier (TB-005, 1844s) is mechanically different from Edge's (TB-025, 3091s):
+  Edge's came from calling `query_trace` with the identical question 8 times in a row (an orchestrator-
+  level loop); Turbo's came from a SINGLE `query_trace` call whose own internal trace-sub-agent
+  invocation took ~30 minutes end to end (a sub-agent-level stall, not a repeated-call loop). Different
+  mechanism, same category of finding: reliability degrades with capability tier, not just accuracy.
+  gpt-5.4 shows zero outliers of either kind across all 27 cases.
