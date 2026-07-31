@@ -1,0 +1,340 @@
+[
+  {
+    "incident_id": "TB-018",
+    "question": "During a read HDFS workload (instance C4113E01C484F2EB), one datanode is measurably slower than its peers across multiple block-transfer operations, though every request still eventually completes successfully. What is the root cause?",
+    "diagnosis": "Root cause: **A single slow DataNode network path issue affecting datanode005 (e.g. NIC/interface errors, congestion, or QoS/shaping), causing persistently slow successful block reads/transfers.**\n\n- Trace evidence:\n  - **datanode005** is the clear laggard: **`readBlock (35.54s)`** and **`sendBlock (35.30s)`**, matching the client\u2019s **`OP: receive block (35.44s)`** on the path **`client003/newBlockReader -> datanode005/readBlock`**.\n  - Peer DataNodes are materially faster for the same workload, e.g. **datanode002 ~22s**, **datanode026 ~13s**, and others around **1\u20136s**, showing a **single-node slowness pattern** rather than cluster-wide latency.\n  - There are **no exceptions or [ERROR] entries**; the `verifiedByClient [WARN]` on **datanode046** is a red herring because the worst latency is on **datanode005** and all requests complete.\n\nRecommended fix: **Investigate and remediate the network path for datanode005\u2014check NIC/interface counters, switch port health, congestion, and any QoS/traffic-shaping misconfiguration.**",
+    "status": "ok",
+    "tool_call_trace": [
+      {
+        "tool": "query_trace",
+        "inputs": {
+          "question": "For HDFS read workload instance C4113E01C484F2EB, what does the trace show about block-transfer/read latencies across DataNodes? Identify the slower host, any latency-outlier annotations, involved operations, and whether any exceptions occurred."
+        },
+        "result": "The slowest DataNode in this read trace is **datanode005**: it shows **`readBlock (35.54s)`** and **`sendBlock (35.30s)`**, which matches the client\u2019s longest block receive of **`OP: receive block (35.44s)`** via the call chain **`client003/newBlockReader -> datanode005/readBlock`** and **`datanode005/sendBlock -> client003/OP: receive block`**.\n\nOther notably slow block transfers were:\n- **datanode002**: **`readBlock (22.00s)`**, **`sendBlock (21.75s)`**\n- **datanode026**: **`readBlock (13.20s)`**, **`sendBlock (13.19s)`**\n- Several faster nodes were in the ~1\u20136s range, e.g. **datanode004 `sendBlock (5.56s)`**, **datanode038 `sendBlock (3.71s)`**, **datanode012 `sendBlock (1.09s)`**.\n\nThe only latency-outlier annotations in the trace are on **datanode046**, not on the slowest sender:\n- **`verifiedByClient (1.0ms) [WARN]`**\n- **`verifiedByClient (0.8ms) [WARN]`**\n\nThe involved read/transfer operations across DataNodes are consistently **`readBlock`**, **`OP: new blockSender`**, **`sendBlock`**, and **`verifiedByClient`**, with the client side showing **`newBlockReader`** and **`OP: receive block`**.\n\nI do **not** see any exceptions or `[ERROR]` entries anywhere in the trace.",
+        "duration_ms": 8232.2
+      },
+      {
+        "tool": "query_docs",
+        "inputs": {
+          "question": "In HDFS, if one DataNode is consistently much slower than peers across multiple successful readBlock/sendBlock operations during a read workload, with no exceptions, what failure pattern does that indicate and what is the likely root cause and fix?"
+        },
+        "result": {
+          "answer": "This indicates the **Single Slow DataNode (`slowDN`)** failure pattern.\n\n- **Why:** The slowdown is on **one specific DataNode**, it appears **across multiple successful block-transfer operations**, and the workload is a **read workload** involving `readBlock` / `sendBlock`, with **no exceptions**.\n- **Not `readOnlyDN`:** That pattern is specific to the **write-receive path** (`new BlockReceiver` / receive block) during **write workloads**, not broad read-path slowness.\n\n## Likely root cause\nThe runbook says to **investigate the network path to the specific affected DataNode**, specifically for:\n- **interface errors**\n- **congestion**\n- **misconfigured QoS/shaping rules**\n\n## Likely fix\nPer the runbook, the fix is to **resolve the network issue affecting that DataNode\u2019s path**.\n\nSo, clearly:\n\n- **Failure pattern:** `slowDN`\n- **Root cause:** network-path problem to that DataNode\n- **Fix:** investigate and correct interface/congestion/QoS-shaping issues on that node\u2019s network path",
+          "retrieved_docs": [
+            {
+              "doc_id": "error_ref_readOnlyDN",
+              "doc_type": "error_ref",
+              "title": "Error Reference: DataNode Forced Read-Only (readOnlyDN)",
+              "case_ids": [
+                "TB-017"
+              ],
+              "failure_pattern": "readOnlyDN",
+              "tier": 1,
+              "distance": 0.4899572730064392
+            },
+            {
+              "doc_id": "arch_latency_baselines",
+              "doc_type": "architecture",
+              "title": "HDFS Architecture: Normal Operation Latency Baselines",
+              "case_ids": [
+                "TB-001",
+                "TB-004",
+                "TB-017",
+                "TB-018",
+                "TB-019"
+              ],
+              "failure_pattern": "architectural_reference",
+              "tier": 2,
+              "distance": 0.5167568922042847
+            },
+            {
+              "doc_id": "runbook_readOnlyDN",
+              "doc_type": "runbook",
+              "title": "Runbook: DataNode Forced Read-Only (readOnlyDN)",
+              "case_ids": [
+                "TB-017"
+              ],
+              "failure_pattern": "readOnlyDN",
+              "tier": 1,
+              "distance": 0.5532297492027283
+            },
+            {
+              "doc_id": "runbook_slowDN",
+              "doc_type": "runbook",
+              "title": "Runbook: Single Slow DataNode (slowDN)",
+              "case_ids": [
+                "TB-018"
+              ],
+              "failure_pattern": "slowDN",
+              "tier": 2,
+              "distance": 0.5842701196670532
+            },
+            {
+              "doc_id": "arch_hdfs_write_pipeline",
+              "doc_type": "architecture",
+              "title": "HDFS Architecture: The Write Pipeline",
+              "case_ids": [
+                "TB-002",
+                "TB-005",
+                "TB-015",
+                "TB-017",
+                "TB-018",
+                "TB-019"
+              ],
+              "failure_pattern": "architectural_reference",
+              "tier": 1,
+              "distance": 0.6232044696807861
+            }
+          ]
+        },
+        "duration_ms": 9018.0
+      }
+    ],
+    "timing": {
+      "total_seconds": 25.483,
+      "active_seconds": 25.483,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 17250.2,
+      "trace_ms_total": 8232.2,
+      "doc_ms_total": 9018.0,
+      "orchestrator_ms": 8232.4,
+      "n_tool_calls": 2,
+      "mean_ms_per_tool_call": 8625.1,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "B_native",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "retrieval_mode": "agent",
+      "trace_model": "gpt-5.4",
+      "trace_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  },
+  {
+    "incident_id": "TB-011",
+    "question": "During a read-only HDFS workload (instance 03FB08C229C2844D), some requests are failing with 'connection refused' when trying to reach a specific datanode, and the client subsequently avoids that node for the rest of the request. What is the root cause?",
+    "diagnosis": "Root cause: the read failures are caused by the DataNode on **10.107.100.58:50010** not accepting TCP connections\u2014i.e. the host is reachable but the **DataNode process/listener is down or not bound on that port**.\n\n- Trace evidence: for instance **03FB08C229C2844D** on **client002**, the read path shows **`IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue`**.\n- Trace evidence: immediately after that error, the client runs **`chooseDataNode` / `bestNode`** again, successfully opens a new BlockReader to other DataNodes, and does not use **10.107.100.58** again in the same request.\n- Failure pattern: this is the standard HDFS **dead DataNode / listener unavailable** read pattern, not a slow-node timeout; the client marks the node dead locally and continues from alternate replicas.\n\nRecommended fix: investigate and restore the DataNode service on **10.107.100.58** (process crashed/stopped, port 50010 not listening, or service not bound correctly), then return it to service after verifying it accepts block-reader connections.",
+    "status": "ok",
+    "tool_call_trace": [
+      {
+        "tool": "query_docs",
+        "inputs": {
+          "question": "In HDFS read workloads, what does a 'connection refused' when contacting a specific DataNode indicate, and what is the expected client behavior after such a failure within the same request?"
+        },
+        "result": {
+          "answer": "A `connection refused` to a specific DataNode indicates the **host is up but the DataNode process is not accepting connections**. Per the docs, the client sees:\n\n`java.net.ConnectException: Connection refused`\n\nThis corresponds to the case where **\u201cthe node's process is gone but the host is up\u201d**. The documentation also explicitly says this same symptom can mean either the process was **killed outright** or **died/unresponsive at the process level**; **the exception text alone does not distinguish those two**.\n\nExpected client behavior within the same read request:\n- The client **adds that DataNode to its local `deadNodes` list** for the duration of the operation.\n- It then **routes subsequent requests for that block to a different replica instead of retrying the failed node**.\n- This failure is **immediate**, not delayed by timeout.",
+          "retrieved_docs": [
+            {
+              "doc_id": "arch_datanode_liveness",
+              "doc_type": "architecture",
+              "title": "HDFS Architecture: DataNode Liveness and the deadNodes List",
+              "case_ids": [
+                "TB-011",
+                "TB-012",
+                "TB-013",
+                "TB-016",
+                "TB-020"
+              ],
+              "failure_pattern": "architectural_reference",
+              "tier": 1,
+              "distance": 0.6051943302154541
+            },
+            {
+              "doc_id": "runbook_killDN",
+              "doc_type": "runbook",
+              "title": "Runbook: DataNode Process Killed (killDN)",
+              "case_ids": [
+                "TB-013"
+              ],
+              "failure_pattern": "killDN",
+              "tier": 1,
+              "distance": 0.6182600855827332
+            },
+            {
+              "doc_id": "config_disconnectDN",
+              "doc_type": "config",
+              "title": "Configuration Reference: DataNode Disconnected from Network (disconnectDN)",
+              "case_ids": [
+                "TB-012"
+              ],
+              "failure_pattern": "disconnectDN",
+              "tier": 2,
+              "distance": 0.6376493573188782
+            },
+            {
+              "doc_id": "config_readOnlyDN",
+              "doc_type": "config",
+              "title": "Configuration Reference: DataNode Forced Read-Only (readOnlyDN)",
+              "case_ids": [
+                "TB-017"
+              ],
+              "failure_pattern": "readOnlyDN",
+              "tier": 1,
+              "distance": 0.6562987565994263
+            },
+            {
+              "doc_id": "config_suspendDN",
+              "doc_type": "config",
+              "title": "Configuration Reference: DataNode Process Suspended/Hung (suspendDN)",
+              "case_ids": [
+                "TB-020"
+              ],
+              "failure_pattern": "suspendDN",
+              "tier": 1,
+              "distance": 0.7117806673049927
+            }
+          ]
+        },
+        "duration_ms": 3061.2
+      },
+      {
+        "tool": "query_trace",
+        "inputs": {
+          "question": "For HDFS instance 03FB08C229C2844D, what does the trace show about the failing read path: which DataNode host has 'connection refused', what exception text appears, and does the client then avoid that node for subsequent block reads in the same request?"
+        },
+        "result": "The failing read attempt is on **`/10.107.100.58:50010`**. In the client trace on **`client002`**, at **`+4.14s`**, the event is:\n\n- **`OP: try new BlockReader (2.4ms) [ERROR] -- IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue`**\n\nSo the exact exception text is:\n\n- **`IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue`**\n\nYes, the trace shows the client **does avoid that node afterward in the same request**. Immediately after the failure, the client does another:\n\n- **`chooseDataNode`**\n- **`bestNode`**\n- **`OP: try new BlockReader (9.4ms)`**\n- **`newBlockReader (8.9ms)`**\n- then successfully **`OP: receive block (457.4ms)`**\n\nAnd in the cross-host call structure, all subsequent successful block reads go to other DataNodes (e.g. **`datanode039`**, `datanode037`, `datanode026`, etc.), with **no later successful read mapped to the refused endpoint**. The error text itself also explicitly says the client will **\u201cadd to deadNodes and continue.\u201d**",
+        "duration_ms": 5562.0
+      }
+    ],
+    "timing": {
+      "total_seconds": 11.8,
+      "active_seconds": 11.8,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 8623.2,
+      "trace_ms_total": 5562.0,
+      "doc_ms_total": 3061.2,
+      "orchestrator_ms": 3176.4,
+      "n_tool_calls": 2,
+      "mean_ms_per_tool_call": 4311.6,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "B_native",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "retrieval_mode": "agent",
+      "trace_model": "gpt-5.4",
+      "trace_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  },
+  {
+    "incident_id": "TB-021",
+    "question": "For a read-only HDFS workload (instance 00481732284B6247), an operator wants a diagnostic check: is there any fault or anomaly affecting this request? If nothing appears wrong, say so explicitly and explain what you checked.",
+    "diagnosis": "Root cause: No fault is indicated for instance `00481732284B6247`; this appears to be a normal successful multi-block HDFS read.\n\n- Trace evidence:\n  - The request is a successful read-only `fs -copyToLocal` on `client001` lasting `4.79s`, with no exceptions, failed RPCs, retries, `[WARN]`, or `[ERROR]` outlier annotations.\n  - NameNode metadata calls all completed normally: `getFileInfo` in `0.2\u20130.7ms` and `getBlockLocations` in `0.2ms`.\n  - All DataNode reads completed successfully and ended with `checksumOk` / `verifiedByClient`; the slowest shown was `datanode006 readBlock 993.6ms` / `sendBlock 940.7ms`, but it was not flagged as an outlier.\n\nFailure pattern: None observed \u2014 the pattern matches a normal multi-block `copyToLocal` read, where the client opens block readers on several DataNodes to fetch different blocks.\n\nRecommended fix: No corrective action is needed; if the operator wants extra assurance, continue monitoring for explicit exceptions, retries, checksum failures, or documented DataNode latency-outlier warnings, none of which appear in this trace.",
+    "status": "ok",
+    "tool_call_trace": [
+      {
+        "tool": "query_trace",
+        "inputs": {
+          "question": "For HDFS instance 00481732284B6247, what does the trace show about this read-only request? Are there any exceptions, retries, failed RPCs, or latency outliers on any host involved?"
+        },
+        "result": "This trace shows a successful read-only `fs -copyToLocal` on `client001` lasting `4.79s`.\n\nNo exceptions or failed RPCs are shown anywhere in the trace:\n- The NameNode calls all completed normally: `namenode/getFileInfo` ran 4 times (`0.7ms`, `0.2ms`, `0.2ms`, `0.2ms`) and `namenode/getBlockLocations` completed in `0.2ms`.\n- The client\u2019s block reads all ended with `checksumOk`, and every DataNode shows `verifiedByClient`, which is strong evidence the reads succeeded end-to-end.\n\nI do not see any explicit retries, failures, `[WARN]`, or `[ERROR]` latency-outlier annotations in the trace. The client opened multiple block readers because it was reading multiple blocks from different DataNodes, not because of retry/failure:\n- `datanode020/readBlock (880.6ms)`\n- `datanode018/readBlock (626.3ms)`\n- `datanode049/readBlock (815.6ms)`\n- `datanode003/readBlock (654.7ms)`\n- `datanode036/readBlock (740.9ms)`\n- `datanode006/readBlock (993.6ms)`\n\nThe slowest single DataNode read shown is on `datanode006`: `readBlock (993.6ms)` with `sendBlock (940.7ms)`, but it is not marked as an outlier or failure.",
+        "duration_ms": 6375.6
+      },
+      {
+        "tool": "query_docs",
+        "inputs": {
+          "question": "In HDFS, for a read-only copyToLocal request trace with normal NameNode metadata RPCs, multiple DataNode readBlock/sendBlock operations all ending in checksumOk/verifiedByClient, and no exceptions, retries, or latency-outlier warnings, does this indicate any fault? What should be checked to distinguish normal multi-block reads from anomalies?"
+        },
+        "result": {
+          "answer": "No fault is indicated by the documentation provided.\n\nWhy:\n- The trace is a read-only `copyToLocal` flow.\n- NameNode metadata RPCs are normal.\n- Multiple DataNode `readBlock` / `sendBlock` operations complete successfully.\n- They end in `checksumOk` / `verifiedByClient`.\n- There are no exceptions, retries, or latency-outlier warnings.\n\nBased on the docs, the documented HDFS faults show up as one of:\n- explicit exceptions such as:\n  - `org.apache.hadoop.fs.ChecksumException: Checksum error: /blk_<id>:of:<path>`\n  - `java.io.IOException: Could not create DataChecksum of type 3 with bytesPerChecksum 50529027`\n  - `Offset 0 and length 67108864 don't match block blk_<id> ( blockLen 2201 )`\n  - `Block blk_<id> is not valid.`\n- or a clear latency outlier on a specific DataNode, such as:\n  - `datanode027 averages 39,022,155ns for OP: new BlockReceiver across this trace_set vs 17,688,923ns for its peer datanodes (2.2x)`\n  - `datanode003 averages 84,461,227ns for OP: new blockSender across this trace_set vs 3,060,219ns for its peer datanodes (27.6x)`\n\nNone of those are present in your described trace.\n\nWhat to check to distinguish normal multi-block reads from anomalies:\n1. Confirm the repeated DataNode operations are just separate block transfers for the file.\n   - The write-pipeline architecture doc says `new blockSender / sendBlock` is the normal operation when a DataNode reads a stored block and streams it to a requesting client.\n   - So seeing multiple such operations in one `copyToLocal` trace is consistent with a multi-block file read.\n\n2. Check that each block transfer completes successfully.\n   - In your case they end in `checksumOk` / `verifiedByClient`, which is consistent with successful reads rather than corruption/loss symptoms.\n\n3. Check for any exceptions or retries.\n   - The corruption/loss docs indicate anomalies would produce explicit failures, not silent success.\n\n4. Check for node-specific latency outliers.\n   - The docs say to suspect a specific DataNode when it is \u201cconsistently the slow link\u201d and compare its average duration against peer DataNodes handling the same workload.\n   - Since you report no latency-outlier warnings, the docs do not support calling this faulty.\n\nSo, specifically: this looks like a normal multi-block `copyToLocal` read, not evidence of a fault.\n\nOne limitation:\n- The provided documentation does not define how many block transfers should be expected for a given file size, nor does it provide any additional normal-read trace signature beyond the successful `blockSender/sendBlock` behavior. So the best documented distinction is: normal multi-block reads show repeated successful block sends; anomalies show exceptions, retries, or clear per-DataNode latency outliers.",
+          "retrieved_docs": [
+            {
+              "doc_id": "runbook_lossBlk",
+              "doc_type": "runbook",
+              "title": "Runbook: Block Data Lost/Invalidated (lossBlk)",
+              "case_ids": [
+                "TB-014"
+              ],
+              "failure_pattern": "lossBlk",
+              "tier": 3,
+              "distance": 0.7078203558921814
+            },
+            {
+              "doc_id": "arch_checksums_and_corruption",
+              "doc_type": "architecture",
+              "title": "HDFS Architecture: Block Checksums and Corruption Signatures",
+              "case_ids": [
+                "TB-003",
+                "TB-007",
+                "TB-008",
+                "TB-009",
+                "TB-010",
+                "TB-014"
+              ],
+              "failure_pattern": "architectural_reference",
+              "tier": 3,
+              "distance": 0.7242786884307861
+            },
+            {
+              "doc_id": "arch_hdfs_write_pipeline",
+              "doc_type": "architecture",
+              "title": "HDFS Architecture: The Write Pipeline",
+              "case_ids": [
+                "TB-002",
+                "TB-005",
+                "TB-015",
+                "TB-017",
+                "TB-018",
+                "TB-019"
+              ],
+              "failure_pattern": "architectural_reference",
+              "tier": 1,
+              "distance": 0.728278636932373
+            },
+            {
+              "doc_id": "error_ref_readOnlyDN",
+              "doc_type": "error_ref",
+              "title": "Error Reference: DataNode Forced Read-Only (readOnlyDN)",
+              "case_ids": [
+                "TB-017"
+              ],
+              "failure_pattern": "readOnlyDN",
+              "tier": 1,
+              "distance": 0.7539064288139343
+            },
+            {
+              "doc_id": "error_ref_Mul_AA",
+              "doc_type": "error_ref",
+              "title": "Error Reference: Multi-Fault Combination (AnarchyApe)",
+              "case_ids": [
+                "TB-001"
+              ],
+              "failure_pattern": "Mul_AA",
+              "tier": 3,
+              "distance": 0.7607035636901855
+            }
+          ]
+        },
+        "duration_ms": 6407.3
+      }
+    ],
+    "timing": {
+      "total_seconds": 19.815,
+      "active_seconds": 19.815,
+      "rate_limit_sleep_s": 0.0,
+      "tool_ms_total": 12782.9,
+      "trace_ms_total": 6375.6,
+      "doc_ms_total": 6407.3,
+      "orchestrator_ms": 7032.5,
+      "n_tool_calls": 2,
+      "mean_ms_per_tool_call": 6391.5,
+      "malformed_tool_call_retries": 0
+    },
+    "model_config": {
+      "track": "B_native",
+      "diagnostic_model": "gpt-5.4",
+      "diagnostic_backend": "openai",
+      "retrieval_mode": "agent",
+      "trace_model": "gpt-5.4",
+      "trace_backend": "openai",
+      "doc_model": "gpt-5.4",
+      "doc_backend": "openai"
+    }
+  }
+]

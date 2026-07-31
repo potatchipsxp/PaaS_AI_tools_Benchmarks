@@ -1171,3 +1171,76 @@ deterministic-only design on the dimension it targeted (retrieval succeeding at 
 localization accuracy), at a real and now-quantified cost (roughly 2-3x wall-clock time, plus a new
 rare-but-severe stuck-loop failure mode). Not a clean, unambiguous win -- but a clearly positive
 tradeoff on the evidence gathered so far, which the n=3 sample was not able to establish either way.
+
+**CORRECTED below** (see "Localization scorer: two real false-classification bugs, fixed" a few
+sections down) -- the 7/20 (35%) agent-mode localization hit rate reported above included 4
+false-positive hits from the same "mentioned-then-rejected" scoring bug found on gpt-5.4. The
+corrected figure is **4/20 (20%)**. Still a real improvement over deterministic mode's 0/20, just a
+smaller one than first reported -- flagged here rather than silently edited, per this project's
+practice of leaving earlier claims visible with an inline correction rather than rewriting history.
+
+### Sanity check, new trace-agent design: gpt-5.4 and Llama-3.3-70B-Instruct-Turbo (this session)
+
+Same 3 cases (TB-018, TB-011, TB-021), new trace-agent design, the two tiers not yet tested under it
+(Edge already had full 27-case data both ways). Turbo's earlier-session pause was explicitly lifted by
+the user for this check. Both ran cleanly -- 6/6 successful `query_trace` calls (down to a real
+sub-agent hit, not a tool-calling failure), fast (gpt-5.4 mean 19.0s/case; Turbo mean 60.8s/case).
+
+- **gpt-5.4**: 3/3 answer full_credit, trace score 4.67/5. Localization (pre-fix scoring): 1/2 --
+  see below, this number was wrong.
+- **Turbo**: 2/3 full_credit + 1 partial, trace score 5.00/5, localization 0/2.
+
+### Localization scorer: two real false-classification bugs, found and fixed (this session)
+
+**Found via gpt-5.4's TB-018 answer** (ground truth: `datanode046` is the real slow node). gpt-5.4
+read the trace, explicitly considered `datanode046`'s `[WARN]` flag, and rejected it: *"...the
+`verifiedByClient [WARN]` on **datanode046** is a red herring because the worst latency is on
+**datanode005**..."* -- the wrong conclusion. `score_localization()` did a naive whole-diagnosis
+substring search for the ground-truth string, so `"datanode046"` appearing anywhere -- including in a
+sentence dismissing it -- counted as a hit. **False positive**, on a case that is in fact a
+confidently-argued wrong answer.
+
+The mirror-image bug appeared right next to it: on TB-011, gpt-5.4 correctly identified the real dead
+DataNode by its **IP address** (`10.107.100.58:50010`) rather than its hostname alias (`datanode001`).
+Substantively correct, but scored a **miss** because the literal ground-truth string never appears.
+
+**Two fixes, deliberately kept narrow** (per explicit user direction not to over-tighten a keyword
+scorer that the LLM judge is meant to complement, not be replaced by):
+
+1. `_extract_root_cause_statement()` (`evaluate_trace.py`) scopes the substring search to the model's
+   *stated conclusion* (the "Root cause: ..." line the SYSTEM_PROMPT already requires), not the whole
+   diagnosis text. Falls back to the full text if no such marker is found -- deliberately conservative,
+   so a model with looser formatting (Turbo, some Edge-tier outputs) isn't scored *more* strictly than
+   before. Directly fixes the TB-018 false positive: `datanode046` only appears in the rejected-as-red-
+   herring bullet, not in the stated conclusion, which names `datanode005` instead.
+2. `enrich_ground_truth_aliases.py` (new, one-off, committed for reproducibility) adds
+   `affected_component_aliases` to `data/ground_truth_trace.json` for all 20 localizable cases: each
+   affected host's real IP address, resolved from that *specific trace's own* `Event.HostAddress` rows
+   (verified the same hostname string maps to a *different* IP in different traces -- e.g. `datanode003`
+   is `10.107.100.62` in TB-001 but `10.107.131.119` in TB-002 -- so this is a per-case lookup, never a
+   global hostname->IP table). For the 7 cases where the affected node is a dead/unreachable node with
+   no Event rows of its own (Tier 1 `deadDN` faults), the IP is instead parsed directly from the
+   ground-truth `evidence_anchor`'s own exception text, which already quotes it verbatim. All 20 cases
+   resolved cleanly, no manual guesses. `score_localization()` now checks both the real name and its
+   alias(es).
+
+**Verified the fix is actually correct, not just different**: re-scoring gpt-5.4's sanity results flips
+exactly the two cases it should -- TB-018 hit->miss, TB-011 miss->hit -- and Turbo's results (looser
+formatting, no clean "Root cause:" line in every answer) are **unchanged**, confirming the fallback
+doesn't make scoring stricter for models that don't follow the requested format.
+
+**Re-ran on the full 27-case Edge-tier comparison** (the committed baseline from the previous entry) to
+check whether this changes anything already reported. Deterministic mode: unaffected (still 0/20 --
+never got real data to make any specific claim, right or wrong). **Agent mode: 7/20 (35%) corrected to
+4/20 (20%)** -- 4 of the 7 original "hits" were the same mention-then-reject false positive found on
+gpt-5.4 (TB-003, TB-006, TB-007, TB-014), and 1 new genuine hit (TB-016) was recovered via the IP-alias
+fix. Net: -3 hits. Still a real, meaningful improvement over deterministic mode's 0%, just smaller than
+first reported.
+
+**Explicitly not fixed, and not fixable this way**: genuine assertion-vs-rejection semantics ("it's not
+X, it's Y" inside one sentence; negation phrased in a way no keyword pattern catches; a model that
+ignores the requested output structure entirely) is a language-understanding problem, not a keyword-
+matching one. Per the user's explicit direction, this was kept to the two concrete, evidence-backed
+fixes above rather than chasing an ever-more-elaborate heuristic — the LLM-judge step exists specifically
+to cover what deterministic scoring structurally cannot, and this TB-018 case is now a good concrete
+check for whether the judge actually does that job when it's run for real.

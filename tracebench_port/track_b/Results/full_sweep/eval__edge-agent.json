@@ -1,5 +1,5 @@
 {
-  "evaluated_at": "2026-07-30T23:34:54.640000Z",
+  "evaluated_at": "2026-07-31T17:35:30.099575Z",
   "tracks": [
     "B_native"
   ],
@@ -12,10 +12,10 @@
       "error": 0
     },
     "localization": {
-      "hit": 7,
-      "miss": 13,
+      "hit": 4,
+      "miss": 16,
       "n/a": 7,
-      "hit_rate_of_localizable": 0.35
+      "hit_rate_of_localizable": 0.2
     },
     "retrieval": {
       "avg_recall": 0.333,
@@ -300,7 +300,7 @@
       "track": "B_native",
       "status": "ok",
       "answer_grade": "partial",
-      "localization": "miss",
+      "localization": "hit",
       "retrieval": {
         "num_calls": 1,
         "calls": [
@@ -813,7 +813,7 @@
       "track": "B_native",
       "status": "ok",
       "answer_grade": "full_credit",
-      "localization": "hit",
+      "localization": "miss",
       "retrieval": {
         "num_calls": 1,
         "calls": [
@@ -1053,7 +1053,7 @@
       "track": "B_native",
       "status": "ok",
       "answer_grade": "full_credit",
-      "localization": "hit",
+      "localization": "miss",
       "retrieval": {
         "num_calls": 1,
         "calls": [
@@ -1152,7 +1152,7 @@
       "track": "B_native",
       "status": "ok",
       "answer_grade": "full_credit",
-      "localization": "hit",
+      "localization": "miss",
       "retrieval": {
         "num_calls": 0,
         "calls": [],
@@ -1375,7 +1375,7 @@
       "track": "B_native",
       "status": "ok",
       "answer_grade": "partial",
-      "localization": "hit",
+      "localization": "miss",
       "retrieval": {
         "num_calls": 0,
         "calls": [],

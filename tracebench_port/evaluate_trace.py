@@ -49,6 +49,7 @@ Usage:
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -245,11 +246,59 @@ def score_answer(case_id, diagnosis):
     return "miss"
 
 
+_ROOT_CAUSE_RE = re.compile(
+    r"root\s*cause[:\*#\s]*(.+?)(?:\n\s*\n|\n\s*[-*]|\Z)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _extract_root_cause_statement(diagnosis):
+    """
+    Pull just the model's stated root-cause conclusion out of a diagnosis,
+    per the SYSTEM_PROMPT's required format ("root cause in one sentence").
+    Used to scope score_localization() to what the model actually asserts
+    as its answer, not text that merely mentions-and-rejects a candidate
+    elsewhere in the evidence bullets.
+
+    Found via a real example (CHANGELOG_PORT.md): gpt-5.4 on TB-018 named
+    the real affected datanode while explicitly calling it a "red herring"
+    and concluding a different (wrong) one was the cause. A whole-text
+    substring search scored that a localization hit -- wrong, since the
+    model's actual answer was incorrect.
+
+    Deliberately conservative: falls back to the full diagnosis text if no
+    "root cause" marker is found, rather than becoming stricter than the
+    previous whole-text search for models that don't follow the requested
+    format exactly.
+    """
+    if not diagnosis:
+        return diagnosis
+    m = _ROOT_CAUSE_RE.search(diagnosis)
+    return m.group(1).strip() if m else diagnosis
+
+
 def score_localization(case_id, diagnosis):
     """
-    Spec 5.3: did the diagnosis name the real affected_component (e.g. a
-    specific datanode)? Reads data/ground_truth_trace.json -- the isolated
-    ground truth, never shown to the agent -- post-hoc only.
+    Spec 5.3: did the diagnosis's STATED CONCLUSION name the real
+    affected_component (e.g. a specific datanode)? Reads
+    data/ground_truth_trace.json -- the isolated ground truth, never shown
+    to the agent -- post-hoc only.
+
+    Matches against affected_component's real names AND
+    affected_component_aliases (IP addresses, resolved from the same
+    trace's own Event rows or, for dead-node cases with no such row, from
+    the evidence_anchor's own exception text -- see
+    enrich_ground_truth_aliases.py). A model that correctly identifies the
+    real node by IP instead of hostname alias should not be scored a miss
+    for using an equally valid reference.
+
+    This narrows two real false-classification cases found empirically
+    (mention-and-reject scored as a hit; correct-but-by-IP scored as a
+    miss) but does not eliminate the underlying problem -- genuine
+    assertion-vs-rejection semantics is a language-understanding task no
+    keyword/regex heuristic fully solves. That gap is what the LLM-judge
+    step exists to cover; this fix narrows the deterministic layer's
+    blind spot, not close it.
 
     Returns: "hit" | "miss" | "n/a" (Tier 0 normal controls have no
     affected_component to localize -- scoring them as a miss would
@@ -263,8 +312,9 @@ def score_localization(case_id, diagnosis):
     if not affected:
         return "n/a"
 
-    diagnosis_lower = diagnosis.lower()
-    return "hit" if any(a.lower() in diagnosis_lower for a in affected) else "miss"
+    candidates = list(affected) + list(gt.get("affected_component_aliases", []))
+    conclusion_lower = _extract_root_cause_statement(diagnosis).lower()
+    return "hit" if any(a.lower() in conclusion_lower for a in candidates) else "miss"
 
 
 # ============================================================================

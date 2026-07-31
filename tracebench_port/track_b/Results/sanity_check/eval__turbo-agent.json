@@ -1,0 +1,376 @@
+{
+  "evaluated_at": "2026-07-31T17:35:19.904110Z",
+  "tracks": [
+    "B_native"
+  ],
+  "n_cases": 3,
+  "summary": {
+    "answer": {
+      "full_credit": 2,
+      "partial": 1,
+      "miss": 0,
+      "error": 0
+    },
+    "localization": {
+      "hit": 0,
+      "miss": 2,
+      "n/a": 1,
+      "hit_rate_of_localizable": 0.0
+    },
+    "retrieval": {
+      "avg_recall": 0.667,
+      "avg_precision": 0.2
+    },
+    "trace": {
+      "avg_score": 5.0,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 3,
+        "total_seconds_mean": 60.82,
+        "total_seconds_med": 48.12,
+        "total_seconds_p95": 86.25,
+        "total_seconds_min": 43.86,
+        "total_seconds_max": 90.49,
+        "evidence_ms_mean": 1236.5,
+        "doc_ms_mean": 30556.1,
+        "orchestrator_ms_mean": 29031.1,
+        "n_tool_calls_mean": 2.0,
+        "orchestrator_share": 0.477
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 1,
+          "total_seconds_mean": 48.12,
+          "total_seconds_med": 48.12,
+          "total_seconds_p95": 48.12,
+          "total_seconds_min": 48.12,
+          "total_seconds_max": 48.12,
+          "evidence_ms_mean": 1254.3,
+          "doc_ms_mean": 8065.7,
+          "orchestrator_ms_mean": 38804.9,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.806
+        },
+        "tier_1": {
+          "n": 1,
+          "total_seconds_mean": 43.86,
+          "total_seconds_med": 43.86,
+          "total_seconds_p95": 43.86,
+          "total_seconds_min": 43.86,
+          "total_seconds_max": 43.86,
+          "evidence_ms_mean": 1217.4,
+          "doc_ms_mean": 24514.0,
+          "orchestrator_ms_mean": 18128.3,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.413
+        },
+        "tier_2": {
+          "n": 1,
+          "total_seconds_mean": 90.49,
+          "total_seconds_med": 90.49,
+          "total_seconds_p95": 90.49,
+          "total_seconds_min": 90.49,
+          "total_seconds_max": 90.49,
+          "evidence_ms_mean": 1237.8,
+          "doc_ms_mean": 59088.7,
+          "orchestrator_ms_mean": 30160.1,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.333
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What is the runbook for a DataNode that is slower than its peers?",
+            "n_retrieved": 5,
+            "n_relevant": 2,
+            "precision": 0.4,
+            "docs": [
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.6527609825134277
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7418298721313477
+              },
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.7463549375534058
+              },
+              {
+                "doc_id": "runbook_readOnlyDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.785331130027771
+              },
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.7901076078414917
+              }
+            ]
+          }
+        ],
+        "precision": 0.4,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 90.487,
+        "active_seconds": 90.487,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 60326.5,
+        "trace_ms_total": 1237.8,
+        "doc_ms_total": 59088.7,
+        "orchestrator_ms": 30160.1,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 30163.2,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that one DataNode is measurably slower than its peers across multiple block-transfer operations. \nEvidence:\n* The trace for instance C4113E01C484F2EB shows that one DataNode has a higher average duration for the same operation compared to its peers.\n* The issue is not ..."
+    },
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does a connection refused error to a specific datanode mean in HDFS?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.5620399713516235
+              },
+              {
+                "doc_id": "config_panicDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-016"
+                ],
+                "relevant": false,
+                "distance": 0.6570233106613159
+              },
+              {
+                "doc_id": "config_readOnlyDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6607856750488281
+              },
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.7039738893508911
+              },
+              {
+                "doc_id": "runbook_killDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.7493495941162109
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 43.86,
+        "active_seconds": 43.86,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 25731.4,
+        "trace_ms_total": 1217.4,
+        "doc_ms_total": 24514.0,
+        "orchestrator_ms": 18128.3,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 12865.7,
+        "malformed_tool_call_retries": 1
+      },
+      "diagnosis_excerpt": "The root cause of the issue is that the DataNode process is gone but the host is up, causing the client to see a 'connection refused' error when trying to reach the specific DataNode. \nEvidence:\n* The exception text 'java.net.ConnectException: Connection refused' in the trace for instance 03FB08C229..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "partial",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "What does the trace for instance 00481732284B6247 show about datanode latency?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "error_ref_slowDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.5789164304733276
+              },
+              {
+                "doc_id": "error_ref_slowHDFS",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.6700068712234497
+              },
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": false,
+                "distance": 0.7211684584617615
+              },
+              {
+                "doc_id": "config_suspendDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.7961452007293701
+              },
+              {
+                "doc_id": "runbook_slowHDFS",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.8096646666526794
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 48.125,
+        "active_seconds": 48.125,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 9320.0,
+        "trace_ms_total": 1254.3,
+        "doc_ms_total": 8065.7,
+        "orchestrator_ms": 38804.9,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 4660.0,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "The root cause is that there is no evidence of any fault or anomaly affecting the read-only HDFS workload for instance 00481732284B6247. \nThe key evidence that supports this diagnosis includes:\n* The query_trace function shows no exceptions or latency outliers for the given instance.\n* The query_doc..."
+    }
+  ]
+}

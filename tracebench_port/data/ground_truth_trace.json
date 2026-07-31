@@ -13,7 +13,10 @@
       "datanode003"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode003 averages 84,461,227ns for OP: new blockSender across this trace_set vs 3,060,219ns for its peer datanodes (27.6x)"
+    "evidence_anchor": "datanode003 averages 84,461,227ns for OP: new blockSender across this trace_set vs 3,060,219ns for its peer datanodes (27.6x)",
+    "affected_component_aliases": [
+      "10.107.100.62"
+    ]
   },
   {
     "case_id": "TB-002",
@@ -29,7 +32,10 @@
       "datanode003"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode003 averages 1,051,558,172ns for verifiedByClient across this trace_set vs 908,410ns for its peer datanodes (1157.6x)"
+    "evidence_anchor": "datanode003 averages 1,051,558,172ns for verifiedByClient across this trace_set vs 908,410ns for its peer datanodes (1157.6x)",
+    "affected_component_aliases": [
+      "10.107.131.119"
+    ]
   },
   {
     "case_id": "TB-003",
@@ -47,7 +53,12 @@
       "datanode050"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 3 with bytesPerChecksum 50529027"
+    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 3 with bytesPerChecksum 50529027",
+    "affected_component_aliases": [
+      "10.107.100.105",
+      "10.107.100.110",
+      "10.107.100.80"
+    ]
   },
   {
     "case_id": "TB-004",
@@ -63,7 +74,10 @@
       "datanode046"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode046 averages 27,658,900ns for OP: new blockSender across this trace_set vs 1,269,153ns for its peer datanodes (21.8x)"
+    "evidence_anchor": "datanode046 averages 27,658,900ns for OP: new blockSender across this trace_set vs 1,269,153ns for its peer datanodes (21.8x)",
+    "affected_component_aliases": [
+      "10.107.100.106"
+    ]
   },
   {
     "case_id": "TB-005",
@@ -79,7 +93,10 @@
       "datanode033"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode033 averages 92,702,267ns for verifiedByClient across this trace_set vs 6,892,375ns for its peer datanodes (13.4x)"
+    "evidence_anchor": "datanode033 averages 92,702,267ns for verifiedByClient across this trace_set vs 6,892,375ns for its peer datanodes (13.4x)",
+    "affected_component_aliases": [
+      "10.107.100.93"
+    ]
   },
   {
     "case_id": "TB-006",
@@ -96,7 +113,11 @@
       "datanode043"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: failed to connect to 10.107.100.96:50010"
+    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: failed to connect to 10.107.100.96:50010",
+    "affected_component_aliases": [
+      "10.107.100.103",
+      "10.107.100.76"
+    ]
   },
   {
     "case_id": "TB-007",
@@ -112,7 +133,10 @@
       "datanode002"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: org.apache.hadoop.fs.ChecksumException: Checksum error: /blk_-5596974342584343053:of:/user/hadoop/hdfsFile_2_blocks at 0"
+    "evidence_anchor": "IOException: org.apache.hadoop.fs.ChecksumException: Checksum error: /blk_-5596974342584343053:of:/user/hadoop/hdfsFile_2_blocks at 0",
+    "affected_component_aliases": [
+      "10.107.100.60"
+    ]
   },
   {
     "case_id": "TB-008",
@@ -129,7 +153,11 @@
       "datanode003"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 3 with bytesPerChecksum 50529027"
+    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 3 with bytesPerChecksum 50529027",
+    "affected_component_aliases": [
+      "10.107.100.58",
+      "10.107.100.62"
+    ]
   },
   {
     "case_id": "TB-009",
@@ -145,7 +173,10 @@
       "datanode004"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.io.IOException:  Offset 0 and length 67108864 don't match block blk_2749751980111740114_1415 ( blockLen 2201 )"
+    "evidence_anchor": "IOException: java.io.IOException:  Offset 0 and length 67108864 don't match block blk_2749751980111740114_1415 ( blockLen 2201 )",
+    "affected_component_aliases": [
+      "10.107.100.64"
+    ]
   },
   {
     "case_id": "TB-010",
@@ -162,7 +193,11 @@
       "datanode005"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 49 with bytesPerChecksum 825307441"
+    "evidence_anchor": "IOException: java.io.IOException: Could not create DataChecksum of type 49 with bytesPerChecksum 825307441",
+    "affected_component_aliases": [
+      "10.107.100.34",
+      "10.107.100.60"
+    ]
   },
   {
     "case_id": "TB-011",
@@ -178,7 +213,10 @@
       "datanode001"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue"
+    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue",
+    "affected_component_aliases": [
+      "10.107.100.58"
+    ]
   },
   {
     "case_id": "TB-012",
@@ -195,7 +233,10 @@
       "datanode004"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.64:50010, add to deadNodes and continue"
+    "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.64:50010, add to deadNodes and continue",
+    "affected_component_aliases": [
+      "10.107.100.64"
+    ]
   },
   {
     "case_id": "TB-013",
@@ -211,7 +252,10 @@
       "datanode001"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue"
+    "evidence_anchor": "IOException: java.net.ConnectException: Connection refused: Failed to connect to /10.107.100.58:50010, add to deadNodes and continue",
+    "affected_component_aliases": [
+      "10.107.100.58"
+    ]
   },
   {
     "case_id": "TB-014",
@@ -227,7 +271,10 @@
       "datanode004"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.io.IOException: Block blk_-1603825720303258975_1176 is not valid."
+    "evidence_anchor": "IOException: java.io.IOException: Block blk_-1603825720303258975_1176 is not valid.",
+    "affected_component_aliases": [
+      "10.107.100.64"
+    ]
   },
   {
     "case_id": "TB-015",
@@ -243,7 +290,10 @@
       "datanode048"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode048 averages 33,456,252ns for verifiedByClient across this trace_set vs 168,563ns for its peer datanodes (198.5x)"
+    "evidence_anchor": "datanode048 averages 33,456,252ns for verifiedByClient across this trace_set vs 168,563ns for its peer datanodes (198.5x)",
+    "affected_component_aliases": [
+      "10.107.100.11"
+    ]
   },
   {
     "case_id": "TB-016",
@@ -260,7 +310,10 @@
       "datanode002"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.60:50010, add to deadNodes and continue"
+    "evidence_anchor": "IOException: java.net.NoRouteToHostException: No route to host: Failed to connect to /10.107.100.60:50010, add to deadNodes and continue",
+    "affected_component_aliases": [
+      "10.107.100.60"
+    ]
   },
   {
     "case_id": "TB-017",
@@ -276,7 +329,10 @@
       "datanode027"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode027 averages 39,022,155ns for OP: new BlockReceiver across this trace_set vs 17,688,923ns for its peer datanodes (2.2x)"
+    "evidence_anchor": "datanode027 averages 39,022,155ns for OP: new BlockReceiver across this trace_set vs 17,688,923ns for its peer datanodes (2.2x)",
+    "affected_component_aliases": [
+      "10.107.100.74"
+    ]
   },
   {
     "case_id": "TB-018",
@@ -292,7 +348,10 @@
       "datanode046"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode046 averages 58,519,845ns for verifiedByClient across this trace_set vs 178,178ns for its peer datanodes (328.4x)"
+    "evidence_anchor": "datanode046 averages 58,519,845ns for verifiedByClient across this trace_set vs 178,178ns for its peer datanodes (328.4x)",
+    "affected_component_aliases": [
+      "10.107.100.106"
+    ]
   },
   {
     "case_id": "TB-019",
@@ -308,7 +367,10 @@
       "datanode019"
     ],
     "evidence_type": "host_latency_outlier",
-    "evidence_anchor": "datanode019 averages 161,798,467ns for OP: new BlockReceiver across this trace_set vs 114,794,868ns for its peer datanodes (1.4x)"
+    "evidence_anchor": "datanode019 averages 161,798,467ns for OP: new BlockReceiver across this trace_set vs 114,794,868ns for its peer datanodes (1.4x)",
+    "affected_component_aliases": [
+      "10.107.100.79"
+    ]
   },
   {
     "case_id": "TB-020",
@@ -324,7 +386,11 @@
       "datanode003"
     ],
     "evidence_type": "description_exception",
-    "evidence_anchor": "IOException: java.net.SocketTimeoutException: 60000 millis timeout while waiting for channel to be ready for read. ch : java.nio.channels.SocketChannel[connected local=/10.107.100.123:42282 remote=/10.107.100.62:50010]: Failed to connect to /10.107.100.62"
+    "evidence_anchor": "IOException: java.net.SocketTimeoutException: 60000 millis timeout while waiting for channel to be ready for read. ch : java.nio.channels.SocketChannel[connected local=/10.107.100.123:42282 remote=/10.107.100.62:50010]: Failed to connect to /10.107.100.62",
+    "affected_component_aliases": [
+      "10.107.100.123",
+      "10.107.100.62"
+    ]
   },
   {
     "case_id": "TB-021",

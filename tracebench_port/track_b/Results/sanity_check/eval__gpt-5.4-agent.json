@@ -1,0 +1,395 @@
+{
+  "evaluated_at": "2026-07-31T17:35:04.908358Z",
+  "tracks": [
+    "B_native"
+  ],
+  "n_cases": 3,
+  "summary": {
+    "answer": {
+      "full_credit": 3,
+      "partial": 0,
+      "miss": 0,
+      "error": 0
+    },
+    "localization": {
+      "hit": 1,
+      "miss": 1,
+      "n/a": 1,
+      "hit_rate_of_localizable": 0.5
+    },
+    "retrieval": {
+      "avg_recall": 0.667,
+      "avg_precision": 0.267
+    },
+    "trace": {
+      "avg_score": 4.67,
+      "max_score": 5
+    },
+    "timing": {
+      "overall": {
+        "n": 3,
+        "total_seconds_mean": 19.03,
+        "total_seconds_med": 19.82,
+        "total_seconds_p95": 24.92,
+        "total_seconds_min": 11.8,
+        "total_seconds_max": 25.48,
+        "evidence_ms_mean": 6723.3,
+        "doc_ms_mean": 6162.2,
+        "orchestrator_ms_mean": 6147.1,
+        "n_tool_calls_mean": 2.0,
+        "orchestrator_share": 0.323
+      },
+      "by_tier": {
+        "tier_0": {
+          "n": 1,
+          "total_seconds_mean": 19.82,
+          "total_seconds_med": 19.82,
+          "total_seconds_p95": 19.82,
+          "total_seconds_min": 19.82,
+          "total_seconds_max": 19.82,
+          "evidence_ms_mean": 6375.6,
+          "doc_ms_mean": 6407.3,
+          "orchestrator_ms_mean": 7032.5,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.355
+        },
+        "tier_1": {
+          "n": 1,
+          "total_seconds_mean": 11.8,
+          "total_seconds_med": 11.8,
+          "total_seconds_p95": 11.8,
+          "total_seconds_min": 11.8,
+          "total_seconds_max": 11.8,
+          "evidence_ms_mean": 5562.0,
+          "doc_ms_mean": 3061.2,
+          "orchestrator_ms_mean": 3176.4,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.269
+        },
+        "tier_2": {
+          "n": 1,
+          "total_seconds_mean": 25.48,
+          "total_seconds_med": 25.48,
+          "total_seconds_p95": 25.48,
+          "total_seconds_min": 25.48,
+          "total_seconds_max": 25.48,
+          "evidence_ms_mean": 8232.2,
+          "doc_ms_mean": 9018.0,
+          "orchestrator_ms_mean": 8232.4,
+          "n_tool_calls_mean": 2.0,
+          "orchestrator_share": 0.323
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "TB-018",
+      "tier": 2,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "miss",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In HDFS, if one DataNode is consistently much slower than peers across multiple successful readBlock/sendBlock operations during a read workload, with no exceptions, what failure pattern does that indicate and what is the likely root cause and fix?",
+            "n_retrieved": 5,
+            "n_relevant": 3,
+            "precision": 0.6,
+            "docs": [
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.4899572730064392
+              },
+              {
+                "doc_id": "arch_latency_baselines",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-001",
+                  "TB-004",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.5167568922042847
+              },
+              {
+                "doc_id": "runbook_readOnlyDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.5532297492027283
+              },
+              {
+                "doc_id": "runbook_slowDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-018"
+                ],
+                "relevant": true,
+                "distance": 0.5842701196670532
+              },
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": true,
+                "distance": 0.6232044696807861
+              }
+            ]
+          }
+        ],
+        "precision": 0.6,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 25.483,
+        "active_seconds": 25.483,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 17250.2,
+        "trace_ms_total": 8232.2,
+        "doc_ms_total": 9018.0,
+        "orchestrator_ms": 8232.4,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 8625.1,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: **A single slow DataNode network path issue affecting datanode005 (e.g. NIC/interface errors, congestion, or QoS/shaping), causing persistently slow successful block reads/transfers.**\n\n- Trace evidence:\n  - **datanode005** is the clear laggard: **`readBlock (35.54s)`** and **`sendBlock ..."
+    },
+    {
+      "case_id": "TB-011",
+      "tier": 1,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "hit",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In HDFS read workloads, what does a 'connection refused' when contacting a specific DataNode indicate, and what is the expected client behavior after such a failure within the same request?",
+            "n_retrieved": 5,
+            "n_relevant": 1,
+            "precision": 0.2,
+            "docs": [
+              {
+                "doc_id": "arch_datanode_liveness",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-011",
+                  "TB-012",
+                  "TB-013",
+                  "TB-016",
+                  "TB-020"
+                ],
+                "relevant": true,
+                "distance": 0.6051943302154541
+              },
+              {
+                "doc_id": "runbook_killDN",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-013"
+                ],
+                "relevant": false,
+                "distance": 0.6182600855827332
+              },
+              {
+                "doc_id": "config_disconnectDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-012"
+                ],
+                "relevant": false,
+                "distance": 0.6376493573188782
+              },
+              {
+                "doc_id": "config_readOnlyDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.6562987565994263
+              },
+              {
+                "doc_id": "config_suspendDN",
+                "doc_type": "config",
+                "case_ids": [
+                  "TB-020"
+                ],
+                "relevant": false,
+                "distance": 0.7117806673049927
+              }
+            ]
+          }
+        ],
+        "precision": 0.2,
+        "recall": 1.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": false,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 4,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 11.8,
+        "active_seconds": 11.8,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 8623.2,
+        "trace_ms_total": 5562.0,
+        "doc_ms_total": 3061.2,
+        "orchestrator_ms": 3176.4,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 4311.6,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: the read failures are caused by the DataNode on **10.107.100.58:50010** not accepting TCP connections\u2014i.e. the host is reachable but the **DataNode process/listener is down or not bound on that port**.\n\n- Trace evidence: for instance **03FB08C229C2844D** on **client002**, the read path s..."
+    },
+    {
+      "case_id": "TB-021",
+      "tier": 0,
+      "track": "B_native",
+      "status": "ok",
+      "answer_grade": "full_credit",
+      "localization": "n/a",
+      "retrieval": {
+        "num_calls": 1,
+        "calls": [
+          {
+            "question": "In HDFS, for a read-only copyToLocal request trace with normal NameNode metadata RPCs, multiple DataNode readBlock/sendBlock operations all ending in checksumOk/verifiedByClient, and no exceptions, retries, or latency-outlier warnings, does this indicate any fault? What should be checked to distinguish normal multi-block reads from anomalies?",
+            "n_retrieved": 5,
+            "n_relevant": 0,
+            "precision": 0.0,
+            "docs": [
+              {
+                "doc_id": "runbook_lossBlk",
+                "doc_type": "runbook",
+                "case_ids": [
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.7078203558921814
+              },
+              {
+                "doc_id": "arch_checksums_and_corruption",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-003",
+                  "TB-007",
+                  "TB-008",
+                  "TB-009",
+                  "TB-010",
+                  "TB-014"
+                ],
+                "relevant": false,
+                "distance": 0.7242786884307861
+              },
+              {
+                "doc_id": "arch_hdfs_write_pipeline",
+                "doc_type": "architecture",
+                "case_ids": [
+                  "TB-002",
+                  "TB-005",
+                  "TB-015",
+                  "TB-017",
+                  "TB-018",
+                  "TB-019"
+                ],
+                "relevant": false,
+                "distance": 0.728278636932373
+              },
+              {
+                "doc_id": "error_ref_readOnlyDN",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-017"
+                ],
+                "relevant": false,
+                "distance": 0.7539064288139343
+              },
+              {
+                "doc_id": "error_ref_Mul_AA",
+                "doc_type": "error_ref",
+                "case_ids": [
+                  "TB-001"
+                ],
+                "relevant": false,
+                "distance": 0.7607035636901855
+              }
+            ]
+          }
+        ],
+        "precision": 0.0,
+        "recall": 0.0,
+        "note": ""
+      },
+      "trace": {
+        "evidence_tool": "query_trace",
+        "called_evidence_tool": true,
+        "called_docs": true,
+        "evidence_before_docs": true,
+        "no_doc_only": true,
+        "appropriate_depth": true,
+        "n_evidence_calls": 1,
+        "n_doc_calls": 1,
+        "total_calls": 2,
+        "trace_score": 5,
+        "trace_score_max": 5
+      },
+      "timing": {
+        "total_seconds": 19.815,
+        "active_seconds": 19.815,
+        "rate_limit_sleep_s": 0.0,
+        "tool_ms_total": 12782.9,
+        "trace_ms_total": 6375.6,
+        "doc_ms_total": 6407.3,
+        "orchestrator_ms": 7032.5,
+        "n_tool_calls": 2,
+        "mean_ms_per_tool_call": 6391.5,
+        "malformed_tool_call_retries": 0
+      },
+      "diagnosis_excerpt": "Root cause: No fault is indicated for instance `00481732284B6247`; this appears to be a normal successful multi-block HDFS read.\n\n- Trace evidence:\n  - The request is a successful read-only `fs -copyToLocal` on `client001` lasting `4.79s`, with no exceptions, failed RPCs, retries, `[WARN]`, or `[ERR..."
+    }
+  ]
+}
