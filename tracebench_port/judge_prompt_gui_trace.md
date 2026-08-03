@@ -3,18 +3,28 @@
 You are evaluating the output of an automated diagnostic agent that investigates faults on an HDFS (Hadoop Distributed File System) cluster, using the TraceBench dataset. The agent is given an operator-style symptom description and has access to two tools: an evidence-retrieval tool over the request's trace data, and a documentation retrieval tool over HDFS fault runbooks. It reasons over the evidence and produces a root-cause diagnosis.
 
 **The evidence-retrieval tool differs by which track produced this run** — check the `model_config.track` field on each result (or just look at the tool names in `tool_call_trace`):
-- `A_flat` — the tool is `query_logs`, an LLM SQL sub-agent over a flattened log table.
-- `B_native` — the tool is `query_trace`, a deterministic function that reconstructs a trace's per-host timeline directly (no SQL, no sub-agent model).
+- `A_flat` — the tool is `query_logs`, an LLM SQL sub-agent over a flattened log table spanning many requests.
+- `B_native` — the tool is `query_trace`, operating on the raw trace data for **one request at a time**. Track B runs come in two retrieval modes, given by `model_config.retrieval_mode`:
+  - `"agent"` — `query_trace` takes a natural-language `question` and routes it through an LLM trace sub-agent, which reads the reconstructed trace and returns a filtered prose answer.
+  - `"deterministic"` — `query_trace` takes a raw `trace_id` and returns the full per-host timeline verbatim, with no sub-agent model involved.
 
-This is the one frozen-rubric adaptation the two-track design requires — score both the same way; just recognize either tool name as "the evidence tool" for Dimension 2 below.
+This is the one frozen-rubric adaptation the multi-track design requires — score every track the same way; just recognize either tool name as "the evidence tool" for Dimension 2 below.
+
+**Two scope facts that matter for fair scoring (Dimension 2 only):**
+
+1. **Track B's evidence tool only ever sees a single trace.** It cannot aggregate across requests, so cross-request comparisons (e.g. "this host's average for this operation across the whole workload versus its peers") are not retrievable in Track B the way they are in Track A's SQL table. Where the ground truth's `evidence_anchor` cites such a cross-request figure, a Track B agent could not have retrieved it directly. Judge **evidence grounding** against what the tool actually returned in that run, and do not penalize a Track B agent for failing to cite a cross-request statistic it had no way to access. **This does not soften Dimension 1** — root cause is still scored strictly against the canonical `fault_name`/`affected_component`, right or wrong.
+
+2. **In `"agent"` mode, the `result` recorded for each `query_trace` call is the sub-agent's prose summary, not the raw trace text.** So when checking for fabrication, you are comparing the final diagnosis against a summary that another model produced. If a specific claim in the diagnosis is absent from that summary, it is unsupported and counts as fabrication as usual. If a claim *is* present in the summary but looks implausible, note it in `notes` and attribute it to the retrieval sub-agent rather than the orchestrator — do not silently credit or penalize the orchestrator for the sub-agent's content.
 
 I have attached three files:
 
-1. **Diagnostic results** (`diagnostic_results__*.json`) — the agent's output for the TraceBench cases. Each entry contains `incident_id` (this holds the TraceBench `case_id`, e.g. `"TB-018"` — the file uses the generic key name `incident_id` regardless), the operator's `question`, the agent's `diagnosis` text, the `tool_call_trace` (sequence of evidence-tool and `query_docs` calls with their inputs and result summaries), `timing` data, and `model_config` (including which `track` produced this run).
+1. **Diagnostic results** — the agent's output for the TraceBench cases. Full-sweep runs are named `full__<model>__track-Aflat.json` (Track A) or `full__<model>__mode-<agent|deterministic>__track-Bnative.json` (Track B). Each entry contains `incident_id` (this holds the TraceBench `case_id`, e.g. `"TB-018"` — the file uses the generic key name `incident_id` regardless), the operator's `question`, the agent's `diagnosis` text, the `tool_call_trace` (sequence of evidence-tool and `query_docs` calls with their inputs and results), `timing` data, and `model_config` (including `track` and, for Track B, `retrieval_mode`).
 
 2. **Benchmark cases** (`benchmark_cases_trace.py`) — the 27 cases with their `tier` (**0** = normal control/no fault, **1** = single-component clear functional fault, **2** = cross-component/performance degradation, **3** = multi-factor/subtle/real bugs), the `trace_id` (the specific HDFS request instance named in the question), and the deterministic scorer's keyword signals (`answer_required`, `answer_partial`). You may use these keyword signals as a cross-reference, but they are NOT your source of truth for root cause.
 
-3. **Ground truth** (`data/ground_truth_trace.json`) — the canonical fault for each case. THIS is your source of truth. The canonical field is **`fault_name`** (e.g. `"slowDN"`, `"deadDN"`, or `"none / no fault"` for Tier 0 normal controls) — not `root_cause` (that field doesn't exist in this file). Also present: `affected_component` (the real datanode(s) involved — empty for Tier 0) and `evidence_anchor` (the real quoted exception text or latency figure the fault was verified against). Score each diagnosis against `fault_name`/`affected_component`/`evidence_anchor`, not against the keyword lists and not against your own intuition about what sounds plausible.
+3. **Ground truth** (`data/ground_truth_trace.json`) — the canonical fault for each case. THIS is your source of truth. The canonical field is **`fault_name`** (e.g. `"slowDN"`, `"deadDN"`, or `"none / no fault"` for Tier 0 normal controls) — not `root_cause` (that field doesn't exist in this file). Also present: `affected_component` (the real datanode(s) involved — empty for Tier 0), `affected_component_aliases`, and `evidence_anchor` (the real quoted exception text or latency figure the fault was verified against). Score each diagnosis against `fault_name`/`affected_component`/`evidence_anchor`, not against the keyword lists and not against your own intuition about what sounds plausible.
+
+**On `affected_component_aliases`:** this lists the same physical node's IP address(es) alongside its hostname. The two are equally valid identifications — for several faults (notably unreachable/dead nodes) the raw trace only ever contains the IP, never the hostname, so an agent that names the node by IP has localized it correctly and must not be marked down for not using the hostname. Treat a match on either form as naming the component.
 
 ## Your task
 
@@ -59,6 +69,7 @@ Return your evaluation as a JSON object with two keys: `cases` (an array of per-
       "incident_id": "TB-018",
       "tier": 2,
       "track": "A_flat",
+      "retrieval_mode": null,
       "root_cause_score": 2,
       "root_cause_justification": "One sentence explaining what earned or lost the point.",
       "evidence_score": 2,
@@ -98,6 +109,7 @@ Return your evaluation as a JSON object with two keys: `cases` (an array of per-
 
 - `incident_id` — from the results file; holds the TraceBench `case_id` (e.g. `"TB-018"`).
 - `track` — from the result's `model_config.track` (`"A_flat"` or `"B_native"`). Include it so cross-track patterns in `cross_cutting_observations` are traceable.
+- `retrieval_mode` — from `model_config.retrieval_mode`: `"agent"` or `"deterministic"` for Track B; `null` for Track A (the field is absent there).
 - Scores are integers 0, 1, or 2. Justifications are one sentence each and must be specific about what in the diagnosis earned or lost the point.
 - `is_red_herring_case` — you decide this by reading the canonical `fault_name`/`affected_component` and comparing to where the operator's reported symptoms are observed. If the visible symptom is reported from one host (e.g. a client seeing a bare IP in an exception) but the canonical cause is a different, specific host, that's a red herring. TraceBench cases were not explicitly authored with this property as a design goal (unlike the original PaaS incident set) — apply the same definition per-case based on what you actually read, rather than assuming most cases have it. Always `false` for Tier 0.
 - `identified_red_herring_correctly` — `true` if `is_red_herring_case` is true AND the agent traced through to the upstream cause; `false` if it is a red herring and the agent stopped at the symptom; `null` if not a red herring.
